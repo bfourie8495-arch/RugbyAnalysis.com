@@ -1,0 +1,7 @@
+// Cloudflare deploys the finished pages in ./site as a static-assets Worker.
+// "name" must match the Worker that rugbyanalysis.com is attached to.
+{
+  "name": "dry-limit-ba4f",
+  "compatibility_date": "2026-09-01",
+  "assets": { "directory": "./site" }
+}

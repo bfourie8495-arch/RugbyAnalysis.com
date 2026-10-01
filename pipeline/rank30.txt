@@ -1,0 +1,30 @@
+1|South Africa|93.24
+2|New Zealand|91.15
+3|Ireland|88.08
+4|France|87.43
+5|England|85.68
+6|Australia|85.40
+7|Scotland|84.78
+8|Argentina|82.24
+9|Fiji|78.00
+10|Wales|76.38
+11|Italy|76.30
+12|Japan|76.09
+13|Georgia|73.94
+14|United States|69.49
+15|Portugal|69.39
+16|Chile|66.94
+17|Spain|66.83
+18|Uruguay|65.75
+19|Tonga|65.14
+20|Samoa|64.73
+21|Romania|62.45
+22|Belgium|61.03
+23|Hong Kong|60.74
+24|Canada|60.37
+25|Zimbabwe|57.68
+26|Namibia|56.96
+27|Netherlands|56.44
+28|Switzerland|55.47
+29|Czech Republic|54.78
+30|Poland|54.54

@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Club rugby results, league tables, fixtures and club records for the United Rugby Championship and Premiership Rugby.">
+__ICONS__
+<title>Club Rugby | Rugby Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap">
+<style>
+__CSS__
+/* clubs additions */
+a.chip{text-decoration:none}
+.lgsw{flex:0 0 auto;display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card)}
+.wv{text-align:center;padding:40px 20px}
+.wv h2{margin-bottom:8px}
+.wv p{max-width:60ch;margin:0 auto 10px;color:var(--ink2)}
+.wv .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.wv .acts a,.wv .acts button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 16px;font:600 14px var(--body);cursor:pointer;text-decoration:none}
+.wv .acts .pri{background:var(--acc);border-color:var(--acc);color:var(--card)}
+.lgsw button{border:0;background:transparent;color:var(--ink2);font:700 13px/1 var(--body);padding:7px 12px;border-radius:999px;cursor:pointer}
+.lgsw button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.lgsw button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.mono{width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font:800 9.5px/1 var(--body);letter-spacing:.02em;flex:0 0 auto;box-shadow:inset 0 0 0 2px var(--ring,transparent),0 0 0 1px rgba(0,0,0,.12)}
+.mono.lg{width:104px;height:104px;font-size:30px;box-shadow:inset 0 0 0 6px var(--ring,transparent),0 8px 20px rgba(0,0,0,.3)}
+.mono.sm{width:20px;height:20px;font-size:7.5px}
+.mono.md{width:56px;height:56px;font-size:16px;box-shadow:inset 0 0 0 4px var(--ring,transparent),0 3px 8px rgba(0,0,0,.3)}
+.hmono{flex:0 0 auto}
+@media (max-width:760px){.mono.lg{width:72px;height:72px;font-size:21px;box-shadow:inset 0 0 0 4px var(--ring,transparent),0 6px 14px rgba(0,0,0,.3)}}
+.cflag{width:22px;vertical-align:-3px;border-radius:2px}
+.seasons{display:flex;gap:4px;background:color-mix(in oklab,var(--on-p) 12%,transparent);padding:4px;border-radius:10px;flex-wrap:wrap}
+.seasons button{border:0;background:transparent;color:var(--on-p);font:600 13px/1 var(--body);padding:8px 10px;border-radius:7px;cursor:pointer}
+.seasons button[aria-pressed="true"]{background:var(--on-p);color:var(--p)}
+.seasons button:focus-visible{outline:2px solid var(--on-p);outline-offset:2px}
+.lt2 td.cut{border-bottom:2px dashed color-mix(in oklab,var(--acc) 55%,transparent)}
+.lg td.pts{font-weight:700;color:var(--acc)}
+.lg .ch{font:700 10px/1 var(--body);letter-spacing:.06em;color:var(--acc);border:1px solid currentColor;border-radius:3px;padding:2px 4px;margin-left:6px}
+.po{display:grid;gap:10px}
+.po h3{margin:6px 0 0;font:700 14px/1 var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pm{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.pm:last-child{border-bottom:0}
+.pm .h{text-align:right;display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.pm .a{display:flex;gap:8px;align-items:center}
+.pm .w{font-weight:700}
+.pm .sc{font:700 18px/1 var(--display);white-space:nowrap;text-align:center;min-width:58px}
+.champs{display:grid;gap:0}
+.cr{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.cr:last-child{border-bottom:0}
+.cr .yr{font:700 16px/1 var(--display);color:var(--acc)}
+.cr .w{font-weight:600;display:flex;gap:8px;align-items:center}
+.cr .ru{color:var(--muted);font-size:12.5px}
+.cr .sc{font:700 17px/1 var(--display)}
+.ssn{display:grid;gap:8px}
+.sr{display:grid;grid-template-columns:70px 1fr 64px;gap:10px;align-items:center;font-size:14px}
+.sr .yr{font-weight:600}
+.sr .trk{position:relative;height:22px;background:var(--grid);border-radius:5px;overflow:hidden}
+.sr .trk i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:5px}
+.sr .trk span{position:absolute;left:8px;top:3px;font:600 12px/16px var(--body);color:var(--card);white-space:nowrap}
+.sr .trk span.out{color:var(--ink)}
+.sr .pos{font:700 18px/1 var(--display);text-align:right}
+.sr .pos small{font:500 11px var(--body);color:var(--muted);display:block}
+.fxl .fx1{grid-template-columns:78px 1fr auto 1fr}
+.fxl .fx1 .side img,.fxl .fx1 .side .mono{flex:0 0 auto}
+.note{font-size:13px;color:var(--muted)}
+.wlist{columns:2;column-gap:24px}
+#teamName.long{font-size:clamp(34px,5.2vw,58px);line-height:.95}
+.grid2.one{grid-template-columns:1fr}
+@media (max-width:700px){.wlist{columns:1}}
+/*__REDESIGN__*/
+</style>
+</head>
+<body>
+<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>Rugby Analysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" id="intlLink">International</a><a href="clubs.html" aria-current="page">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="ident">
+      <div id="heroMark" class="hmono"></div>
+      <div style="min-width:0">
+        <div class="eyebrow" id="union"></div>
+        <h1 id="teamName"></h1>
+        <div class="sub" id="heroSub"></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="rank" id="rank"></div>
+      <div>
+        <div class="era-label">Season</div>
+        <div class="seasons" id="seasons" role="group" aria-label="Season"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+
+<main class="wrap" id="lgView">
+  <section class="kpis" id="lgKpis" aria-label="Season headline numbers"></section>
+  <section class="panel" id="tblWrap">
+    <div class="filterbar"><h2 style="flex:1" id="tblH">League table</h2></div>
+    <p class="hint" id="tblHint"></p>
+    <div class="tscroll"><table class="lg lt2" id="table"></table></div>
+    <p class="cov" id="tblNote"></p>
+  </section>
+  <div class="grid3">
+    <section class="panel" id="poWrap">
+      <h2>Play-offs</h2>
+      <p class="hint" id="poHint"></p>
+      <div class="po" id="po"></div>
+    </section>
+    <section class="panel">
+      <h2>Champions</h2>
+      <p class="hint">Grand final winners in the seasons covered</p>
+      <div class="champs" id="champs"></div>
+    </section>
+  </div>
+  <div class="grid2">
+    <section class="panel" id="lgFxWrap">
+      <div class="filterbar"><h2 style="flex:1">Coming up</h2><span class="tzchip" id="tzNote"></span></div>
+      <p class="hint">Kick-off times converted to your time zone</p>
+      <div class="fxl" id="lgFx"></div>
+    </section>
+    <section class="panel">
+      <h2>Latest results</h2>
+      <p class="hint">Tap a result for tries, kicking, cards, referee and crowd</p>
+      <div id="lgLatest"></div>
+    </section>
+  </div>
+  <section class="panel">
+    <h2>Season leaders</h2>
+    <p class="hint" id="leadHint"></p>
+    <div class="grid3" style="margin-top:4px">
+      <div><h3 class="sub3">Top try scorers</h3><div id="lgTry"></div></div>
+      <div><h3 class="sub3">Biggest crowds</h3><div id="lgCrowd"></div></div>
+    </div>
+    <div class="grid3" style="margin-top:6px">
+      <div><h3 class="sub3">Biggest wins</h3><div id="lgBig"></div></div>
+      <div><h3 class="sub3">Most-used referees</h3><div id="lgRef"></div></div>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>Club records since 2021–22</h2>
+    <p class="hint" id="atHint">Every league and play-off match in the seasons covered, ranked by win rate. Click a club to open its page.</p>
+    <div class="tscroll"><table class="lg" id="allTime"></table></div>
+  </section>
+</main>
+
+<main class="wrap" id="clubView" hidden>
+  <section class="kpis" id="kpis" aria-label="Headline record"></section>
+  <div class="grid3">
+    <section class="panel">
+      <h2>Season by season</h2>
+      <p class="hint">League finish and play-off run each season</p>
+      <div class="ssn" id="ssn"></div>
+    </section>
+    <div style="display:grid;gap:18px;align-content:start">
+      <section class="panel">
+        <h2>Current form</h2>
+        <p class="hint">Last 10 matches, oldest to newest</p>
+        <div class="form" id="form"></div>
+      </section>
+      <section class="panel">
+        <h2>Home and away</h2>
+        <p class="hint" id="splitHint">Selected season</p>
+        <div class="splits" id="splits"></div>
+      </section>
+    </div>
+  </div>
+  <section class="panel" id="cFxWrap">
+    <div class="filterbar"><h2 style="flex:1">Next fixtures</h2><span class="tzchip" id="tzNote2"></span></div>
+    <p class="hint">Kick-off times converted to your time zone</p>
+    <div class="fxl" id="cFx"></div>
+  </section>
+  <section class="panel">
+    <h2>Tries, kicking and discipline</h2>
+    <p class="hint" id="msHint"></p>
+    <div class="stt" id="mstats"></div>
+    <div class="tsl" id="topTry"></div>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <h2>Head to head</h2>
+      <p class="hint">Against each opponent across all seasons covered. Click a row to filter the results.</p>
+      <div class="tscroll"><table class="h2h" id="h2h"></table></div>
+    </section>
+    <section class="panel">
+      <div class="filterbar"><h2 style="flex:1">Results</h2>
+        <label for="oppSel" class="hint" style="margin:0">Opponent</label>
+        <select id="oppSel"></select></div>
+      <p class="hint" id="resHint">Most recent first. Tap a result for the detail.</p>
+      <div class="list" id="results"></div>
+      <button class="showall" id="resMore" hidden>Show all</button>
+    </section>
+  </div>
+</main>
+
+<footer class="wrap" id="foot"></footer>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+const D=__DATA__;
+const FLAGS=__FLAGS__;
+const LG=(id,name,short,mark,p,al,ad,countries,po,extra)=>Object.assign({id,name,short,mark,p,onp:"#FFFFFF",al,ad,countries,po,g:"m"},extra||{});
+const LEAGUES=[
+ LG("urc","United Rugby Championship","URC","URC","#0E2A47","#007C85","#3FD3DC","Ireland, Scotland, Wales, Italy and South Africa",8,{stripe:"linear-gradient(90deg,#169B62 0 20%,#0065BD 20% 40%,#C8102E 40% 60%,#009246 60% 80%,#FFB612 80%)"}),
+ LG("prem","Premiership Rugby","Premiership","PREM","#1C1446","#5B3FD1","#A99BFF","England",4,{stripe:"linear-gradient(90deg,#C8102E 0 50%,#FFFFFF 50%)"}),
+ LG("pwr","Premiership Women's Rugby","PWR","PWR","#3A1340","#A0287A","#F07FC8","England",4,{g:"w",note:"Called the Premier 15s until 2023.",stripe:"linear-gradient(90deg,#F07FC8 0 50%,#FFFFFF 50%)"}),
+ LG("top14","Top 14","Top 14","T14","#0B1E4F","#2F5BD0","#9DB5FF","France",6,{stripe:"linear-gradient(90deg,#0055A4 0 33%,#FFFFFF 33% 66%,#EF4135 66%)",note:"English Wikipedia lists full regular-season results only for some seasons; tables are the published standings."}),
+ LG("super","Super Rugby Pacific","Super Rugby","SR","#101820","#0B8A6E","#3FE0B8","New Zealand, Australia, Fiji and Samoa",6,{stripe:"linear-gradient(90deg,#000 0 50%,#FFB81C 50%)",calc:true}),
+ LG("currie","Currie Cup","Currie Cup","CC","#113B2A","#0E7A4E","#5FD39A","South Africa",4,{stripe:"linear-gradient(90deg,#007749 0 34%,#FFB612 34% 67%,#000 67%)",calc:true}),
+ LG("npc","National Provincial Championship","NPC","NPC","#101418","#3C6E8F","#9CC9EE","New Zealand",8,{stripe:"linear-gradient(90deg,#000 0 50%,#FFFFFF 50%)",calc:true}),
+ LG("league1","Japan Rugby League One","League One","JL1","#3B0F14","#C8102E","#FF7A83","Japan",6,{stripe:"linear-gradient(90deg,#FFFFFF 0 50%,#BC002D 50%)",note:"Regular-season results are listed without dates on Wikipedia, so they appear as \"Regular season\"."}),
+ LG("champions","European Rugby Champions Cup","Champions Cup","ECC","#0B1B3A","#2455C3","#8FB0FF","Europe and South Africa",0,{cup:true,stripe:"linear-gradient(90deg,#1C3E8C 0 50%,#F2C200 50%)"}),
+ LG("challenge","EPCR Challenge Cup","Challenge Cup","EPC","#16222E","#4A7A9E","#A9CCE6","Europe and South Africa",0,{cup:true,stripe:"linear-gradient(90deg,#6FA8DC 0 50%,#FFFFFF 50%)"})];
+const LIDX=Object.fromEntries(D.leagues.map((l,i)=>[l,i]));
+const C=D.clubs, S=D.seasons, NS=S.length;
+const CFLAG={Ireland:"ireland",Scotland:"scotland",Wales:"wales",Italy:"italy","South Africa":"south-africa",England:"england",France:"france","New Zealand":"new-zealand",Australia:"australia",Fiji:"fiji",Samoa:"samoa",Japan:"japan",Georgia:"georgia"};
+const M=D.rows.map((r,k)=>({k,lg:r[0],s:r[1],date:r[2],time:r[3],h:r[4],a:r[5],hs:r[6],as:r[7],bp:r[8],sc:r[9]||null,cd:r[10]||null,ref:r[11]>=0?D.refs[r[11]]:"",att:r[12],venue:r[13]>=0?D.venues[r[13]]:"",ts:[r[14],r[15]],st:r[16],rnd:r[17],nd:r[18]||0,y:+r[2].slice(0,4)}));
+const curS=lg=>{let b=0;M.forEach(m=>{if(m.lg===lg&&m.s>b)b=m.s});return b};
+const played=m=>m.hs!=null;
+const defSeason=lg=>{for(let k=curS(lg);k>=0;k--)if(M.some(m=>m.lg===lg&&m.s===k&&m.st<4&&m.hs!=null))return k;return curS(lg)};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtDate=d=>{const[y,m,dd]=d.split("-");return `${+dd} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m-1]} ${y}`};
+const pct=(a,b)=>b?Math.round(a/b*1000)/10:0;
+const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%100]||"th");
+const sShort=s=>{const x=S[s];return /–/.test(x)?x.replace(/^20/,""):x};
+const STG=["","Quarter-final","Semi-final","Final","Cup","Round of 16","Relegation play-off","Third place"];
+const stageTxt=m=>m.st?STG[m.st]:m.nd?"Regular season":m.rnd?"Round "+m.rnd:(LEAGUES[m.lg].cup?"Pool stage":"");
+const dTxt=m=>m.nd?S[m.s]:fmtDate(m.date);
+const tip=$("tip");
+function showTip(e,html){tip.innerHTML=html;tip.classList.add("on");moveTip(e)}
+function moveTip(e){const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=Math.max(8,x)+"px";tip.style.top=Math.max(8,y)+"px"}
+function hideTip(){tip.classList.remove("on")}
+function bindTips(root){root.querySelectorAll("[data-tip]").forEach(el=>{el.addEventListener("pointerenter",e=>showTip(e,el.dataset.tip));el.addEventListener("pointermove",moveTip);el.addEventListener("pointerleave",hideTip)})}
+const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||"your time zone"}catch(e){return "your time zone"}})();
+const fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"});
+function tzOff(tz,t){try{const p=new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}).formatToParts(new Date(t)).reduce((o,x)=>(o[x.type]=x.value,o),{});return Date.UTC(+p.year,p.month-1,+p.day,+p.hour%24,+p.minute,+p.second)-t}catch(e){return 0}}
+function koUTC(m){if(!m.time)return null;const[y,mo,d]=m.date.split("-").map(Number),[hh,mm]=m.time.split(":").map(Number);const g=Date.UTC(y,mo-1,d,hh,mm);const tz=C[m.h].tz;return new Date(g-tzOff(tz,g-tzOff(tz,g)))}
+
+let state={lg:0,club:-1,s:0,opp:-1,prev:-2,g:"m"};
+try{const h0=decodeURIComponent(location.hash.slice(1));let wantW=h0==='women'||h0.startsWith('women/');if(!h0){try{wantW=localStorage.getItem('rl-g')==='w'}catch(e){}}const h=h0.replace(/^women\/?/,'').split("/");const li=LEAGUES.findIndex(l=>l.id===h[0]);
+  if(li>=0){state.lg=li;if(h[1]){const ci=C.findIndex(c=>c.id===h[1]);if(ci>=0)state.club=ci}}else if(wantW){state.lg=2}else{const ls=+localStorage.getItem("rc-lg");state.lg=LEAGUES[ls]&&LEAGUES[ls].g==="m"?ls:0}
+  state.g=LEAGUES[state.lg].g}catch(e){}
+
+const mono=(i,cls)=>{const c=C[i];return `<span class="mono${cls?" "+cls:""}" style="background:${c.p};color:${c.onp};--ring:${c.al}" aria-hidden="true">${c.code}</span>`};
+const cflag=i=>`<img class="cflag" src="${FLAGS[CFLAG[C[i].country]]}" alt="${C[i].country}">`;
+const nm=i=>C[i].name;
+function view(m,t){const home=m.h===t;const pf=home?m.hs:m.as,pa=home?m.as:m.hs;return{...m,side:home?0:1,opp:home?m.a:m.h,pf,pa,res:pf>pa?"W":pf<pa?"L":"D",where:home?"Home":"Away"}}
+function rec(g){const w=g.filter(x=>x.res==="W").length,d=g.filter(x=>x.res==="D").length;return{p:g.length,w,d,l:g.length-w-d}}
+const clubsIn=(lg,s)=>{const T=D.tables[lg+"-"+s];return T?T.map(r=>r[0]):[...new Set(M.filter(m=>m.lg===lg&&m.s===s).flatMap(m=>[m.h,m.a]))]};
+const lgClubs=lg=>[...new Set(M.filter(m=>m.lg===lg).flatMap(m=>[m.h,m.a]))];
+
+// picker
+function buildPicker(){const L=LEAGUES[state.lg];const cur=clubsIn(state.lg,curS(state.lg)).slice().sort((a,b)=>nm(a).localeCompare(nm(b)));const former=lgClubs(state.lg).filter(i=>!cur.includes(i)).sort((a,b)=>nm(a).localeCompare(nm(b)));
+  $("picker").innerHTML=(LEAGUES.filter(l=>l.g===state.g).length>1?`<select class="more on" id="lgSel" aria-label="Competition">${LEAGUES.map((l,i)=>l.g===state.g?`<option value="${i}" ${i===state.lg?"selected":""}>${l.short}</option>`:"").join("")}</select>`:`<span class="chip" style="cursor:default" aria-hidden="true">${L.short}</span>`)+
+  
+  `<button class="chip" data-c="-1" aria-pressed="false"><svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><rect x="4" y="3" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7h18M4 11h18M10 3v12" stroke="currentColor" stroke-width="1.3"/></svg>${L.short} overview</button>`+
+  cur.map(i=>`<button class="chip" data-c="${i}" aria-pressed="false">${mono(i,"sm")}${nm(i)}</button>`).join("")+
+  (former.length?`<select class="more" id="moreClubs" aria-label="Former clubs"><option value="">Former clubs (${former.length})…</option>${former.map(i=>`<option value="${i}">${nm(i)}</option>`).join("")}</select>`:"");
+  const ls=$("lgSel");if(ls)ls.addEventListener("change",()=>{state.lg=+ls.value;state.club=-1;state.s=defSeason(state.lg);state.prev=-2;buildPicker();go()});
+  const mc=$("moreClubs");if(mc)mc.addEventListener("change",()=>{if(mc.value!==""){state.club=+mc.value;go()}});
+}
+$("picker").addEventListener("click",e=>{const b=e.target.closest(".chip[data-c]");if(!b)return;state.club=+b.dataset.c;state.opp=-1;go()});
+function go(){render();try{localStorage.setItem("rc-lg",state.lg);localStorage.setItem("rl-g",state.g);history.replaceState(null,"","#"+LEAGUES[state.lg].id+(state.club>=0?"/"+C[state.club].id:""))}catch(e){}}
+$("gsw").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.g===state.g)return;state.g=b.dataset.g;state.lg=LEAGUES.findIndex(l=>l.g===state.g);state.club=-1;state.s=defSeason(state.lg);state.prev=-2;buildPicker();go()});
+function applyTheme(t){const r=document.documentElement.style;r.setProperty("--p",t.p);r.setProperty("--on-p",t.onp);r.setProperty("--acc-l",t.al);r.setProperty("--acc-d",t.ad);r.setProperty("--stripe",t.stripe||`linear-gradient(90deg,${t.al} 0 50%,${t.onp} 50%)`);const meta=document.querySelector('meta[name="theme-color"]')||document.head.appendChild(Object.assign(document.createElement("meta"),{name:"theme-color"}));meta.content=t.p}
+
+function seasonButtons(allowAll){const opts=S.map((s,i)=>i).filter(i=>M.some(m=>m.lg===state.lg&&m.s===i&&(state.club<0||m.h===state.club||m.a===state.club)));if(allowAll)opts.push(-1);if(!opts.includes(state.s))state.s=opts[opts.length-1];
+  $("seasons").innerHTML=opts.map(i=>`<button data-s="${i}" aria-pressed="${i===state.s}">${i<0?"All":sShort(i)}</button>`).join("")}
+$("seasons").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.s=+b.dataset.s;render()});
+
+function tableRows(lg,s){const T=D.tables[lg+"-"+s];if(!T)return[];return T.map(r=>({i:r[0],w:r[1],d:r[2],l:r[3],pf:r[4],pa:r[5],tf:r[6],ta:r[7],tb:r[8],lb:r[9],pts:r[10],p:r[1]+r[2]+r[3]}))}
+function champion(lg,s){const f=M.find(m=>m.lg===lg&&m.s===s&&m.st===3&&played(m));return f?{m:f,w:f.hs>f.as?f.h:f.a,r:f.hs>f.as?f.a:f.h}:null}
+function poFinish(i,lg,s){const ORD={5:0,1:1,2:2,7:2.5,3:3};const g=M.filter(m=>m.lg===lg&&m.s===s&&ORD[m.st]!=null&&played(m)&&(m.h===i||m.a===i)).sort((a,b)=>ORD[a.st]-ORD[b.st]);if(!g.length)return"";const last=view(g[g.length-1],i);if(last.st===3)return last.res==="W"?"Champions":"Runners-up";return last.res==="L"?`Lost ${STG[last.st].toLowerCase()}`:""}
+
+function detHTML(m){const sc=m.sc,cd=m.cd;const rows=[];const cell=(a,b)=>`<div class="dv">${a}</div><div class="dv">${b}</div>`;
+  if(sc){const [t,c,ca,p,pa,dg]=sc;rows.push(`<div class="dr"><div class="dl">Tries</div>${cell(t[0],t[1])}</div>`,`<div class="dr"><div class="dl">Conversions</div>${cell(`${c[0]}/${ca[0]}`,`${c[1]}/${ca[1]}`)}</div>`,`<div class="dr"><div class="dl">Penalty goals</div>${cell(`${p[0]}/${pa[0]}`,`${p[1]}/${pa[1]}`)}</div>`);if(dg[0]||dg[1])rows.push(`<div class="dr"><div class="dl">Drop goals</div>${cell(dg[0],dg[1])}</div>`)}
+  if(m.bp&&(m.bp[0]||m.bp[1]))rows.push(`<div class="dr"><div class="dl">Bonus points</div>${cell(m.bp[0],m.bp[1])}</div>`);
+  if(cd)rows.push(`<div class="dr"><div class="dl">Cards</div>${cell(cardHTML(cd[0],cd[2]),cardHTML(cd[1],cd[3]))}</div>`);
+  const ts=[0,1].map(k=>m.ts[k]?`<b>${nm(k?m.a:m.h)}:</b> ${esc(m.ts[k])}`:"").filter(Boolean).join("<br>");
+  const meta=[m.venue?esc(m.venue):"",m.ref?`Referee: ${esc(m.ref)}`:"",m.att?`Attendance: ${m.att.toLocaleString()}`:""].filter(Boolean).join(" · ");
+  return `<div class="dx"><div class="dr hd"><div></div><div>${mono(m.h,"sm")} ${esc(C[m.h].code)}</div><div>${mono(m.a,"sm")} ${esc(C[m.a].code)}</div></div>${rows.join("")||'<p class="hint" style="margin:4px 0">No detailed report for this match.</p>'}${ts?`<div class="ds">Try scorers<br>${ts}</div>`:""}${meta?`<div class="ds">${meta}</div>`:""}</div>`}
+function cardHTML(y,r){return (y||r)?`${y?`<i class="yc" title="Yellow cards"></i>${y}`:""} ${r?`<i class="rcd" title="Red cards"></i>${r}`:""}`.trim():"0"}
+function bindExpand(root){root.querySelectorAll("[data-k]").forEach(el=>{el.addEventListener("click",()=>{const nx=el.nextElementSibling;if(nx&&nx.classList.contains("dx")){nx.remove();el.setAttribute("aria-expanded","false");return}el.insertAdjacentHTML("afterend",detHTML(M[+el.dataset.k]));el.setAttribute("aria-expanded","true")});el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();el.click()}})})}
+const resLine=m=>{const hw=m.hs>m.as,aw=m.as>m.hs;return `<div class="lt xp" tabindex="0" role="button" aria-expanded="false" data-k="${m.k}"><div class="dt">${dTxt(m)}</div><div class="hm"><span class="tm ${hw?"win":""}">${nm(m.h)} ${mono(m.h,"sm")}</span></div><div class="sc">${m.hs}–${m.as}</div><div><span class="tm ${aw?"win":""}">${mono(m.a,"sm")} ${nm(m.a)}</span></div><div class="cm">${LEAGUES[m.lg].short} · ${stageTxt(m)}${m.venue?" · "+esc(m.venue):""} · <span class="plus">details ＋</span></div></div>`};
+function fxHTML(list){if(!list.length)return `<p class="hint">No upcoming fixtures listed yet.</p>`;let html="",cur="";list.forEach(m=>{const t=koUTC(m);const day=t?fD.format(t):fD.format(new Date(m.date+"T12:00:00"));if(day!==cur){html+=`<div class="fxday">${day}</div>`;cur=day}
+  html+=`<div class="fx1"><div class="tm">${t?fT.format(t):"TBC"}<small>${stageTxt(m)}</small></div><div class="side h"><button data-c="${m.h}">${nm(m.h)} ${mono(m.h,"sm")}</button></div><div class="v">v</div><div class="side"><button data-c="${m.a}">${mono(m.a,"sm")} ${nm(m.a)}</button></div><div class="meta">${m.venue?esc(m.venue):""}${t&&m.time?` · ${m.time} local`:""}</div></div>`});return html}
+function bindClubBtns(root){root.querySelectorAll("button[data-c]").forEach(b=>b.addEventListener("click",()=>{state.club=+b.dataset.c;state.opp=-1;go();scrollTo({top:0})}))}
+
+function render(){
+  const L=LEAGUES[state.lg],cl=state.club,Wm=state.g==="w";
+  document.querySelectorAll("#gsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===state.g));$("intlLink").href=Wm?"./#women/overview":"./#overview";$("sevLink").href=Wm?"sevens.html#women":"sevens.html#men";
+  $("seasons").parentElement.hidden=false;document.querySelectorAll("#picker .chip[data-c]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.c===cl));
+  {const sel=document.querySelector("#picker .chip[aria-pressed=\"true\"]"),pk=$("picker");if(sel)pk.scrollTo({left:sel.offsetLeft-pk.clientWidth/2+sel.offsetWidth/2,behavior:"smooth"})}
+  const mc=$("moreClubs");if(mc){mc.value=cl>=0&&[...mc.options].some(o=>o.value==cl)?String(cl):"";mc.classList.toggle("on",!!mc.value)}
+  $("lgView").hidden=cl>=0;$("clubView").hidden=cl<0;
+  $("tzNote").textContent=$("tzNote2").textContent="Your time zone: "+TZ;
+  $("foot").innerHTML=`Data: ${M.filter(played).length.toLocaleString()} club matches from ten competitions (URC, Premiership, Top 14, Super Rugby Pacific, Currie Cup, NPC, Japan League One, Champions Cup, Challenge Cup and Premiership Women's Rugby), up to ${fmtDate(D.updated)}, plus fixtures still to be played (source: Wikipedia match records and league tables). Tables for the URC, Premiership, PWR, Top 14 and League One are the published standings; Super Rugby, Currie Cup and NPC tables are calculated from the results. Club colours are used in place of club badges.`;
+  if(cl!==state.prev){if(cl>=0)state.s=-1;else if(state.s<0)state.s=defSeason(state.lg);state.prev=cl}
+  $("teamName").classList.toggle("long",cl<0);
+  if(cl<0){applyTheme(L);seasonButtons(false);renderLeague();return}
+  applyTheme(C[cl]);seasonButtons(true);renderClub();
+}
+
+function renderLeague(){
+  const L=LEAGUES[state.lg],lg=state.lg,s=state.s,G=M.filter(m=>m.lg===lg&&m.s===s),P=G.filter(played),T=tableRows(lg,s);
+  $("heroMark").innerHTML=`<div class="mono lg" style="background:${L.onp};color:${L.p};--ring:${L.ad}">${L.mark}</div>`;
+  $("union").textContent=`${L.g==="w"?"Women's club rugby":"Club rugby"} · ${L.countries}`;$("teamName").textContent=L.name;
+  const left=G.filter(m=>!played(m)).length;
+  $("heroSub").textContent=`${S[s]} season: ${P.length} matches played${left?`, ${left} still to come`:""}. ${T.length||new Set(G.flatMap(m=>[m.h,m.a])).size} clubs.${L.note?" "+L.note:""}`;$("atHint").textContent=`Every league, play-off${L.g==="w"?" and cup":""} match in the seasons covered, ranked by win rate. Click a club to open its page.`;
+  const ch=champion(lg,s),lead=T[0];
+  $("rank").innerHTML=ch?`<div class="hmono">${mono(ch.w,"md")}</div><div><div class="lbl">${S[s]} champions</div><div class="holder">${nm(ch.w)}</div><div class="pts">Final: ${Math.max(ch.m.hs,ch.m.as)}–${Math.min(ch.m.hs,ch.m.as)} v ${nm(ch.r)}</div></div>`:lead&&lead.p?`<div>${mono(lead.i,"md")}</div><div><div class="lbl">Top of the table</div><div class="holder">${nm(lead.i)}</div><div class="pts">${lead.pts} pts from ${lead.p} match${lead.p===1?"":"es"}</div></div>`:"";
+  // KPIs
+  const pts=P.reduce((a,m)=>a+m.hs+m.as,0),det=P.filter(m=>m.sc),tries=det.reduce((a,m)=>a+m.sc[0][0]+m.sc[0][1],0),hw=P.filter(m=>m.hs>m.as).length,bps=T.length?T.reduce((a,r)=>a+r.tb+r.lb,0):P.reduce((a,m)=>a+m.bp[0]+m.bp[1],0);
+  const big=P.length?P.reduce((x,m)=>Math.abs(m.hs-m.as)>Math.abs(x.hs-x.as)?m:x):null;
+  $("lgKpis").innerHTML=[["Matches played",P.length,S[s],1],["Points per match",P.length?(pts/P.length).toFixed(1):"–","both teams combined"],["Tries per match",det.length?(tries/det.length).toFixed(1):"–",`from ${det.length} match reports`],["Home win rate",P.length?pct(hw,P.length)+"%":"–",`${hw} of ${P.length}`],["Bonus points",bps,"try and losing bonuses"],["Biggest win",big?Math.abs(big.hs-big.as)+" pts":"–",big?`${nm(big.hs>big.as?big.h:big.a)} v ${nm(big.hs>big.as?big.a:big.h)}`:""]]
+    .map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join("");
+  // table
+  const po=L.po;$("tblH").textContent=`${S[s]} table`;
+  $("tblWrap").hidden=!!L.cup||!T.length;
+  const bpRule={top14:"a bonus point for scoring three more tries than the opponent (TB) and for losing by five or fewer (LB)",super:"a bonus point for scoring three more tries than the opponent (TB) and for losing by seven or fewer (LB)",league1:"bonus points for tries and narrow defeats"}[L.id]||"bonus points for four or more tries (TB) and for losing by seven or fewer (LB)";
+  $("tblHint").textContent=`Four points for a win, two for a draw, plus ${bpRule}. The top ${po} reach the play-offs (dashed line).${L.calc?" Calculated from the match results, so it may differ slightly from the official table.":""} Click a club to open its page.`;
+  const undated=G.some(m=>m.nd&&m.st===0);const form=i=>undated?[]:M.filter(m=>m.lg===lg&&m.s===s&&played(m)&&(m.h===i||m.a===i)).slice(-5).map(m=>view(m,i));
+  $("table").innerHTML=`<thead><tr><th>#</th><th>Club</th><th class="x">P</th><th class="x">W</th><th class="x">D</th><th class="x">L</th><th class="x">PF</th><th class="x">PA</th><th>PD</th><th class="x">TB</th><th class="x">LB</th><th>Pts</th><th>Form</th></tr></thead><tbody>`+
+    T.map((r,k)=>{const f=form(r.i),cut=k===po-1,c=cut?' class="cut"':"";const tag=ch&&ch.w===r.i?'<span class="ch">CHAMPIONS</span>':"";return `<tr data-i="${r.i}"><td class="pos${cut?" cut":""}">${k+1}</td><td${c}><span class="nm">${mono(r.i,"sm")}${nm(r.i)}${tag}</span><span class="sub">${r.w}–${r.d}–${r.l} · PD ${r.pf-r.pa>0?"+":""}${r.pf-r.pa}</span></td><td class="x${cut?" cut":""}">${r.p}</td><td class="x${cut?" cut":""}">${r.w}</td><td class="x${cut?" cut":""}">${r.d}</td><td class="x${cut?" cut":""}">${r.l}</td><td class="x${cut?" cut":""}">${r.pf}</td><td class="x${cut?" cut":""}">${r.pa}</td><td${c}>${r.pf-r.pa>0?"+":""}${r.pf-r.pa}</td><td class="x${cut?" cut":""}">${r.tb}</td><td class="x${cut?" cut":""}">${r.lb}</td><td class="pts${cut?" cut":""}">${r.pts}</td><td${c}><span class="mini">${f.map(x=>`<i class="${x.res}" title="${x.res} ${x.pf}–${x.pa} v ${nm(x.opp)}">${x.res}</i>`).join("")}</span></td></tr>`}).join("")+`</tbody>`;
+  $("table").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{state.club=+tr.dataset.i;state.opp=-1;go();scrollTo({top:0})}));
+  $("tblNote").textContent=T.some(r=>r.p!==T[0].p)&&s<curS(lg)&&!L.calc?"Some clubs show a different number of matches because cancelled fixtures were settled with awarded points.":"";
+  // play-offs
+  const K=G.filter(m=>[5,1,2,7,3].includes(m.st));$("poWrap").hidden=!K.length&&s!==curS(lg);
+  $("poHint").textContent=K.some(played)?`${S[s]} knockout rounds`:"Play-offs are still to come this season.";
+  $("po").innerHTML=[5,1,2,7,3].map(st=>{const g=K.filter(m=>m.st===st);if(!g.length)return"";return `<h3>${STG[st]}${st===1||st===2?"s":""}</h3>`+g.map(m=>{if(!played(m))return `<div class="pm"><div class="h">${nm(m.h)} ${mono(m.h,"sm")}</div><div class="sc">v</div><div class="a">${mono(m.a,"sm")} ${nm(m.a)}</div></div>`;const hw=m.hs>m.as;return `<div class="pm xp" tabindex="0" role="button" data-k="${m.k}"><div class="h ${hw?"w":""}">${nm(m.h)} ${mono(m.h,"sm")}</div><div class="sc">${m.hs}–${m.as}</div><div class="a ${hw?"":"w"}">${mono(m.a,"sm")} ${nm(m.a)}</div></div>`}).join("")}).join("")||`<p class="hint">The top ${po} after the regular season go through to the knockout rounds.</p>`;
+  bindExpand($("po"));
+  // champions
+  $("champs").innerHTML=S.map((_,i)=>({i,c:champion(lg,i)})).filter(x=>x.c).reverse().map(({i,c})=>`<div class="cr"><div class="yr">${sShort(i)}</div><div><span class="w">${mono(c.w,"sm")}${nm(c.w)}</span><span class="ru">beat ${nm(c.r)}${c.m.venue?" · "+esc(c.m.venue):""}</span></div><div class="sc">${Math.max(c.m.hs,c.m.as)}–${Math.min(c.m.hs,c.m.as)}</div></div>`).join("")||`<p class="hint">No finals yet.</p>`;
+  // fixtures & latest
+  const now=Date.now(),up=M.filter(m=>m.lg===lg&&!played(m)&&m.s===curS(lg)&&(koUTC(m)||new Date(m.date+"T23:00:00Z"))>now-3*36e5).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  const nextR=up.length?up[0].rnd:0,show=up.filter(m=>m.rnd===nextR||m.rnd===nextR+1).slice(0,16);
+  $("lgFxWrap").hidden=s!==curS(lg)||!show.length;$("lgFxWrap").parentElement.classList.toggle("one",$("lgFxWrap").hidden);$("lgFx").innerHTML=fxHTML(show);bindClubBtns($("lgFx"));
+  $("lgLatest").innerHTML=P.filter(m=>!m.nd).slice(-10).reverse().map(resLine).join("")||`<p class="hint">No results yet.</p>`;bindExpand($("lgLatest"));
+  // leaders
+  $("leadHint").textContent=`${S[s]}, league and play-off matches with detailed reports`;
+  const cnt={};P.forEach(m=>[0,1].forEach(k=>{const tm=k?m.a:m.h;(m.ts[k]||"").split(";").map(z=>z.trim()).filter(z=>z&&!/penalty try/i.test(z)).forEach(z=>{const mm=z.match(/^(.*?)\s*\((\d+)\)$/);const n2=(mm?mm[1]:z).trim(),n=mm?+mm[2]:1;const key=tm+"|"+n2;cnt[key]=(cnt[key]||0)+n})}));
+  $("lgTry").innerHTML=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n],r)=>{const [tm,n2]=k.split("|");return `<div class="mli"><span class="r">${r+1}</span><span>${esc(n2)} <span class="x">${nm(+tm)}</span></span><b>${n}</b></div>`}).join("")||`<p class="hint">No data yet.</p>`;
+  $("lgCrowd").innerHTML=P.filter(m=>m.att).sort((a,b)=>b.att-a.att).slice(0,5).map((m,k)=>`<div class="mli"><span class="r">${k+1}</span><span>${nm(m.h)} ${m.hs}–${m.as} ${nm(m.a)} <span class="x">${esc(m.venue)}, ${fmtDate(m.date)}</span></span><b>${m.att.toLocaleString()}</b></div>`).join("")||`<p class="hint">No attendance data.</p>`;
+  $("lgBig").innerHTML=P.slice().sort((a,b)=>Math.abs(b.hs-b.as)-Math.abs(a.hs-a.as)).slice(0,5).map((m,k)=>{const w=m.hs>m.as?m.h:m.a,l=m.hs>m.as?m.a:m.h;return `<div class="mli"><span class="r">${k+1}</span><span>${nm(w)} ${Math.max(m.hs,m.as)}–${Math.min(m.hs,m.as)} ${nm(l)} <span class="x">${dTxt(m)}</span></span><b>${Math.abs(m.hs-m.as)}</b></div>`}).join("")||`<p class="hint">No results yet.</p>`;
+  const rf={};P.forEach(m=>{if(!m.ref)return;const o=rf[m.ref]||(rf[m.ref]={n:0,c:0,cn:0});o.n++;if(m.cd){o.c+=m.cd[0]+m.cd[1]+m.cd[2]+m.cd[3];o.cn++}});
+  $("lgRef").innerHTML=Object.entries(rf).sort((a,b)=>b[1].n-a[1].n).slice(0,5).map(([r,o],k)=>`<div class="mli"><span class="r">${k+1}</span><span>${esc(r)} <span class="x">${o.cn>=3?(o.c/o.cn).toFixed(1)+" cards per match":""}</span></span><b>${o.n}</b></div>`).join("")||`<p class="hint">No data.</p>`;
+  // all-time
+  const A=lgClubs(lg).map(i=>{const g=M.filter(m=>m.lg===lg&&played(m)&&(m.h===i||m.a===i)).map(m=>view(m,i));const r=rec(g);const titles=S.map((_,k)=>champion(lg,k)).filter(c=>c&&c.w===i).length;const finals=S.map((_,k)=>champion(lg,k)).filter(c=>c&&(c.w===i||c.r===i)).length;return{i,...r,pf:g.reduce((a,x)=>a+x.pf,0),pa:g.reduce((a,x)=>a+x.pa,0),titles,finals}}).filter(r=>r.p).sort((a,b)=>b.w/b.p-a.w/a.p);
+  $("allTime").innerHTML=`<thead><tr><th>#</th><th>Club</th><th class="x">P</th><th class="x">W</th><th class="x">D</th><th class="x">L</th><th>Win %</th><th class="x">Avg for</th><th class="x">Avg against</th><th>Titles</th><th class="x">Finals</th></tr></thead><tbody>`+A.map((r,k)=>`<tr data-i="${r.i}"><td class="pos">${k+1}</td><td><span class="nm">${mono(r.i,"sm")}${nm(r.i)}</span><span class="sub">${r.w}–${r.d}–${r.l} in ${r.p}${r.titles?` · ${r.titles}× champions`:""}</span></td><td class="x">${r.p}</td><td class="x">${r.w}</td><td class="x">${r.d}</td><td class="x">${r.l}</td><td class="pct">${pct(r.w,r.p)}%</td><td class="x">${(r.pf/r.p).toFixed(1)}</td><td class="x">${(r.pa/r.p).toFixed(1)}</td><td class="cups">${r.titles||"–"}</td><td class="x">${r.finals||"–"}</td></tr>`).join("")+`</tbody>`;
+  $("allTime").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{state.club=+tr.dataset.i;state.opp=-1;go();scrollTo({top:0})}));
+  bindTips(document.body);
+}
+
+function renderClub(){
+  const i=state.club,c=C[i],lg=state.lg,s=state.s,all=M.filter(m=>(m.h===i||m.a===i)&&played(m)).map(m=>view(m,i)),g=s<0?all:all.filter(x=>x.s===s);
+  if(!M.some(m=>m.lg===state.lg&&(m.h===i||m.a===i))){const cnt={};M.forEach(m=>{if(m.h===i||m.a===i)cnt[m.lg]=(cnt[m.lg]||0)+1});const best=cnt[LIDX[c.lg]]?LIDX[c.lg]:+(Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0]||[state.lg])[0];if(best!==state.lg){state.lg=best;state.g=LEAGUES[best].g;buildPicker();render();return}}
+  const L=LEAGUES[state.lg],hl=LIDX[c.lg],HL=LEAGUES[hl];
+  $("heroMark").innerHTML=mono(i,"lg");
+  $("union").innerHTML=`${cflag(i)} ${esc(c.city)} · ${HL.name}`;$("teamName").textContent=c.name;
+  const seasons=[...new Set(all.map(x=>x.s))];
+  $("heroSub").textContent=all.length?`${all.length} matches since ${fmtDate(all[0].date)}${(()=>{const n=new Set(all.map(x=>x.lg)).size;return n>1?` in ${n} competitions`:""})()}${s>=0?`; ${g.length} in ${S[s]}`:""}.`:"No matches in the dataset yet.";
+  const cs=curS(hl),T=tableRows(hl,s>=0&&D.tables[hl+"-"+s]?s:cs),pos=T.findIndex(r=>r.i===i);
+  $("rank").innerHTML=pos>=0?`<div class="num"><small>#</small>${pos+1}</div><div><div class="lbl">${S[s>=0&&D.tables[hl+"-"+s]?s:cs]} ${esc(HL.short)}<br>position</div><div class="pts">${T[pos].pts} pts from ${T[pos].p} match${T[pos].p===1?"":"es"}</div></div>`:`<div><div class="lbl">League position</div><div class="pts">Not in the ${esc(HL.short)} table</div></div>`;
+  // KPIs
+  const r=rec(g),pf=g.reduce((a,x)=>a+x.pf,0),pa=g.reduce((a,x)=>a+x.pa,0),det=g.filter(x=>x.sc),tf=det.reduce((a,x)=>a+x.sc[0][x.side],0),bp=g.reduce((a,x)=>a+x.bp[x.side],0);
+  $("kpis").innerHTML=[["Win rate",r.p?pct(r.w,r.p)+"%":"–",`${r.w} W · ${r.d} D · ${r.l} L`,1],["Matches",r.p,s<0?"all seasons":S[s]],["Avg scored",r.p?(pf/r.p).toFixed(1):"–","points per match"],["Avg conceded",r.p?(pa/r.p).toFixed(1):"–","points per match"],["Tries per match",det.length?(tf/det.length).toFixed(1):"–",`from ${det.length} reports`],["Bonus points",bp,"try and losing bonuses"]]
+    .map(([a,b,n,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${n}</div></div>`).join("");
+  // season by season
+  $("ssn").innerHTML=S.map((_,k)=>k).filter(k=>tableRows(hl,k).some(x=>x.i===i)).map(k=>{const T2=tableRows(hl,k),p=T2.findIndex(x=>x.i===i),row=T2[p],n=T2.length,w=(n-p)/n*100,po=poFinish(i,hl,k),lab=`${row.pts} pts · ${row.w}–${row.d}–${row.l}${po?" · "+po:""}`;return `<div class="sr" data-tip="<b>${S[k]}</b><br>${ord(p+1)} of ${n} · ${lab}"><div class="yr">${sShort(k)}</div><div class="trk"><i style="width:${w.toFixed(1)}%"></i><span class="${w<45?"out":""}" style="${w<45?`left:calc(${w.toFixed(1)}% + 8px)`:""}">${lab}</span></div><div class="pos">${ord(p+1)}<small>of ${n}</small></div></div>`}).reverse().join("")||`<p class="hint">No completed seasons.</p>`;
+  // form
+  $("form").innerHTML=all.slice(-10).map(x=>`<div class="fm ${x.res}" data-tip="<b>${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa}</b> v ${esc(nm(x.opp))}<br>${dTxt(x)} · ${x.where}">${x.res}</div>`).join("")||`<p class="hint">No matches yet.</p>`;
+  // splits
+  $("splitHint").textContent=s<0?"All seasons covered":S[s];
+  $("splits").innerHTML=["Home","Away"].map(w=>{const q=rec(g.filter(x=>x.where===w));if(!q.p)return "";return `<div class="split"><div class="top"><b>${w}</b><span>${q.w}–${q.d}–${q.l} · ${pct(q.w,q.p)}% won</span></div><div class="bar"><i class="w" style="flex:${q.w}"></i><i class="d" style="flex:${q.d}"></i><i class="l" style="flex:${q.l}"></i></div></div>`}).join("");
+  // fixtures
+  const now=Date.now(),up=M.filter(m=>!played(m)&&(m.h===i||m.a===i)&&(koUTC(m)||new Date(m.date+"T23:00:00Z"))>now-3*36e5).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  $("cFxWrap").hidden=!up.length;$("cFx").innerHTML=fxHTML(up);bindClubBtns($("cFx"));
+  // stats
+  const S2=g.filter(x=>x.sc),Cd=g.filter(x=>x.cd),f=(arr,fn)=>arr.reduce((a,x)=>a+fn(x),0);
+  const tA=f(S2,x=>x.sc[0][1-x.side]),cm=f(S2,x=>x.sc[1][x.side]),ca=f(S2,x=>x.sc[2][x.side]),pm=f(S2,x=>x.sc[3][x.side]),pa2=f(S2,x=>x.sc[4][x.side]),yc=f(Cd,x=>x.cd[x.side]),rc=f(Cd,x=>x.cd[2+x.side]),b4=S2.filter(x=>x.sc[0][x.side]>=4).length;
+  $("msHint").textContent=S2.length?`From ${S2.length} of the club's ${g.length} matches in ${s<0?"all seasons":S[s]} with detailed reports.`:"No detailed match reports for this selection.";
+  $("mstats").innerHTML=S2.length?[["Tries scored",(f(S2,x=>x.sc[0][x.side])/S2.length).toFixed(1),"per match"],["Tries conceded",(tA/S2.length).toFixed(1),"per match"],["Four-try matches",pct(b4,S2.length)+"%",`${b4} of ${S2.length}`],["Goal kicking",ca+pa2?Math.round((cm+pm)/(ca+pa2)*100)+"%":"–",`${cm+pm} of ${ca+pa2} kicks`],["Penalty goals",(pm/S2.length).toFixed(1),"per match"],["Yellow cards",Cd.length?(yc/Cd.length).toFixed(2):"–","per match"],["Red cards",rc,Cd.length?`in ${Cd.length} matches`:""],["Tries per win",(()=>{const w=S2.filter(x=>x.res==="W");return w.length?(f(w,x=>x.sc[0][x.side])/w.length).toFixed(1):"–"})(),"in matches won"]].map(([k,v,n])=>`<div><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join(""):"";
+  const cnt={};g.forEach(x=>(x.ts[x.side]||"").split(";").map(z=>z.trim()).filter(z=>z&&!/penalty try/i.test(z)).forEach(z=>{const mm=z.match(/^(.*?)\s*\((\d+)\)$/);const n2=(mm?mm[1]:z).trim();cnt[n2]=(cnt[n2]||0)+(mm?+mm[2]:1)}));
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10);$("topTry").innerHTML=top.length?`<span style="border:0;padding-left:0;color:var(--muted)">Top try scorers:</span>`+top.map(([n2,k])=>`<span>${esc(n2)}<b>${k}</b></span>`).join(""):"";
+  // h2h (all seasons)
+  const by={};all.forEach(x=>{(by[x.opp]=by[x.opp]||[]).push(x)});
+  const rows=Object.entries(by).map(([o,gg])=>({o:+o,...rec(gg),pf:gg.reduce((a,x)=>a+x.pf,0),pa:gg.reduce((a,x)=>a+x.pa,0)})).sort((a,b)=>b.p-a.p||b.w/b.p-a.w/a.p);
+  $("h2h").innerHTML=`<thead><tr><th>Opponent</th><th class="num">P</th><th class="num">W</th><th class="num">D</th><th class="num">L</th><th class="barcell">Win %</th></tr></thead><tbody>`+rows.map(x=>`<tr data-o="${x.o}" class="${x.o===state.opp?"sel":""}"><td><span class="opp">${mono(x.o,"sm")}${nm(x.o)}</span></td><td class="num">${x.p}</td><td class="num">${x.w}</td><td class="num">${x.d}</td><td class="num">${x.l}</td><td class="barcell"><div class="bar"><i class="w" style="flex:${x.w}"></i><i class="d" style="flex:${x.d}"></i><i class="l" style="flex:${x.l}"></i></div></td></tr>`).join("")+`</tbody>`;
+  $("h2h").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{const o=+tr.dataset.o;state.opp=state.opp===o?-1:o;$("oppSel").value=state.opp;renderResults();$("h2h").querySelectorAll("tbody tr").forEach(t=>t.classList.toggle("sel",+t.dataset.o===state.opp))}));
+  const opps=[...new Set(all.map(x=>x.opp))].sort((a,b)=>nm(a).localeCompare(nm(b)));
+  $("oppSel").innerHTML=`<option value="-1">All opponents</option>`+opps.map(o=>`<option value="${o}">${nm(o)}</option>`).join("");$("oppSel").value=state.opp;
+  renderResults();bindTips(document.body);
+}
+$("oppSel").addEventListener("change",e=>{state.opp=+e.target.value;renderResults();$("h2h").querySelectorAll("tbody tr").forEach(t=>t.classList.toggle("sel",+t.dataset.o===state.opp))});
+function renderResults(){const i=state.club,s=state.s;let g=M.filter(m=>(m.h===i||m.a===i)&&played(m)&&(s<0||m.s===s)).map(m=>view(m,i));if(state.opp>=0)g=g.filter(x=>x.opp===state.opp);
+  $("resHint").textContent=`${g.length} match${g.length===1?"":"es"}${state.opp>=0?" v "+nm(state.opp):""}${s<0?" across all seasons":" in "+S[s]}, most recent first. Tap a result for the detail.`;
+  const lim=state.resAll?999:15;$("resMore").hidden=g.length<=15;$("resMore").textContent=state.resAll?"Show fewer":`Show all ${g.length}`;$("results").innerHTML=g.slice().reverse().slice(0,lim).map(x=>`<div class="res xp" tabindex="0" role="button" aria-expanded="false" data-k="${x.k}"><div class="dt">${dTxt(x)}</div><div><span class="tag ${x.res}">${x.res}</span>${x.where==="Home"?"v":"at"} ${esc(nm(x.opp))}<span class="comp">${LEAGUES[x.lg].short} ${S[x.s]} · ${stageTxt(x)||"League"}${x.venue?" · "+esc(x.venue):""} <span class="plus">＋</span></span></div><div class="sc">${x.pf}–${x.pa}</div></div>`).join("")||`<p class="hint">No results.</p>`;bindExpand($("results"))}
+
+$("resMore").addEventListener("click",()=>{state.resAll=!state.resAll;renderResults()});
+state.s=defSeason(state.lg);buildPicker();render();
+let rt;addEventListener("resize",()=>{clearTimeout(rt)});
+</script>
+</body>
+</html>

@@ -1,0 +1,1651 @@
+<title>Rugby Union Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap">
+<style>
+:root{
+  --p:#000;--on-p:#fff;--s:#a7a8aa;--acc-l:#111;--acc-d:#d5d8dc;--stripe:linear-gradient(90deg,#000,#a7a8aa);
+  --acc:var(--acc-l);
+  --bg:color-mix(in oklab,var(--p) 5%,#f7f7f5);
+  --card:#ffffff;
+  --ink:#16181b;--ink2:#4b5057;--muted:#7a8088;
+  --line:color-mix(in oklab,var(--ink) 12%,transparent);
+  --grid:color-mix(in oklab,var(--ink) 8%,transparent);
+  --loss:#9aa0a8;--draw:#d3d6da;
+  --win-ink:#1d7a45;--loss-ink:#b3261e;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--acc:var(--acc-d);
+  --bg:color-mix(in oklab,var(--p) 12%,#0f1113);--card:color-mix(in oklab,var(--p) 6%,#181a1d);
+  --ink:#eceef0;--ink2:#b4b9bf;--muted:#8a9098;--loss:#6b7179;--draw:#3d4247;--win-ink:#5fd08e;--loss-ink:#ff8a80;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--acc:var(--acc-d);
+  --bg:color-mix(in oklab,var(--p) 12%,#0f1113);--card:color-mix(in oklab,var(--p) 6%,#181a1d);
+  --ink:#eceef0;--ink2:#b4b9bf;--muted:#8a9098;--loss:#6b7179;--draw:#3d4247;--win-ink:#5fd08e;--loss-ink:#ff8a80;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:clip}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;transition:background-color .45s ease;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
+@media (max-width:520px){.wrap{padding-inline:16px}}
+
+/* team picker */
+.picker{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in oklab,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.picker .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:thin}
+.chip{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 12px 6px 6px;font:600 14px/1 var(--body);cursor:pointer;transition:border-color .2s,transform .15s}
+.chip:hover{border-color:var(--ink2)}
+.chip:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.chip .fl{width:26px;height:auto;display:block;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.chip{padding-left:8px}
+.chip[aria-pressed="true"]{background:var(--p);color:var(--on-p);border-color:var(--p)}
+
+/* hero */
+.hero{background:var(--p);color:var(--on-p);position:relative;transition:background-color .45s ease,color .45s ease}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;background:var(--stripe)}
+.hero .wrap{padding-block:28px 34px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.ident{display:flex;gap:22px;align-items:center;min-width:0}
+.hflag{width:112px;height:auto;flex:0 0 auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));transform:rotate(-4deg);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.hflag.pop{animation:pop .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{transform:rotate(-12deg) scale(.8);opacity:.3}to{transform:rotate(-4deg) scale(1);opacity:1}}
+.side{display:grid;gap:14px;justify-items:end;max-width:480px}
+.rank{display:flex;align-items:center;gap:14px;border:1px solid color-mix(in oklab,var(--on-p) 30%,transparent);border-radius:12px;padding:10px 16px 10px 14px;background:color-mix(in oklab,var(--on-p) 8%,transparent)}
+.rank .num{font:800 52px/0.9 var(--display)}
+.rank .num small{font-size:26px;vertical-align:18px;margin-right:1px;opacity:.8}
+.rank .lbl{font:600 11px/1.2 var(--body);letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.rank .pts{font-size:13px;opacity:.85;margin-top:3px}
+@media (max-width:760px){.side{justify-items:start}.hflag{width:78px}.ident{gap:14px}}
+@media (prefers-reduced-motion:reduce){.hflag.pop{animation:none}}
+.eyebrow{font:600 13px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+h1{font:800 clamp(44px,8vw,84px)/.92 var(--display);margin:6px 0 8px;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.hero .sub{font-size:16px;opacity:.85;max-width:60ch}
+.eras{display:flex;gap:4px;background:color-mix(in oklab,var(--on-p) 12%,transparent);padding:4px;border-radius:10px;flex-wrap:wrap}
+.eras button{border:0;background:transparent;color:var(--on-p);font:600 13px/1 var(--body);padding:8px 12px;border-radius:7px;cursor:pointer}
+.eras button[aria-pressed="true"]{background:var(--on-p);color:var(--p)}
+.eras button:focus-visible{outline:2px solid var(--on-p);outline-offset:2px}
+.era-label{font:600 12px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+@media (max-width:760px){.hero .wrap{grid-template-columns:1fr}}
+
+main.wrap{padding-block:24px 48px;display:grid;gap:18px}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kpi{background:var(--card);padding:14px 16px;min-width:0}
+.kpi .k{font:600 12px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font:700 36px/1.05 var(--display);margin-top:6px}
+.kpi .n{font-size:13px;color:var(--ink2);margin-top:2px}
+.kpi.lead .v{color:var(--acc)}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+@media (max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+.panel h2{font:700 22px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em;margin:0}
+.panel .hint{font-size:13px;color:var(--muted);margin:3px 0 12px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin-bottom:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.legend i.ln{height:3px;border-radius:2px;width:16px}
+svg text{fill:var(--muted);font:500 11px var(--body)}
+svg .axis{stroke:var(--line)}
+svg .gl{stroke:var(--grid)}
+
+/* form */
+.form{display:flex;gap:6px;flex-wrap:wrap}
+.fm{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font:700 16px/1 var(--display);cursor:default}
+.fm.W{background:var(--acc);color:var(--card)}
+.fm.D{background:var(--draw);color:var(--ink)}
+.fm.L{background:transparent;color:var(--ink2);box-shadow:inset 0 0 0 2px var(--loss)}
+
+/* splits */
+.splits{display:grid;gap:12px}
+.split .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;gap:8px}
+.split .top b{font-weight:600}
+.split .top span{color:var(--ink2)}
+.bar{display:flex;height:12px;gap:2px}
+.bar i{display:block;height:100%;border-radius:3px;min-width:0}
+.bar .w{background:var(--acc)}.bar .d{background:var(--draw)}.bar .l{background:var(--loss)}
+
+/* h2h */
+.h2h{width:100%;border-collapse:collapse;font-size:14px}
+.h2h th{text-align:left;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 8px 8px 0;border-bottom:1px solid var(--line)}
+.h2h td{padding:8px 8px 8px 0;border-bottom:1px solid var(--grid);vertical-align:middle}
+.h2h td.num,.h2h th.num{text-align:right}
+.h2h .opp{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.h2h .opp .sw{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.h2h tr{cursor:pointer}
+.h2h tbody tr:hover td{background:color-mix(in oklab,var(--acc) 6%,transparent)}
+.h2h .barcell{width:34%}
+.h2h tr.sel td{background:color-mix(in oklab,var(--acc) 10%,transparent)}
+.tscroll{overflow-x:auto}
+.pct{font-weight:600}
+
+/* lists */
+.list{display:grid;gap:0}
+.res{display:grid;grid-template-columns:86px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.res:last-child{border-bottom:0}
+.res .dt{color:var(--muted);font-size:13px}
+.res .comp{color:var(--muted);font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res .sc{font:700 18px/1 var(--display);text-align:right;white-space:nowrap}
+.tag{display:inline-block;font:700 11px/1 var(--body);padding:3px 6px;border-radius:4px;margin-right:6px;vertical-align:1px}
+.tag.W{background:color-mix(in oklab,var(--win-ink) 16%,transparent);color:var(--win-ink)}
+.tag.L{background:color-mix(in oklab,var(--loss-ink) 14%,transparent);color:var(--loss-ink)}
+.tag.D{background:color-mix(in oklab,var(--ink) 10%,transparent);color:var(--ink2)}
+.wc{font:700 10px/1 var(--body);letter-spacing:.06em;color:var(--acc);border:1px solid currentColor;border-radius:3px;padding:2px 4px;margin-left:6px;vertical-align:1px}
+.filterbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.filterbar select{font:500 14px var(--body);padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.fact .k{font:600 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fact .v{font:700 26px/1.1 var(--display);margin-top:4px}
+.fact .n{font-size:13px;color:var(--ink2)}
+@media (max-width:520px){.facts{grid-template-columns:1fr}}
+
+/* overview */
+.mosaic{display:grid;grid-template-columns:repeat(5,34px);gap:6px;transform:rotate(-4deg);flex:0 0 auto}
+.mosaic img{width:34px;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
+@media (max-width:760px){.mosaic{grid-template-columns:repeat(5,20px);gap:4px}.mosaic img{width:20px}}
+.holder{font:800 26px/1 var(--display);text-transform:uppercase;margin-top:3px}
+.rank img.hold{width:56px;filter:drop-shadow(0 3px 8px rgba(0,0,0,.35))}
+.more{flex:0 0 auto;font:600 14px/1 var(--body);border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 30px 7px 12px;max-width:190px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);background-position:calc(100% - 15px) 50%,calc(100% - 10px) 50%;background-size:5px 5px;background-repeat:no-repeat;cursor:pointer}
+.more.on{background-color:var(--p);color:var(--on-p);border-color:var(--p)}
+.more:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.scope{display:flex;gap:4px;background:color-mix(in oklab,var(--on-p) 12%,transparent);padding:4px;border-radius:10px}
+.scope button{border:0;background:transparent;color:var(--on-p);font:600 13px/1 var(--body);padding:8px 12px;border-radius:7px;cursor:pointer}
+.scope button[aria-pressed="true"]{background:var(--on-p);color:var(--p)}
+.showall{margin-top:10px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:7px 12px;font:600 13px var(--body);cursor:pointer}
+.nf{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:960px){.nf{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.nf{grid-template-columns:1fr}}
+.nfc{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start;border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--card);text-align:left;font:inherit;color:inherit}
+.nfc:hover{border-color:var(--acc)}
+.nfc:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.nfc img{width:34px;grid-row:1/3;margin-top:2px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.nfc .hd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.nfc .nm{font:700 17px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.nfc .rkc{font:600 11px/1 var(--body);color:var(--muted);letter-spacing:.06em}
+.nfc .tx{font-size:14px;line-height:1.45;color:var(--ink2)}
+.nfc .tx b{color:var(--ink);font-weight:600}
+.nfc .ty{font:600 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-top:6px;grid-column:2}
+.seg{display:flex;gap:3px;border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--ink2);font:600 13px/1 var(--body);padding:7px 11px;border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--acc);color:var(--card)}
+.drv{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px}
+.drv button{border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px/1 var(--body);padding:8px 12px;border-radius:999px;cursor:pointer}
+.drv button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--card)}
+.drv button:focus-visible,.seg button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.moneyTake{font-size:14.5px;line-height:1.55;color:var(--ink2);max-width:75ch;margin:10px 0 14px}
+.moneyTake b{color:var(--ink)}
+.money td,.money th{white-space:nowrap}
+@media (max-width:700px){.money th{white-space:normal;font-size:10px}}
+.money .pos{color:var(--win-ink);font-weight:600}.money .neg{color:var(--loss-ink);font-weight:600}
+.notes{margin-top:12px;font-size:13px;color:var(--ink2)}
+.notes summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.notes ul{padding-left:18px;margin:8px 0}
+.notes li{margin:4px 0}
+.notes a{color:var(--acc)}
+.cov a{color:var(--acc)}
+.tzchip{font:600 12px/1 var(--body);color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:6px 10px}
+.fxday{font:700 14px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:18px 0 6px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.fxday:first-child{margin-top:4px}
+.fx1{display:grid;grid-template-columns:78px 1fr auto 1fr 150px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--grid)}
+.fx1:last-child{border-bottom:0}
+.fx1>*{min-width:0}
+#fxList,#fxFinals{overflow-wrap:anywhere}
+.fx1 .tm{font:700 20px/1 var(--display)}
+.fx1 .tm small{display:block;font:500 11px/1.3 var(--body);color:var(--muted);margin-top:3px}
+.fx1 .side{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;min-width:0}
+.fx1 .side img{width:26px}
+.fx1 .side.h{justify-content:flex-end;text-align:right}
+.fx1 .side button{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.fx1 .side button:hover{text-decoration:underline}
+.fx1 .side button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.fx1 .v{font:700 13px/1 var(--body);color:var(--muted)}
+.fx1 .meta{grid-column:2/5;text-align:center;font-size:12.5px;color:var(--muted);margin-top:-4px}
+.fx1 .pick{font-size:12.5px;color:var(--ink2);text-align:right;line-height:1.35}
+.fx1 .pick b{color:var(--ink)}
+.fx1 .bar2{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:4px;background:var(--draw)}
+.fx1 .bar2 i{display:block;background:var(--acc)}
+.fx1.next{background:color-mix(in oklab,var(--acc) 7%,transparent);border-radius:8px;padding-inline:8px}
+@media (max-width:700px){.fx1{grid-template-columns:62px 1fr auto 1fr}.fx1 .pick{grid-column:1/5;text-align:center}.fx1 .side{font-size:13.5px}.fx1 .side img{width:20px}}
+.fw{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:860px){.fw{grid-template-columns:1fr}}
+.fwd{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.fwd h3{margin:0 0 8px;font:700 16px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04em}
+.fws{padding:8px 0;border-top:1px solid var(--grid)}
+.fws .t{font:700 15px/1 var(--display)}
+.fws .t span{font:500 12px var(--body);color:var(--muted);margin-left:6px}
+.fws .l{font-size:13px;color:var(--ink2);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.fws .l img{width:18px;vertical-align:-3px}
+.fws.fwfinal .t{color:var(--acc)}
+.xp{cursor:pointer}
+.xp:hover{background:color-mix(in oklab,var(--acc) 5%,transparent)}
+.xp:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.plus{font:600 12px var(--body);color:var(--acc);margin-left:6px}
+.dx{background:color-mix(in oklab,var(--ink) 4%,var(--card));border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:2px 0 8px;font-size:13.5px}
+.dr{display:grid;grid-template-columns:minmax(90px,1fr) 1fr 1fr;gap:8px;padding:3px 0;align-items:center}
+.dr.hd{font-weight:600;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:3px}
+.dr.hd img{width:18px;vertical-align:-3px}
+.dl{color:var(--muted);font-size:12.5px}
+.dv{font-variant-numeric:tabular-nums}
+.ds{color:var(--ink2);font-size:12.5px;margin-top:6px;line-height:1.45}
+.yc,.rcd{display:inline-block;width:9px;height:12px;border-radius:2px;margin-right:3px;vertical-align:-1px}
+.yc{background:#F2C200}.rcd{background:#D22B2B;margin-left:4px}
+.stt{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stt>div{background:var(--card);padding:12px 14px}
+.stt .k{font:600 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stt .v{font:700 26px/1.1 var(--display);margin-top:4px}
+.stt .n{font-size:12.5px;color:var(--ink2)}
+@media (max-width:700px){.stt{grid-template-columns:repeat(2,1fr)}}
+.tsl{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tsl span{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px}
+.tsl b{font-family:var(--display);font-size:15px;margin-left:4px}
+.sub3{font:700 16px/1.1 var(--display);text-transform:uppercase;letter-spacing:.03em;margin:18px 0 4px}
+.msk{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:12px}
+.msk>div{background:var(--card);padding:12px 14px}
+.msk .k{font:600 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.msk .v{font:700 26px/1.1 var(--display);margin-top:4px;color:var(--acc)}
+.msk .n{font-size:12.5px;color:var(--ink2);line-height:1.4}
+@media (max-width:860px){.msk{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.msk{grid-template-columns:1fr}}
+.mst th{cursor:pointer;user-select:none}
+.mst th.on{color:var(--acc)}
+.mli{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.mli:last-child{border-bottom:0}
+.mli .r{font:700 15px/1 var(--display);color:var(--muted);text-align:right}
+.mli .x{color:var(--muted);font-size:12.5px}
+.mli b{font:700 17px/1 var(--display)}
+.mli img{width:18px;vertical-align:-3px;margin-right:4px}
+.cov{font-size:12.5px;color:var(--muted);margin-top:8px}
+.chip .ball{width:26px;height:18px;display:block}
+.wcTally{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.wcTally span{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px;font-size:13px;color:var(--ink2)}
+.wcTally b{font:700 18px/1 var(--display);color:var(--ink)}
+[hidden]{display:none!important}
+.wcTally img,.fx img,.lg img,.lt img,.rk img,.final img{width:22px;display:inline-block;vertical-align:middle}
+.final{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.final:last-child{border-bottom:0}
+.final .yr{font:700 18px/1 var(--display);color:var(--acc)}
+.final .w{font-weight:600}
+.final .ru{color:var(--muted);font-size:12.5px;display:block}
+.final .sc{font:700 18px/1 var(--display);white-space:nowrap}
+.rk{display:grid;grid-template-columns:22px 26px minmax(84px,auto) 1fr 52px;gap:8px;align-items:center;font-size:14px;padding:5px 0}
+.rk .pos{font:700 16px/1 var(--display);color:var(--muted);text-align:right}
+.rk .trk{position:relative;height:12px}
+.rk .trk::before{content:"";position:absolute;left:0;right:0;top:5px;height:2px;background:var(--grid);border-radius:2px}
+.rk .dot{position:absolute;top:0;width:12px;height:12px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 2px var(--card);transform:translateX(-6px)}
+.rk .pt{text-align:right;font-weight:600}
+.rkAxis{display:grid;grid-template-columns:22px 26px minmax(84px,auto) 1fr 52px;gap:8px;font-size:11px;color:var(--muted)}
+.rkAxis div:nth-child(4){display:flex;justify-content:space-between}
+.lg{width:100%;border-collapse:collapse;font-size:14px}
+.lg th{text-align:right;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.lg th:nth-child(-n+2){text-align:left}
+.lg td{text-align:right;padding:8px;border-bottom:1px solid var(--grid);white-space:nowrap}
+.lg td:nth-child(-n+2){text-align:left}
+.lg td.pos{font:700 16px/1 var(--display);color:var(--muted);width:28px}
+.lg tbody tr{cursor:pointer}
+.lg tbody tr:hover td{background:color-mix(in oklab,var(--acc) 7%,transparent)}
+.lg .nm{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.lg .mini{display:inline-flex;gap:3px}
+.lg .mini i{width:16px;height:16px;border-radius:4px;display:inline-grid;place-items:center;font:700 10px/1 var(--body);font-style:normal}
+.lg .mini i.W{background:var(--acc);color:var(--card)}.lg .mini i.D{background:var(--draw);color:var(--ink)}.lg .mini i.L{box-shadow:inset 0 0 0 1.5px var(--loss);color:var(--ink2)}
+.lg .cups{color:var(--acc);font-weight:700}
+.lg .sub{display:none;font-size:12px;color:var(--muted);margin-top:3px;white-space:normal}
+@media (max-width:700px){
+  .lg .x{display:none}
+  .lg .sub{display:block}
+  .lg th,.lg td{padding-inline:5px}
+  .lg td{padding-block:9px;vertical-align:middle}
+  .lg td.pos{width:20px;font-size:15px}
+  .lg .nm{font-size:14px;gap:6px}
+  .lg .mini{gap:2px}
+  .lg .mini i{width:14px;height:14px;font-size:9px}
+}
+.fxs{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.fx{background:var(--card);padding:14px}
+.fx .k{font:600 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fx .v{font:700 24px/1.1 var(--display);margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fx .n{font-size:13px;color:var(--ink2);margin-top:3px}
+@media (max-width:520px){.fxs{grid-template-columns:1fr}}
+.lt{display:grid;grid-template-columns:80px 1fr auto 1fr;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.lt:last-child{border-bottom:0}
+.lt .dt{color:var(--muted);font-size:13px}
+.lt .hm{text-align:right}
+.lt .tm{display:inline-flex;align-items:center;gap:6px}
+.lt .win{font-weight:700}
+.lt .sc{font:700 18px/1 var(--display);white-space:nowrap;text-align:center;min-width:58px}
+.lt .cm{grid-column:2/5;color:var(--muted);font-size:12.5px;text-align:center;margin-top:-4px}
+@media (max-width:520px){.lt{grid-template-columns:1fr auto 1fr}.lt .dt{grid-column:1/4}.lt .cm{grid-column:1/4}}
+.tip{position:fixed;pointer-events:none;z-index:50;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18);border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.35;max-width:260px;opacity:0;transition:opacity .12s}
+.tip b{font-weight:600}
+.tip.on{opacity:1}
+footer{font-size:12.5px;color:var(--muted);padding-block:0 32px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.topbar{border-bottom:1px solid var(--line)}
+.rank:empty{display:none}
+.picker .wrap.tb{padding-block:8px;overflow:visible;gap:12px}
+.tb{display:flex;align-items:center;gap:12px;padding-block:8px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:9px;font:800 20px/1 var(--display);letter-spacing:.03em;text-transform:uppercase;color:var(--ink);text-decoration:none;flex:0 0 auto}
+.brand svg{width:28px;height:28px;display:block}
+.modes{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.seg2{display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card)}
+.seg2>*{border:0;background:transparent;color:var(--ink2);font:700 13px/1 var(--body);padding:7px 13px;border-radius:999px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.seg2>*:hover{color:var(--ink)}
+.seg2>[aria-pressed="true"],.seg2>[aria-current="page"]{background:var(--ink);color:var(--card)}
+.seg2>*:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media (max-width:560px){.brand span{display:none}.modes{gap:6px}.seg2>*{padding:7px 10px;font-size:12.5px}}
+
+.gsw{position:sticky;left:0;z-index:2;box-shadow:-24px 0 0 0 var(--bg),6px 0 8px -4px var(--bg);flex:0 0 auto;display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card);margin-right:4px}
+.gsw button{border:0;background:transparent;color:var(--ink2);font:700 13px/1 var(--body);padding:7px 12px;border-radius:999px;cursor:pointer;letter-spacing:.01em}
+.gsw button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.gsw button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+body:not(.women) .wonly{display:none}
+.wnote{background:color-mix(in oklab,var(--acc) 10%,var(--card));border:1px solid color-mix(in oklab,var(--acc) 35%,var(--line));border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:18px}
+.trTally{display:flex;flex-wrap:wrap;gap:10px}
+.trT{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);cursor:pointer;font:inherit;color:inherit;text-align:left;min-width:0;flex:1 1 220px;max-width:340px}
+.trT:hover{border-color:var(--acc)}
+.trT img{width:34px;grid-row:span 2;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
+.trT .nm{font-weight:700}
+.trT .n{font:700 28px/1 var(--display);color:var(--acc);grid-row:span 2}
+.trT .ls{font-size:12px;color:var(--muted);grid-column:2;line-height:1.3}
+.trGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.tro{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:44px 1fr;gap:4px 12px;position:relative;overflow:hidden;background:var(--card)}
+.tro::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--tc,var(--acc))}
+.tro .cup{grid-row:span 2;width:44px;height:44px;color:var(--tc,var(--acc))}
+.tro .tn{font:700 18px/1.1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.tro .tf{font-size:12px;color:var(--muted)}
+.tro .tf img{width:18px;height:auto;display:inline-block;vertical-align:-2px;border-radius:2px;box-shadow:0 0 0 1px var(--line)}
+.emptyv{text-align:center;padding:48px 18px}
+.emptyv h2{margin-bottom:8px}
+.tro .hd{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-top:8px;border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left}
+.tro .hd img{width:30px;border-radius:3px;box-shadow:0 0 0 1px var(--line)}
+.tro .hd .who{font-weight:700;font-size:17px}
+.tro .hd .lb{font:700 10.5px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+.tro .hd.none{cursor:default}
+.tro .bl{grid-column:1/-1;font-size:12.5px;color:var(--ink2);margin-top:8px;line-height:1.4;font-style:italic}
+.tro .tx{grid-column:1/-1;font-size:13.5px;color:var(--ink2);margin-top:6px;line-height:1.4}
+.tro .rc{grid-column:1/-1;font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.4}
+.tro .rc b{color:var(--ink)}
+.tro .nx{grid-column:1/-1;font-size:12.5px;margin-top:6px;color:var(--acc);font-weight:600}
+.roll{display:grid;grid-template-columns:150px 1fr;gap:10px 14px;align-items:center;min-width:640px}
+.roll .rl{font-weight:700;font-size:14px;position:sticky;left:0;background:var(--card);z-index:1;padding-right:6px;align-self:stretch;display:flex;flex-direction:column;justify-content:center}
+@media (max-width:640px){.roll{grid-template-columns:112px 1fr}.roll .rl{font-size:13px}}
+.roll .rl small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.roll .yrs{display:grid;gap:2px}
+.roll .yr{height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;position:relative;background:var(--line)}
+.roll .yr img{width:100%;height:100%;object-fit:cover;border-radius:3px}
+.roll .yr.gs::after{content:"";position:absolute;left:50%;bottom:-6px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--ink)}
+.roll .ax{display:grid;gap:2px;font-size:11px;color:var(--muted)}
+.roll .cnt{grid-column:2;font-size:12.5px;color:var(--ink2);margin:-4px 0 6px}
+@media (max-width:640px){.trT{max-width:none}.tro .tn{font-size:16px}}
+
+/*__REDESIGN__*/
+</style>
+
+<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>Rugby Analysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" aria-current="page">International</a><a href="clubs.html" id="clubLink">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="ident">
+      <img class="hflag" id="heroFlag" alt="">
+      <div class="mosaic" id="heroMosaic" hidden></div>
+      <div style="min-width:0">
+        <div class="eyebrow" id="union"></div>
+        <h1 id="teamName"></h1>
+        <div class="sub" id="heroSub"></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="rank" id="rank"></div>
+      <div id="ctlWrap" style="display:flex;gap:14px;flex-wrap:wrap;justify-content:inherit">
+        <div id="scopeWrap">
+          <div class="era-label">Opponents</div>
+          <div class="scope" id="scope" role="group" aria-label="Opponent filter"></div>
+        </div>
+        <div>
+          <div class="era-label">Era</div>
+          <div class="eras" id="eras" role="group" aria-label="Era filter"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="fixtures" hidden>
+  <div class="wnote" id="fxWomen" hidden>Fixtures currently cover men's Tests only. Team pages, results and analytics switch to women's rugby with the Men / Women toggle.</div>
+  <section class="panel">
+    <div class="filterbar"><h2 style="flex:1">Upcoming Tests</h2><span class="tzchip" id="tzNote"></span></div>
+    <p class="hint">Kick-off times are shown in your own time zone. Model picks come from the same team ratings used for the Nations Championship forecast (recent results, home advantage and head-to-head history).</p>
+    <div id="fxList"></div>
+  </section>
+  <section class="panel" id="finalsWrap">
+    <h2>Nations Championship finals weekend</h2>
+    <p class="hint">All six play-offs are at Allianz Stadium, Twickenham. Each Northern team plays the Southern team that finished in the same position. Projected teams are the most likely finisher in each slot from 40,000 simulations of the remaining group games.</p>
+    <div class="fw" id="fxFinals"></div>
+  </section>
+  <p class="cov" id="fxSrc"></p>
+</main>
+
+<main class="wrap" id="trophies" hidden>
+  <div class="wnote" id="trNote" hidden></div>
+  <section class="panel">
+    <h2>Who holds what</h2>
+    <p class="hint" id="trHint"></p>
+    <div class="trTally" id="trTally"></div>
+  </section>
+  <section class="panel">
+    <h2>Major titles</h2>
+    <p class="hint" id="trMajorHint">World and continental championships</p>
+    <div class="trGrid" id="trMajor"></div>
+  </section>
+  <section class="panel" id="trRollWrap">
+    <h2>Roll of honour</h2>
+    <p class="hint">Champions each year. Hover or tap a flag for the detail<span id="trGsNote">; a dot marks a Grand Slam</span>.</p>
+    <div class="tscroll"><div class="roll" id="trRoll"></div></div>
+  </section>
+  <section class="panel" id="trBiWrap">
+    <h2>Rivalry trophies</h2>
+    <p class="hint">Trophies contested between two nations. The holder is the winner of the most recent Test in which the trophy was at stake (a draw leaves it with the holder); World Cup matches are excluded, and trophies tied to the Six Nations only count Championship matches. Records cover those Tests since each trophy was first contested.</p>
+    <div class="trGrid" id="trBi"></div>
+  </section>
+  <p class="cov" id="trSrc"></p>
+</main>
+
+<main class="wrap" id="overview" hidden>
+  <section class="kpis" id="ovKpis" aria-label="Headline numbers"></section>
+
+  <div class="grid3">
+    <section class="panel">
+      <h2 id="wcH">World Cup honours</h2>
+      <p class="hint" id="wcHint"></p>
+      <div class="wcTally" id="wcTally"></div>
+      <div id="wcFinals"></div>
+    </section>
+    <section class="panel">
+      <h2>World Rugby rankings</h2>
+      <p class="hint" id="rkHint"></p>
+      <div id="rankList"></div>
+      <button class="showall" id="rkMore">Show all</button>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>League table</h2>
+    <p class="hint" id="lgHint"></p>
+    <div class="tscroll"><table class="lg" id="league"></table></div>
+  </section>
+
+  <section class="panel" id="restWrap">
+    <h2>Rest of the world</h2>
+    <p class="hint" id="restHint"></p>
+    <div class="tscroll"><table class="lg" id="rest"></table></div>
+  </section>
+
+  <section class="panel" id="msWrap">
+    <div class="filterbar"><h2 style="flex:1">Tries, kicks and cards</h2>
+      <div class="seg" id="msMetric" role="group" aria-label="Measure"><button data-m="t" aria-pressed="true">Tries</button><button data-m="p" aria-pressed="false">Penalty goals</button><button data-m="y" aria-pressed="false">Yellow cards</button><button data-m="r" aria-pressed="false">Red cards</button></div></div>
+    <p class="hint" id="msTrendHint">Average per Test, both teams combined, by year. Uses Tests with detailed match reports; card trends start in 2010, when line-up card records become reliable enough to compare.</p>
+    <div id="msTrend"></div>
+    <div class="msk" id="msKeys"></div>
+    <h3 class="sub3">Team comparison</h3>
+    <p class="hint">Per Test, for the selected era and opponents. Click a column heading to sort, or a team to open its page.</p>
+    <div class="tscroll"><table class="lg mst" id="msTable"></table></div>
+    <div class="grid3" style="margin-top:16px">
+      <div><h3 class="sub3">Top try scorers</h3><div id="msTry"></div></div>
+      <div><h3 class="sub3">Most-used referees</h3><div id="msRef"></div></div>
+    </div>
+    <h3 class="sub3">Biggest crowds</h3><div id="msCrowd"></div>
+    <p class="cov" id="msCov"></p>
+  </section>
+
+
+  <section class="panel" id="lbWrap">
+    <div class="filterbar"><h2 style="flex:1">Match stats leaderboard</h2>
+      <label for="lbSeason" class="hint" style="margin:0">Season</label><select id="lbSeason"></select></div>
+    <div class="seg" id="lbComp" role="group" aria-label="Competition" style="width:max-content;max-width:100%;flex-wrap:wrap;margin-bottom:10px"></div>
+    <p class="hint" id="lbHint"></p>
+    <div class="tscroll"><table class="lg mst lbt" id="lbTable"></table></div>
+    <p class="cov">Team stats from ESPN match centres: Six Nations, Rugby Championship (and Tri Nations), Rugby World Cup and Women's Rugby World Cup. Summer and autumn Tests are not covered. Kicking metres and scrum penalties are not published in this feed.</p>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <h2>Did you know?</h2>
+      <p class="hint">Standout records for the selected era</p>
+      <div class="fxs" id="ovFacts"></div>
+    </section>
+    <section class="panel">
+      <h2>Latest results</h2>
+      <p class="hint" id="latestHint">The most recent Tests</p>
+      <div id="latest"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>How scoring has changed</h2>
+    <p class="hint">Average combined points per Test by decade. A try was worth 2 points until 1893 and 4 until 1992; it is 5 today.</p>
+    <div class="legend"><span><i class="ln" style="background:var(--acc)"></i>Points per Test</span></div>
+    <div id="trendChart"></div>
+  </section>
+  <section class="panel" id="moneyWrap">
+    <div class="filterbar"><h2 style="flex:1">What drives winning?</h2>
+      <div class="seg" id="moneyMetric" role="group" aria-label="Measure"><button data-m="win" aria-pressed="true">Win rate</button><button data-m="mar" aria-pressed="false">Points margin</button></div></div>
+    <p class="hint">Pick a factor and see how it lines up with each nation's results in all Tests since 1 January 2021. Hover a flag for details; click it to open that team.</p>
+    <div class="drv" id="drvSel" role="group" aria-label="Factor"></div>
+    <div id="moneyChart"></div>
+    <p class="moneyTake" id="moneyTake"></p>
+    <div class="tscroll"><table class="lg money" id="moneyTable"></table></div>
+    <details class="notes"><summary>Sources, exchange rates and caveats</summary><div id="moneyNotes"></div></details>
+  </section>
+
+  <section class="panel">
+    <h2>A fact for every nation</h2>
+    <p class="hint" id="nfHint"></p>
+    <div class="nf" id="nationFacts"></div>
+  </section>
+</main>
+
+
+<main class="wrap" id="players" hidden>
+  <section class="kpis" id="plKpis" aria-label="Player headlines"></section>
+  <div class="grid3">
+    <section class="panel" id="capWrap">
+      <div class="filterbar"><h2 style="flex:1">Most Test caps</h2><label for="capNation" class="hint" style="margin:0">Nation</label><select id="capNation"></select></div>
+      <p class="hint">Every player with 100 or more Test caps, from Wikipedia. Lions caps count towards the total.</p>
+      <div id="capList"></div>
+    </section>
+    <section class="panel">
+      <h2>Standout numbers</h2>
+      <p class="hint">Per-game records need at least 15 games with player stats.</p>
+      <div class="fxs" id="plFacts"></div>
+    </section>
+  </div>
+  <section class="panel">
+    <div class="filterbar"><h2 style="flex:1">Player explorer</h2><span class="hint" id="plCount" style="margin:0"></span></div>
+    <div class="plf">
+      <input id="plQ" type="search" placeholder="Search players" aria-label="Search players">
+      <select id="plTeam" aria-label="Nation"></select>
+      <select id="plPos" aria-label="Position"></select>
+      <select id="plSince" aria-label="Active since"><option value="all">Any era</option><option value="2024">Played since 2024</option><option value="2020">Played since 2020</option><option value="2015">Played since 2015</option></select>
+    </div>
+    <p class="hint">Click a column to sort and a player to open their profile. "Tests held" counts the line-ups we have, so it is lower than official caps for most players. Per-game figures need five games with player stats.</p>
+    <div class="tscroll"><table class="lg mst plt" id="plTable"></table></div>
+    <button class="showall" id="plMore">Show more</button>
+  </section>
+  <div class="grid2">
+    <section class="panel">
+      <h2>Size by position</h2>
+      <p class="hint" id="scHint"></p>
+      <div class="legend" id="plLegend"></div>
+      <div id="plScatter"></div>
+    </section>
+    <section class="panel" id="bgWrap">
+      <h2>Is the game getting bigger?</h2>
+      <p class="hint" id="bgHint"></p>
+      <div class="legend"><span><i class="ln" style="background:var(--c1)"></i>Forwards (per player)</span><span><i class="ln" style="background:var(--c2)"></i>Backs (per player)</span></div>
+      <div id="plTrend"></div>
+    </section>
+  </div>
+  <p class="cov">Line-ups, player profiles and per-match player stats from ESPN match centres; official caps and current squads from Wikipedia. Weights and heights are the player's listed profile figures.</p>
+</main>
+<dialog id="pdlg" aria-label="Player profile"><div id="pcard"></div></dialog>
+<main class="wrap" id="emptyView" hidden><section class="panel emptyv"><h2 id="emptyH">No women's Tests yet</h2><p class="hint" id="emptyP"></p><button class="showall" id="emptyBtn">Show men's record</button></section></main>
+
+<main class="wrap" id="teamView">
+  <section class="kpis" id="kpis" aria-label="Headline record"></section>
+
+  <div class="grid3">
+    <section class="panel">
+      <h2>Record by decade</h2>
+      <p class="hint">Share of Tests won, drawn and lost in each decade</p>
+      <div class="legend"><span><i style="background:var(--acc)"></i>Won</span><span><i style="background:var(--draw)"></i>Drawn</span><span><i style="background:var(--loss)"></i>Lost</span></div>
+      <div id="decadeChart"></div>
+    </section>
+    <section class="panel">
+      <h2>Scoring by decade</h2>
+      <p class="hint">Average points per Test, scored vs conceded</p>
+      <div class="legend"><span><i class="ln" style="background:var(--acc)"></i>Scored</span><span><i class="ln" style="background:var(--loss)"></i>Conceded</span></div>
+      <div id="pointsChart"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Season by season</h2>
+    <p class="hint">Win rate each calendar year. Darker = more wins. Hover a year for the detail.</p>
+    <div id="yearStrip"></div>
+  </section>
+
+  <div class="grid3">
+    <section class="panel">
+      <h2>Head to head</h2>
+      <p class="hint">Record against each opponent, most-played first. Click a row to filter the results list.</p>
+      <div class="tscroll"><table class="h2h" id="h2h"></table></div>
+      <button class="showall" id="h2hMore" hidden>Show all</button>
+    </section>
+    <div style="display:grid;gap:18px;align-content:start">
+      <section class="panel">
+        <h2>Current form</h2>
+        <p class="hint">Last 10 Tests, oldest to newest</p>
+        <div class="form" id="form"></div>
+      </section>
+      <section class="panel">
+        <h2>Where they play</h2>
+        <p class="hint">Home, away and neutral-venue record</p>
+        <div class="splits" id="splits"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>Tries, kicking and discipline</h2>
+    <p class="hint" id="msHint"></p>
+    <div class="stt" id="mstats"></div>
+    <div class="tsl" id="topTry"></div>
+  </section>
+
+  <p class="hint" id="perfNone" hidden>Team match stats (tackles, line breaks, set piece) are available for Six Nations, Rugby Championship and World Cup Tests from about 2009. This team has none in the selected era.</p>
+  <section class="panel" id="adWrap">
+    <h2>Attack and defence</h2>
+    <p class="hint" id="adHint"></p>
+    <div class="drv" id="adSeg" role="group" aria-label="Attack and defence measure"></div>
+    <div class="legend"><span><i class="ln" style="background:var(--acc)"></i>This team</span><span><i class="ln dash"></i>Opponents</span></div>
+    <div id="adChart"></div>
+    <div class="ptiles" id="adTiles"></div>
+  </section>
+  <section class="panel" id="spWrap">
+    <h2>Set piece and discipline</h2>
+    <p class="hint" id="spHint"></p>
+    <div class="drv" id="spSeg" role="group" aria-label="Set piece and discipline measure"></div>
+    <div class="legend"><span><i class="ln" style="background:var(--acc)"></i>This team</span><span><i class="ln dash"></i>Opponents</span></div>
+    <div id="spChart"></div>
+    <div class="ptiles" id="spTiles"></div>
+  </section>
+
+  <section class="panel" id="sqWrap">
+    <h2>Squad profile</h2>
+    <p class="hint" id="sqHint"></p>
+    <div class="drv" id="sqSeg" role="group" aria-label="Squad measure"></div>
+    <div class="legend"><span><i class="ln" style="background:var(--acc)"></i>This team</span><span><i class="ln dash"></i>Opponents</span></div>
+    <div id="sqChart"></div>
+    <div class="ptiles" id="sqTiles"></div>
+  </section>
+  <div class="grid2 cs2" id="csWrap">
+    <section class="panel">
+      <h2>Current squad</h2>
+      <p class="hint" id="csHint"></p>
+      <p class="hint" id="csNoSq">No current squad list for this nation yet.</p>
+      <div class="tscroll"><table class="lg cst" id="csTable"></table></div>
+    </section>
+    <section class="panel">
+      <h2>Most-used players</h2>
+      <p class="hint">Tests in the selected era from the line-ups we hold. Click a player for their profile.</p>
+      <div id="muList"></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Landmarks</h2>
+      <p class="hint">Records within the selected era</p>
+      <div class="facts" id="facts"></div>
+    </section>
+    <section class="panel">
+      <div class="filterbar"><h2 style="flex:1">Results</h2>
+        <label for="oppSel" class="hint" style="margin:0">Opponent</label>
+        <select id="oppSel"></select></div>
+      <p class="hint" id="resHint">Most recent first</p><p class="hint" style="margin-top:-8px">Tap a result for tries, kicking, cards, referee and attendance.</p>
+      <div class="list" id="results"></div>
+    </section>
+  </div>
+</main>
+<footer class="wrap" id="foot"></footer>
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+const RAW = __DATA__;
+const TEAMS = [
+ {id:"argentina",name:"Argentina",union:"Unión Argentina de Rugby",nick:"Los Pumas",p:"#74ACDF",onp:"#0A2240",s:"#FFFFFF",al:"#2474B8",ad:"#8EC4F2",stripe:"linear-gradient(90deg,#FFFFFF 0 50%,#0A2240 50%)",sw:"#74ACDF"},
+ {id:"australia",name:"Australia",union:"Rugby Australia",nick:"The Wallabies",p:"#FFB81C",onp:"#073B22",s:"#00843D",al:"#00843D",ad:"#FFC23D",stripe:"linear-gradient(90deg,#00843D 0 50%,#073B22 50%)",sw:"#FFB81C"},
+ {id:"england",name:"England",union:"Rugby Football Union",nick:"The Red Rose",p:"#F4F4F2",onp:"#0B1E3F",s:"#C8102E",al:"#C8102E",ad:"#FF5C6C",stripe:"linear-gradient(90deg,#C8102E 0 50%,#0B1E3F 50%)",sw:"#fff"},
+ {id:"france",name:"France",union:"Fédération Française de Rugby",nick:"Les Bleus",p:"#0A2A66",onp:"#FFFFFF",s:"#E4002B",al:"#1A3D8F",ad:"#7FA2F2",stripe:"linear-gradient(90deg,#0055A4 0 33.3%,#FFFFFF 33.3% 66.6%,#EF4135 66.6%)",sw:"#0A2A66"},
+ {id:"ireland",name:"Ireland",union:"Irish Rugby Football Union",nick:"The Shamrock",p:"#00703C",onp:"#FFFFFF",s:"#FFFFFF",al:"#00813F",ad:"#4ED68B",stripe:"linear-gradient(90deg,#FFFFFF 0 50%,#9ADBB5 50%)",sw:"#00703C"},
+ {id:"italy",name:"Italy",union:"Federazione Italiana Rugby",nick:"Gli Azzurri",p:"#0B5CAD",onp:"#FFFFFF",s:"#009246",al:"#0B5CAD",ad:"#6FB2F5",stripe:"linear-gradient(90deg,#009246 0 33.3%,#FFFFFF 33.3% 66.6%,#CE2B37 66.6%)",sw:"#0B5CAD"},
+ {id:"new-zealand",name:"New Zealand",union:"New Zealand Rugby",nick:"The All Blacks",p:"#000000",onp:"#FFFFFF",s:"#A7A8AA",al:"#111111",ad:"#D7DADE",stripe:"linear-gradient(90deg,#FFFFFF 0 33%,#A7A8AA 33%)",sw:"#000"},
+ {id:"scotland",name:"Scotland",union:"Scottish Rugby Union",nick:"The Thistle",p:"#0B2341",onp:"#FFFFFF",s:"#7B5AA6",al:"#2A4F8F",ad:"#A9B9F0",stripe:"linear-gradient(90deg,#7B5AA6 0 50%,#FFFFFF 50%)",sw:"#0B2341"},
+ {id:"south-africa",name:"South Africa",union:"SA Rugby",nick:"The Springboks",p:"#006A4E",onp:"#FFFFFF",s:"#FFB612",al:"#006747",ad:"#006747",stripe:"linear-gradient(90deg,#FFB612 0 60%,#FFFFFF 60%)",sw:"#006A4E"},
+ {id:"wales",name:"Wales",union:"Welsh Rugby Union",nick:"Y Dreigiau Cochion",p:"#C8102E",onp:"#FFFFFF",s:"#00843D",al:"#C8102E",ad:"#FF6B78",stripe:"linear-gradient(90deg,#FFFFFF 0 50%,#00843D 50%)",sw:"#C8102E"}
+];
+const RANKM = __RANK__;
+const RANKW = __RANKW__;
+let RANK = RANKM;
+const RAWW = __DATAW__;
+const STATS = __STATS__;
+const PLY = __PLAYERS__;
+const TROPHIES = __TROPHIES__;
+const LINEAL = __LINEAL__;
+const FLAGS = __FLAGS__;
+const OTHERS = __OTHERS__;
+OTHERS.forEach(o=>{FLAGS[o.id]=o.flag});
+const ALL = TEAMS.concat(OTHERS.map(o=>({...o,union:"",nick:"",other:true})));
+const NT = TEAMS.length;
+const ERAS=[{id:"all",label:"All time",from:0},{id:"pro",label:"Pro era (1995+)",from:1995},{id:"2010",label:"Since 2010",from:2010},{id:"2020",label:"Since 2020",from:2020}];
+
+const mkM=(D,G)=>D.m.map((r,k)=>({ms:STATS[G][k]||null,det:D.det[k]||null,date:r[0],y:+r[0].slice(0,4),h:r[1],a:r[2],hs:r[3],as:r[4],comp:D.c[r[5]],venue:D.v[r[6]].split("|"),neutral:!!r[7],wc:!!r[8]}));
+const MM=mkM(RAW,"m"),MW=mkM(RAWW,"w");
+let M=MM,D=RAW;
+const WOMEN=()=>state.g==="w";
+const nameIdx=n=>ALL.findIndex(t=>t.name===n);
+const TOPW=new Set(Object.entries(RANKW).filter(([k,v])=>v.pos<=10).map(([k])=>ALL.findIndex(t=>t.id===k)));
+const isTop=i=>WOMEN()?TOPW.has(i):i<NT;
+const WNICK={england:"The Red Roses","new-zealand":"The Black Ferns",australia:"The Wallaroos",france:"Les Bleues",italy:"Le Azzurre","south-africa":"Springbok Women",canada:"Canada Women","united-states":"The Women's Eagles",ireland:"Ireland Women",scotland:"Scotland Women",wales:"Wales Women",argentina:"Argentina Women"};
+const WRWC=[[1991,"United States","England",19,6,"Cardiff"],[1994,"England","United States",38,23,"Edinburgh"],[1998,"New Zealand","United States",44,12,"Amsterdam"],[2002,"New Zealand","England",19,9,"Barcelona"],[2006,"New Zealand","England",25,17,"Edmonton"],[2010,"New Zealand","England",13,10,"London"],[2014,"England","Canada",21,9,"Paris"],[2017,"New Zealand","England",41,32,"Belfast"],[2021,"New Zealand","England",34,31,"Auckland"],[2025,"England","Canada",33,13,"London"]];
+const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%100]||"th");
+
+let state={team:-1,era:"all",opp:-1,scope:"all",h2hAll:false,g:"m"};
+const SPECIAL={overview:-1,fixtures:-2,trophies:-3,players:-4};
+const idOf=i=>i===-2?"fixtures":i===-3?"trophies":i===-4?"players":i<0?"overview":ALL[i].id;
+const parseId=h=>h in SPECIAL?SPECIAL[h]:ALL.findIndex(t=>t.id===h);
+try{let h=decodeURIComponent(location.hash.slice(1));let g=null;if(h.startsWith("women/")){g="w";h=h.slice(6)}else if(h==="women"){g="w";h="overview"}else if(h)g="m";
+  if(!g){try{g=localStorage.getItem("rl-g")==="w"?"w":"m"}catch(e){g="m"}}
+  let i=parseId(h);if(i===-1&&h!=="overview"){const ls=localStorage.getItem("rl-team-id");i=ls?parseId(ls):-1}state.team=i;state.g=g;}catch(e){}
+if(state.g==="w"){M=MW;D=RAWW;RANK=RANKW;state.scope="all"}
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtDate=d=>{const[y,m,dd]=d.split("-");return `${+dd} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][m-1]} ${y}`};
+const pct=(a,b)=>b?Math.round(a/b*1000)/10:0;
+
+// Tooltip
+const tip=$("tip");
+function showTip(e,html){tip.innerHTML=html;tip.classList.add("on");moveTip(e)}
+function moveTip(e){const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=Math.max(8,x)+"px";tip.style.top=Math.max(8,y)+"px"}
+function hideTip(){tip.classList.remove("on")}
+function bindTips(root){root.querySelectorAll("[data-tip]").forEach(el=>{el.addEventListener("pointerenter",e=>showTip(e,el.dataset.tip));el.addEventListener("pointermove",moveTip);el.addEventListener("pointerleave",hideTip)})}
+
+// Per-team view of a match
+function view(m,t){const home=m.h===t;const pf=home?m.hs:m.as,pa=home?m.as:m.hs;return{...m,opp:home?m.a:m.h,pf,pa,res:pf>pa?"W":pf<pa?"L":"D",where:m.neutral?"Neutral":home?"Home":"Away"}}
+function inScope(m){return state.scope==="all"||(isTop(m.h)&&isTop(m.a))}
+function games(t,from){return M.filter(m=>(m.h===t||m.a===t)&&m.y>=from&&(t>=NT||inScope(m))).map(m=>view(m,t))}
+function rec(g){const w=g.filter(x=>x.res==="W").length,d=g.filter(x=>x.res==="D").length;return{p:g.length,w,d,l:g.length-w-d}}
+
+// Picker & eras
+$("picker").innerHTML=`<button class="chip" id="team-overview" data-i="-1" aria-pressed="false"><svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="11.5" ry="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9h10M10 7v4M13 7v4M16 7v4" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>Overview</button><button class="chip" id="team-trophies" data-i="-3" aria-pressed="false"><svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><path d="M8.5 2h9v4.5a4.5 4.5 0 0 1-9 0z M8.5 3.5H5.5a3 3 0 0 0 3 3.5 M17.5 3.5h3a3 3 0 0 1-3 3.5 M13 11v3 M9.5 16.5h7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>Trophies</button><button class="chip" id="team-players" data-i="-4" aria-pressed="false"><svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><circle cx="13" cy="5.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 16.5c.8-3.6 3.4-5.6 6.5-5.6s5.7 2 6.5 5.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Players</button><button class="chip" id="team-fixtures" data-i="-2" aria-pressed="false"><svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><rect x="4" y="2.5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7h18M9 1v3M17 1v3" stroke="currentColor" stroke-width="1.6"/></svg>Fixtures</button>`+TEAMS.map((t,i)=>i).concat(["Canada","United States"].map(nameIdx)).sort((a,b)=>ALL[a].name.localeCompare(ALL[b].name)).map(i=>`<button class="chip${i>=NT?" wonly":""}" id="team-${ALL[i].id}" data-i="${i}" aria-pressed="false"><img class="fl" src="${FLAGS[ALL[i].id]}" alt="">${ALL[i].name==="United States"?"USA":ALL[i].name}</button>`).join("");
+$("gsw").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.g===state.g)return;setGender(b.dataset.g)});
+function setGender(g){state.g=g;M=g==="w"?MW:MM;D=g==="w"?RAWW:RAW;RANK=g==="w"?RANKW:RANKM;NF_CACHE=null;state.opp=-1;state.rkAll=false;if(g==="w")state.scope="all";
+  buildMore();setTeam(state.team)}
+$("picker").insertBefore($("team-fixtures"),$("team-trophies"));
+$("picker").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b||b.tagName==="A")return;setTeam(+b.dataset.i)});
+function setTeam(i){state.team=i;state.opp=-1;render();const id=idOf(i);try{localStorage.setItem("rl-team-id",id);localStorage.setItem("rl-g",state.g);history.replaceState(null,"","#"+(WOMEN()?"women/":"")+id)}catch(e){}}
+function buildMore(){const old=$("moreTeams");if(old)old.remove();const cnt=new Array(ALL.length).fill(0);M.forEach(m=>{cnt[m.h]++;cnt[m.a]++});
+ const oth=OTHERS.map((o,k)=>({i:NT+k,n:cnt[NT+k],name:o.name}));const busy=oth.slice().sort((a,b)=>b.n-a.n).slice(0,20);
+ const sel=document.createElement("select");document.body.classList.toggle("women",WOMEN());sel.className="more";sel.id="moreTeams";sel.setAttribute("aria-label","More nations");
+ sel.innerHTML=`<option value="">More nations (${OTHERS.length})…</option><optgroup label="${WOMEN()?"Most women's Tests":"Most Tests since 2000"}">${busy.map(o=>`<option value="${o.i}">${o.name}</option>`).join("")}</optgroup><optgroup label="All nations A–Z">${oth.map(o=>`<option value="${o.i}">${o.name}</option>`).join("")}</optgroup>`;
+ $("picker").appendChild(sel);sel.addEventListener("change",()=>{if(sel.value!=="")setTeam(+sel.value)});
+ document.querySelectorAll("#gsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===state.g));$("clubLink").href="clubs.html"+(WOMEN()?"#women":"");$("sevLink").href="sevens.html"+(WOMEN()?"#women":"#men");
+ $("heroMosaic").innerHTML=(WOMEN()?[...TOPW]:TEAMS.map((t,i)=>i)).map(i=>`<img src="${FLAGS[ALL[i].id]}" alt="">`).join("");}
+buildMore();
+$("scope").innerHTML=`<button data-s="all" aria-pressed="true">All nations</button><button data-s="t10" aria-pressed="false">Top 10 only</button>`;
+$("scope").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.scope=b.dataset.s;render()});
+$("eras").innerHTML=ERAS.map(e=>`<button id="era-${e.id}" data-e="${e.id}" aria-pressed="false">${e.label}</button>`).join("");
+$("eras").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.era=b.dataset.e;render()});
+$("oppSel").addEventListener("change",e=>{state.opp=+e.target.value;renderResults(currentGames);markH2H()});
+
+function applyTheme(t){const r=document.documentElement.style;r.setProperty("--p",t.p);r.setProperty("--on-p",t.onp);r.setProperty("--s",t.s);r.setProperty("--acc-l",t.al);r.setProperty("--acc-d",t.ad);r.setProperty("--stripe",t.stripe);
+  const meta=document.querySelector('meta[name="theme-color"]')||document.head.appendChild(Object.assign(document.createElement("meta"),{name:"theme-color"}));meta.content=t.p}
+
+const OVERVIEW={id:"overview",p:"#10213A",onp:"#FFFFFF",s:"#C9A24B",al:"#8A5E0F",ad:"#E2B85C",
+  stripe:"linear-gradient(90deg,"+TEAMS.map((t,i)=>`${t.p==="#F4F4F2"?"#C8102E":t.p} ${i*10}% ${(i+1)*10}%`).join(",")+")"};
+const tname=i=>ALL[i].name, fl=i=>`<img src="${FLAGS[ALL[i].id]}" alt="">`;
+
+function wcFinals(){if(WOMEN())return WRWC.map(([y,w,r,ws,rs,c])=>({y,m:{venue:[c,c]},w:nameIdx(w),r:nameIdx(r),ws,rs}));const by={};M.filter(m=>m.wc).forEach(m=>{by[m.y]=m});return Object.values(by).map(m=>({y:m.y,m,w:m.hs>m.as?m.h:m.a,r:m.hs>m.as?m.a:m.h,ws:Math.max(m.hs,m.as),rs:Math.min(m.hs,m.as)}))}
+function teamRec(i,G){const g=G.filter(m=>m.h===i||m.a===i).map(m=>view(m,i));const r=rec(g);r.pf=g.reduce((s,x)=>s+x.pf,0);r.pa=g.reduce((s,x)=>s+x.pa,0);r.g=g;return r}
+function renderOverview(era){
+  const G=M.filter(m=>m.y>=era.from&&inScope(m)),F=wcFinals(),last=F[F.length-1];
+  const cups={};F.forEach(f=>cups[f.w]=(cups[f.w]||0)+1);
+  $("union").textContent=WOMEN()?"Women's Test rugby · since 1982":"Men's Test rugby · since 1871";
+  $("teamName").textContent=WOMEN()?"Women's Rugby Union":"Men's Rugby Union";
+  $("heroSub").textContent=WOMEN()?`${M.length.toLocaleString()} women's Tests involving ${new Set(M.flatMap(m=>[m.h,m.a])).size} nations, from the first international in 1982 to ${fmtDate(M[M.length-1].date)}. ${G.length.toLocaleString()} fall in the ${era.label.toLowerCase()} window.`:state.scope==="all"?`${M.length.toLocaleString()} Tests involving ${ALL.length} nations: every Test between the top 10 since 1871, plus all Tests worldwide since 2000. ${G.length.toLocaleString()} fall in the ${era.label.toLowerCase()} window.`:`${G.length.toLocaleString()} Tests between the ten leading rugby nations in the ${era.label.toLowerCase()} window, up to ${fmtDate(M[M.length-1].date)}.`;
+  $("rank").innerHTML=`<img class="hold" src="${FLAGS[ALL[last.w].id]}" alt=""><div><div class="lbl">${WOMEN()?"Women's world champions":"World champions"}</div><div class="holder">${tname(last.w)}</div><div class="pts">${last.y} final: ${last.ws}–${last.rs} v ${tname(last.r)}</div></div>`;
+  // KPIs
+  const pts=G.reduce((s,m)=>s+m.hs+m.as,0),nn=G.filter(m=>!m.neutral),hw=nn.filter(m=>m.hs>m.as).length,dr=G.filter(m=>m.hs===m.as).length,grounds=new Set(G.map(m=>m.venue[0])).size;
+  $("ovKpis").innerHTML=[["Tests played",G.length.toLocaleString(),era.from?`since ${era.from}`:(WOMEN()?"since 1982":"since 1871"),1],["Points scored",pts.toLocaleString(),state.scope==="all"?"all nations":"by the ten teams"],["Points per Test",(pts/G.length).toFixed(1),"both teams combined"],["Home win rate",pct(hw,nn.length)+"%",`${hw} of ${nn.length} non-neutral Tests`],["Draws",dr,pct(dr,G.length)+"% of Tests"],(WOMEN()?["Nations",new Set(G.flatMap(m=>[m.h,m.a])).size,"played a women's Test"]:["Grounds used",grounds,"different stadiums"])]
+    .map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join("");
+  // World Cup
+  $("wcTally").innerHTML=Object.entries(cups).sort((a,b)=>b[1]-a[1]).map(([i,n])=>`<span>${fl(+i)}<b>${n}</b>${n>1?"titles":"title"} · ${tname(+i)}</span>`).join("");
+  $("wcFinals").innerHTML=F.slice().reverse().map(f=>`<div class="final"><div class="yr">${f.y}</div><div><span class="w">${fl(f.w)} ${tname(f.w)}</span><span class="ru">beat ${tname(f.r)} · ${esc(f.m.venue[1]||f.m.venue[0])}</span></div><div class="sc">${f.ws}–${f.rs}</div></div>`).join("");
+  // rankings dot plot
+  const rkAll=ALL.map((t,i)=>RANK[t.id]?{i,...RANK[t.id]}:null).filter(Boolean).sort((a,b)=>a.pos-b.pos),rk=state.rkAll?rkAll:rkAll.slice(0,15);
+  $("rkMore").textContent=state.rkAll?"Show top 15":`Show all ${rkAll.length}`;const lo0=0;const lo=Math.floor((Math.min(...rkAll.map(r=>r.pts))-2)/5)*5,hi=Math.ceil((Math.max(...rkAll.map(r=>r.pts))+1)/5)*5;
+  $("rankList").innerHTML=rk.map(r=>`<div class="rk" data-tip="<b>${tname(r.i)}</b><br>World ranking ${ord(r.pos)} · ${r.pts.toFixed(2)} pts"><div class="pos">${r.pos}</div>${fl(r.i)}<div>${tname(r.i)}</div><div class="trk"><span class="dot" style="left:${((r.pts-lo)/(hi-lo)*100).toFixed(1)}%"></span></div><div class="pt">${r.pts.toFixed(2)}</div></div>`).join("")+`<div class="rkAxis"><div></div><div></div><div></div><div><span>${lo}</span><span>${(lo+hi)/2}</span><span>${hi} pts</span></div><div></div></div>`;
+  bindTips($("rankList"));
+  // league table
+  const W_=WOMEN(),topIdx=ALL.map((t,i)=>i).filter(isTop);
+  leagueTable("league",topIdx.map(i=>({i,...teamRec(i,G)})).filter(r=>r.p),cups);
+  const restG=W_?G:M.filter(m=>m.y>=Math.max(era.from,2000));
+  leagueTable("rest",ALL.map((o,i)=>i).filter(i=>!isTop(i)).map(i=>({i,...teamRec(i,restG)})).filter(r=>r.p>=(W_?15:40)),cups,25);
+  $("restWrap").hidden=state.scope==="t10";
+  $("wcHint").textContent=W_?"Only four nations have reached a Women's Rugby World Cup final":"Every Rugby World Cup final has been contested by these ten teams";
+  $("wcH").textContent=W_?"Women's World Cup honours":"World Cup honours";
+  $("rkHint").textContent=W_?"Women's world top 20 by rating points":"Men's world top 30 by rating points";
+  $("lgHint").textContent=W_?"Record in Tests between the current women's top 10, ranked by win rate for the selected era. Click a team to open its page.":"Record in Tests between the top 10, ranked by win rate for the selected era. Click a team to open its page.";
+  $("restHint").textContent=W_?"Top 25 other nations by win rate in women's Tests for the selected era (minimum 15 Tests). Click a team to open its page.":"Top 25 other nations by win rate, all Tests since 2000 (minimum 40 Tests). Click a team to open its page.";
+  $("nfHint").textContent=W_?"One standout from the record of each nation in the women's world top 20, from every women's Test in the dataset. Click a card to open that team's page.":"One standout from the record of each team in the world top 30. Top 10 records go back to 1871; other nations' records start in 2000. Click a card to open that team's page.";
+  $("moneyWrap").hidden=W_;
+  renderOvFacts(G,era);renderMatchAnalytics(G,era);renderBoard(G);renderLatest();renderTrend(G);if(!W_)renderMoney();renderNationFacts();
+}
+function leagueTable(id,rows0,cups,limit){const rows=rows0.sort((a,b)=>b.w/b.p-a.w/a.p).slice(0,limit||99);
+  $(id).innerHTML=`<thead><tr><th>#</th><th>Team</th><th class="x">P</th><th class="x">W</th><th class="x">D</th><th class="x">L</th><th>Win %</th><th class="x">For</th><th class="x">Against</th><th class="x">Diff</th><th class="x">RWC titles</th><th class="x">World rank</th><th>Last 5</th></tr></thead><tbody>`+
+    rows.map((r,k)=>{const l5=games(r.i,0).slice(-5);return `<tr data-i="${r.i}"><td class="pos">${k+1}</td><td><span class="nm">${fl(r.i)}${tname(r.i)}</span><span class="sub">${r.w}–${r.d}–${r.l} in ${r.p}${cups[r.i]?` · ${cups[r.i]}× world champions`:""}</span></td><td class="x">${r.p}</td><td class="x">${r.w}</td><td class="x">${r.d}</td><td class="x">${r.l}</td><td class="pct">${pct(r.w,r.p)}%</td><td class="x">${r.pf.toLocaleString()}</td><td class="x">${r.pa.toLocaleString()}</td><td class="x">${r.pf-r.pa>0?"+":""}${(r.pf-r.pa).toLocaleString()}</td><td class="x cups">${cups[r.i]||"–"}</td><td class="x">${RANK[ALL[r.i].id]?RANK[ALL[r.i].id].pos:"–"}</td><td><span class="mini">${l5.map(x=>`<i class="${x.res}" title="${x.res} ${x.pf}–${x.pa} v ${tname(x.opp)}">${x.res}</i>`).join("")}</span></td></tr>`}).join("")+`</tbody>`;
+  $(id).querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{setTeam(+tr.dataset.i);scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}));
+}
+$("rkMore").addEventListener("click",()=>{state.rkAll=!state.rkAll;renderOverview(ERAS.find(e=>e.id===state.era))});
+const FX={GBP:1.3372,EUR:1.1464,NZD:0.5710,AUD:0.7111,ZAR:1/16.3010,JPY:1/156.87};
+const FIN=[
+ {t:"England",u:"Rugby Football Union",fy:"Year to Jun 2025",cur:"GBP",rev:228,na:null,src:"https://www.rugbypass.com/news/rfu-report-30-rise-in-total-revenue-for-2024-25/",srcT:"RugbyPass on RFU 2024/25 report",note:"Net assets not published in the sources I could reach."},
+ {t:"France",u:"Fédération Française de Rugby",fy:"Year to Jun 2025",cur:"EUR",rev:133.4,na:30.7,src:"https://api.www.ffr.fr/wp-content/uploads/2026/01/rapport-financier-30-juin-2025.pdf",srcT:"FFR financial report, 30 June 2025",note:"Operating revenue; equity (fonds propres)."},
+ {t:"New Zealand",u:"New Zealand Rugby",fy:"Year to Dec 2025",cur:"NZD",rev:304.2,na:-23.7,src:"https://www.nzrugby.co.nz/assets/NZRU-Group-Performance-Report-2025.pdf",srcT:"NZR Group Performance Report 2025",note:"Group figures. Net assets are negative mainly because the Silver Lake commercial deal is booked as a long-term liability."},
+ {t:"Australia",u:"Rugby Australia",fy:"Year to Dec 2025",cur:"AUD",rev:260,na:null,src:"https://www.rugby.com.au/news/rugby-australia-posts-record-profit-surplus-for-2025-season-at-annual-general-meeting-2026421",srcT:"Rugby Australia 2025 AGM release",note:"Revenue reported as having 'eclipsed $260 million', boosted by the 2025 Lions tour. Net assets not published in the release."},
+ {t:"Wales",u:"Welsh Rugby Union",fy:"Year to Jun 2024",cur:"GBP",rev:102.7,na:34.8,src:"https://d2cx26qpfwuhvu.cloudfront.net/wru/wp-content/uploads/2024/11/25104005/WRU-ARA-2023-24-V2o.pdf",srcT:"WRU Annual Report 2023/24",note:"Group figures. The WRU owns the Principality Stadium."},
+ {t:"South Africa",u:"SA Rugby",fy:"Year to Dec 2025",cur:"ZAR",rev:2000,na:-84,src:"https://www.ewn.co.za/2026/07/20/can-sa-rugby-balance-the-books-without-pricing-out-fans",srcT:"EWN on SA Rugby 2025 annual report",note:"Revenue about R2 billion; group liabilities exceeded assets by R84 million."},
+ {t:"Ireland",u:"Irish Rugby Football Union",fy:"Year to Jul 2025",cur:"EUR",rev:98,na:101.7,src:"https://d19fc3vd0ojo3m.cloudfront.net/irfu/wp-content/uploads/2025/11/17153603/IRFU-Financial-Report-2024_25.pdf",srcT:"IRFU Financial Report 2024/25",note:"Consolidated net assets €101.7m (the union alone reports €81.6m); includes its share of the Aviva Stadium."},
+ {t:"Scotland",u:"Scottish Rugby Union",fy:"Year to Jun 2025",cur:"GBP",rev:79.4,na:13.0,src:"https://scottishrugby.org/wp-content/uploads/2025/11/SRAR_2425_draft5.8.pdf",srcT:"Scottish Rugby Annual Report 2024/25",note:"Capital and reserves at year end."},
+ {t:"Italy",u:"Federazione Italiana Rugby",fy:"Year to Dec 2025",cur:"EUR",rev:52,na:null,src:"https://www.sportefinanza.it/2026/06/11/fir-bilancio-consuntivo-2025/",srcT:"Sport e Finanza on FIR 2025 accounts",note:"'Value of production' above €52m. Net assets not reported in the source."},
+ {t:"Japan",u:"Japan Rugby Football Union",fy:"Year to Mar 2025",cur:"JPY",rev:8071,na:5838,src:"https://rugby-japan.s3.ap-northeast-1.amazonaws.com/file/html/201761_686e129359f21.pdf",srcT:"JRFU Annual Report 2024",note:"Figures in ¥ millions (ordinary revenue; total net assets)."}
+];
+const SYM={GBP:"£",EUR:"€",NZD:"NZ$",AUD:"A$",ZAR:"R",JPY:"¥"};
+const fmtLocal=(v,c)=>v==null?"–":(v<0?"−":"")+SYM[c]+(c==="JPY"||c==="ZAR"?(Math.abs(v)>=1000?(Math.abs(v)/1000).toFixed(2)+"bn":Math.abs(v)+"m"):Math.abs(v).toFixed(1).replace(/\.0$/,"")+"m");
+const usd=(v,c)=>v==null?null:v*FX[c];
+state.moneyM="win";
+const POP={"South Africa":63.52,"New Zealand":5.36,"Ireland":7.45,"France":69.08,"England":58.62,"Australia":27.92,"Scotland":5.55,"Argentina":46.47,"Fiji":0.90,"Wales":3.19,"Italy":58.94,"Japan":122.65,"Georgia":3.94,"United States":341.78,"Portugal":11.42,"Chile":20.15,"Spain":49.80,"Uruguay":3.48,"Tonga":0.10,"Samoa":0.21,"Romania":19.04,"Belgium":11.94,"Hong Kong":7.52,"Canada":41.80,"Zimbabwe":17.07,"Namibia":3.02,"Netherlands":18.15,"Switzerland":9.15,"Czech Republic":10.90,"Poland":37.23};
+const PLAYERS={"Argentina":152790,"Australia":170952,"Belgium":35266,"Canada":47853,"Chile":42755,"England":382154,"Fiji":136030,"France":670847,"Georgia":65381,"Hong Kong":10525,"Ireland":157080,"Italy":168176,"Japan":270368,"Namibia":34226,"Netherlands":27869,"New Zealand":156893,"Poland":28963,"Portugal":52270,"Romania":40512,"Samoa":53372,"Scotland":62500,"South Africa":804279,"Spain":60016,"Switzerland":18384,"Tonga":17891,"United States":126151,"Uruguay":30065,"Wales":160557,"Zimbabwe":47541};
+const FACTORS=[
+ {k:"rev",lab:"Revenue",ax:"Annual revenue, US$ millions",fmt:v=>"$"+v.toFixed(0)+"m",log:false,col:"Revenue US$m"},
+ {k:"n",lab:"Tests played",ax:"Tests played since 2021",fmt:v=>v.toFixed(0),log:false,col:"Tests"},
+ {k:"home",lab:"Home share",ax:"Share of Tests played at home since 2021 (%)",fmt:v=>v.toFixed(0)+"%",log:false,col:"At home"},
+ {k:"opp",lab:"Opponent strength",ax:"Average ranking points of opponents faced since 2021",fmt:v=>v.toFixed(1),log:false,col:"Opp. strength"},
+ {k:"players",lab:"Registered players",ax:"Registered players (log scale)",fmt:v=>v>=1e6?(v/1e6).toFixed(2)+"m":Math.round(v/1000)+"k",log:true,col:"Players"},
+ {k:"pop",lab:"Population",ax:"Population, millions (log scale)",fmt:v=>v>=10?v.toFixed(0)+"m":v>=1?v.toFixed(1)+"m":Math.round(v*1000)+"k",log:true,col:"Population"},
+ {k:"ppk",lab:"Players per 1,000 people",ax:"Registered players per 1,000 people (log scale)",fmt:v=>v.toFixed(v<10?1:0),log:true,col:"Players / 1,000"}
+];
+state.moneyM="win";state.drv="rev";
+const low=F=>F.k==="n"?"Tests played":F.lab.toLowerCase();
+function rankCorr(a,b){const rk=x=>{const o=x.map((v,i)=>[v,i]).sort((p,q)=>p[0]-q[0]),r=[];o.forEach((p,i)=>r[p[1]]=i);return r};const ra=rk(a),rb=rk(b),n=a.length,ma=(n-1)/2;let sab=0,saa=0,sbb=0;for(let i=0;i<n;i++){sab+=(ra[i]-ma)*(rb[i]-ma);saa+=(ra[i]-ma)**2;sbb+=(rb[i]-ma)**2}return sab/Math.sqrt(saa*sbb)}
+function renderMoney(){
+  const from="2021-01-01",F=FACTORS.find(f=>f.k===state.drv),key=state.moneyM;
+  document.querySelectorAll("#drvSel button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===state.drv));
+  const top30=ALL.map((t,i)=>RANK[t.id]?{i,t:t.name,pos:RANK[t.id].pos}:null).filter(Boolean);
+  let rows=top30.map(o=>{const g=M.filter(m=>(m.h===o.i||m.a===o.i)&&m.date>=from).map(m=>view(m,o.i));const r=rec(g);const pf=g.reduce((s,x)=>s+x.pf,0),pa=g.reduce((s,x)=>s+x.pa,0);
+    const fin=FIN.find(f=>f.t===o.t);const opp=g.length?g.reduce((s,x)=>s+((RANK[ALL[x.opp].id]||{pts:50}).pts),0)/g.length:null;
+    const pl=PLAYERS[o.t],po=POP[o.t];
+    return{...o,fin,p:r.p,win:r.p?r.w/r.p*100:0,mar:r.p?(pf-pa)/r.p:0,rev:fin?usd(fin.rev,fin.cur):null,naU:fin?usd(fin.na,fin.cur):null,n:r.p,home:r.p?g.filter(x=>x.where==="Home").length/r.p*100:null,opp,players:pl??null,pop:po??null,ppk:pl&&po?pl/(po*1000):null}}).filter(r=>r.p>=10&&r[F.k]!=null);
+  const tx=v=>F.log?Math.log10(v):v,xs=rows.map(r=>tx(r[F.k])),ys=rows.map(r=>r[key]),n=rows.length,mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;
+  const sxy=xs.reduce((s,x,k)=>s+(x-mx)*(ys[k]-my),0),sxx=xs.reduce((s,x)=>s+(x-mx)**2,0),slope=sxy/sxx,icp=my-slope*mx,rr=rankCorr(xs,ys);
+  rows.forEach((r,k)=>r.exp=icp+slope*xs[k]);
+  const w=W("moneyChart"),small=w<520,h=small?400:380,m={l:44,r:20,t:16,b:42},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  let xa,xb,ticks;
+  if(F.log){xa=Math.floor(Math.min(...xs)*2)/2;xb=Math.ceil(Math.max(...xs)*2)/2;ticks=[];for(let e=Math.ceil(xa);e<=xb;e++)ticks.push(e)}
+  else{const lo=Math.min(...xs),hi=Math.max(...xs),span=hi-lo||1,st=[1,2,5,10,20,25,50,100].find(s=>span/s<=6)||100;xa=F.k==="rev"?0:Math.floor((lo-span*0.05)/st)*st;xb=Math.ceil((hi+span*0.05)/st)*st;ticks=[];for(let v=xa;v<=xb+1e-9;v+=st)ticks.push(v)}
+  const [y0,y1]=key==="win"?[0,100]:[Math.floor(Math.min(...ys)/10)*10-5,Math.ceil(Math.max(...ys)/10)*10+5];
+  const X=v=>m.l+iw*(v-xa)/(xb-xa),Y=v=>m.t+ih-ih*(v-y0)/(y1-y0);
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${F.lab} against ${key==="win"?"win rate":"points margin"}">`;
+  const ystep=key==="win"?25:10;for(let v=Math.ceil(y0/ystep)*ystep;v<=y1;v+=ystep)s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v>0&&key==="mar"?"+":""}${v}${key==="win"?"%":""}</text>`;
+  if(key==="mar")s+=`<line x1="${m.l}" x2="${w-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--ink2)" stroke-width="1"/>`;
+  ticks.forEach(v=>{const val=F.log?10**v:v;s+=`<text x="${X(v)}" y="${h-24}" text-anchor="middle">${F.k==="rev"?"$"+val+"m":F.fmt(val)}</text>`});
+  s+=`<text x="${m.l+iw/2}" y="${h-5}" text-anchor="middle">${F.ax}</text>`;
+  s+=`<line x1="${X(xa)}" y1="${Y(icp+slope*xa)}" x2="${X(xb)}" y2="${Y(icp+slope*xb)}" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>`;
+  const fw=small||n>14?18:26,fh=fw*0.75,fs=small?9.5:11,boxes=[],pts=rows.map(r=>({r,cx:X(tx(r[F.k])),cy:Y(r[key])}));pts.forEach(p=>boxes.push([p.cx-fw/2,p.cy-fh/2,p.cx+fw/2,p.cy+fh/2]));
+  const hit=b=>boxes.some(o=>!(b[2]<o[0]||b[0]>o[2]||b[3]<o[1]||b[1]>o[3]));
+  pts.slice().sort((a,b)=>a.r.pos-b.r.pos).forEach(p=>{const tw=p.r.t.length*fs*0.58,off=fh/2+fs+1,cand=[[p.cx,p.cy+off,"middle"],[p.cx,p.cy-fh/2-3,"middle"],[p.cx+fw/2+3,p.cy+4,"start"],[p.cx-fw/2-3,p.cy+4,"end"]];
+    for(const [x,y,a] of cand){const x0=a==="middle"?x-tw/2:a==="start"?x:x-tw,b=[x0,y-fs,x0+tw,y+2];if(x0<m.l-10||x0+tw>w-2||y>m.t+ih+2)continue;if(!hit(b)){boxes.push(b);p.lab=[x,y,a];break}}});
+  pts.forEach(({r,cx,cy,lab})=>{const t=`<b>${r.t}</b> · world #${r.pos}<br>${F.lab}: ${F.fmt(r[F.k])}${F.k==="rev"?` (${r.fin.fy}, ${fmtLocal(r.fin.rev,r.fin.cur)})`:""}<br>${r.p} Tests since 2021: ${r.win.toFixed(1)}% won, margin ${r.mar>0?"+":""}${r.mar.toFixed(1)}`;
+    s+=`<g data-tip="${esc(t)}" style="cursor:pointer" data-i="${r.i}"><circle cx="${cx}" cy="${cy}" r="${fw/2+3}" fill="transparent"/><image href="${FLAGS[ALL[r.i].id]}" x="${cx-fw/2}" y="${cy-fh/2}" width="${fw}" height="${fh}"/>${lab?`<text x="${lab[0]}" y="${lab[1]}" text-anchor="${lab[2]}" style="fill:var(--ink2);font-weight:600;font-size:${fs}px">${r.t}</text>`:""}</g>`});
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  $("moneyChart").innerHTML=s;bindTips($("moneyChart"));
+  $("moneyChart").querySelectorAll("g[data-i]").forEach(g=>g.addEventListener("click",()=>{setTeam(+g.dataset.i);scrollTo({top:0,behavior:"auto"})}));
+  const lab=key==="win"?"win rate":"points margin",best=rows.slice().sort((a,b)=>(b[key]-b.exp)-(a[key]-a.exp)),topR=best[0],bot=best[best.length-1],unit=key==="win"?" percentage points":" points per Test";
+  const a=Math.abs(rr),strength=a<0.2?"no real":a<0.4?"a weak":a<0.6?"a moderate":"a strong",dir=rr>=0?"higher":"lower";
+  $("moneyTake").innerHTML=`Across ${n} nations there is <b>${strength} link</b> between ${low(F)} and ${lab} (rank correlation ${rr>=0?"+":""}${rr.toFixed(2)})${a>=0.2?`: nations with ${dir} ${low(F)} tend to do better`:`: knowing a nation's ${low(F)} tells you little about how often it wins`}. <b>${topR.t}</b> sit furthest above the dashed trend line (${Math.abs(topR[key]-topR.exp).toFixed(1)}${unit} better than expected) and <b>${bot.t}</b> furthest below (${Math.abs(bot[key]-bot.exp).toFixed(1)}${unit} worse).${FACT_NOTE[F.k]||""}`;
+  const extra=F.k==="rev";
+  $("moneyTable").innerHTML=`<thead><tr><th>Nation</th><th>${F.col}</th>${extra?`<th class="x">Accounts</th><th class="x">Revenue (local)</th><th class="x">Net assets US$m</th>`:""}<th class="x">Tests</th><th>Win %</th><th class="x">Margin</th><th>vs trend</th></tr></thead><tbody>`+
+    rows.slice().sort((a,b)=>b[F.k]-a[F.k]).map(r=>{const d=r[key]-r.exp;return `<tr data-i="${r.i}"><td><span class="nm">${fl(r.i)}${r.t}</span></td><td>${F.fmt(r[F.k])}</td>${extra?`<td class="x">${r.fin.fy}</td><td class="x">${fmtLocal(r.fin.rev,r.fin.cur)}</td><td class="x">${r.naU==null?"–":r.naU.toFixed(0)}</td>`:""}<td class="x">${r.p}</td><td class="pct">${r.win.toFixed(1)}%</td><td class="x">${r.mar>0?"+":""}${r.mar.toFixed(1)}</td><td class="${d>=0?"pos":"neg"}">${d>=0?"+":"−"}${Math.abs(d).toFixed(1)}</td></tr>`}).join("")+`</tbody>`;
+  $("moneyTable").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{setTeam(+tr.dataset.i);scrollTo({top:0,behavior:"auto"})}));
+  $("moneyNotes").innerHTML=`<p><b>Who is included:</b> the men's world top 30 with at least 10 Tests since 1 January 2021, where the factor is available. Results cover all Tests against any nation.</p>
+  <p><b>Revenue</b> (10 unions): latest published accounts, converted at Federal Reserve H.10 rates for 18 September 2026 (£1 = US$1.337, €1 = US$1.146, NZ$1 = US$0.571, A$1 = US$0.711, US$1 = R16.30, US$1 = ¥156.9). Financial years and revenue definitions differ, so treat it as indicative. Argentina is missing because its published report has no accounts.</p>
+  <ul>${FIN.map(r=>`<li><b>${r.t}</b>: <a href="${r.src}" target="_blank" rel="noopener">${r.srcT}</a>. ${r.note}</li>`).join("")}</ul>
+  <p><b>Registered players</b>: World Rugby (formerly IRB) union estimates as compiled in Wikipedia's <a href="https://en.wikipedia.org/wiki/List_of_rugby_union_playing_countries" target="_blank" rel="noopener">List of rugby union playing countries</a>. These come from different years and unions count players differently (some include schools and casual players), so treat them as rough. The Pacific Island figures look high relative to their populations, probably because schools rugby is counted. The Czech Republic has no figure.</p>
+  <p><b>Population</b>: latest official or UN estimates from Wikipedia's <a href="https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population" target="_blank" rel="noopener">population list</a> (mostly 2025–26); England, Scotland and Wales use ONS mid-2024 estimates, and Ireland combines the Republic with Northern Ireland because the team represents the whole island.</p>
+  <p>Tier-two nations mostly play each other, so a high win rate for them is not the same achievement as for the top 10; the <b>Opponent strength</b> factor helps show this. <b>Opponent strength</b> uses each opponent's current World Rugby ranking points, with nations outside the top 30 counted at 50. <b>vs trend</b> is a nation's result minus the value predicted by the dashed line of best fit. The rank correlation runs from −1 to +1; values near 0 mean no relationship.</p>`;
+}
+const FACT_NOTE={players:" A big playing base is no guarantee: South Africa and France have the most players and win often, but Japan and England have far more players than Ireland or New Zealand and win less.",pop:" Population barely matters: Fiji, Samoa and Tonga compete from populations smaller than a single city, and Ireland and New Zealand outperform far larger nations.",ppk:" The Pacific Islands and Wales have the most players per head yet sit below the line, while Ireland, New Zealand, Georgia and South Africa get the most from their rugby cultures.",n:"",home:" Playing more at home does not translate into a better record over this period.",opp:" Tougher schedules do not drag win rates down as much as you might expect."};
+$("moneyMetric").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.moneyM=b.dataset.m;document.querySelectorAll("#moneyMetric button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.m===state.moneyM));renderMoney()});
+$("drvSel").innerHTML=FACTORS.map(f=>`<button data-k="${f.k}" aria-pressed="${f.k===state.drv}">${f.lab}</button>`).join("");
+$("drvSel").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.drv=b.dataset.k;renderMoney()});
+const FIX=__FIX__;
+const FINALS=[
+ {ko:"2026-11-27T16:40:00Z",pos:6,name:"11th-place play-off"},{ko:"2026-11-27T20:10:00Z",pos:3,name:"5th-place play-off"},
+ {ko:"2026-11-28T13:10:00Z",pos:5,name:"9th-place play-off"},{ko:"2026-11-28T16:40:00Z",pos:2,name:"3rd-place play-off"},
+ {ko:"2026-11-29T13:10:00Z",pos:4,name:"7th-place play-off"},{ko:"2026-11-29T16:40:00Z",pos:1,name:"The Final"}];
+const PROJ={"N1":[["France",38],["England",30]],"N2":[["England",29],["France",26]],"N3":[["Scotland",28],["Ireland",27]],"N4":[["Scotland",39],["Ireland",27]],"N5":[["Wales",84],["Italy",11]],"N6":[["Italy",89],["Wales",11]],"S1":[["South Africa",54],["New Zealand",46]],"S2":[["New Zealand",52],["South Africa",45]],"S3":[["Australia",47],["Argentina",44]],"S4":[["Argentina",43],["Australia",38]],"S5":[["Japan",65],["Fiji",14]],"S6":[["Fiji",84],["Japan",15]]};
+const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||"your time zone"}catch(e){return "your time zone"}})();
+const fD=new Intl.DateTimeFormat(undefined,{weekday:"long",day:"numeric",month:"long"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"}),fZ=d=>{try{return new Intl.DateTimeFormat(undefined,{timeZoneName:"short"}).formatToParts(d).find(p=>p.type==="timeZoneName").value}catch(e){return ""}};
+const idx=n=>ALL.findIndex(t=>t.name===n);
+function untilTxt(ms){const d=Math.floor(ms/864e5),h=Math.floor(ms%864e5/36e5),m=Math.floor(ms%36e5/6e4);return d>0?`${d} day${d>1?"s":""} ${h} hr`:h>0?`${h} hr ${m} min`:`${m} min`}
+function lastMeet(a,b){for(let k=M.length-1;k>=0;k--){const m=M[k];if((m.h===a&&m.a===b)||(m.h===b&&m.a===a)){const v=view(m,a);return v}}return null}
+function renderFixtures(){
+  const now=Date.now(),finalsLive=FINALS.some(s=>new Date(s.ko).getTime()+3*36e5>now);$("finalsWrap").hidden=!finalsLive;
+  $("union").textContent="Fixtures · shown in your local time";
+  $("teamName").textContent="Upcoming Tests";
+  $("tzNote").textContent="Your time zone: "+TZ;
+  const items=FIX.map(f=>{const t=f.ko?new Date(f.ko):new Date(f.d+"T12:00:00Z");return{...f,t,tbc:!f.ko}}).filter(f=>f.t.getTime()+3*36e5>now).sort((a,b)=>a.t-b.t);
+  const nxt=items.find(f=>!f.tbc&&f.t.getTime()>now);
+  $("heroSub").textContent=`${items.length} Tests between the leading nations still to come${finalsLive?", plus Nations Championship finals weekend at Twickenham on 27–29 November":""}. Dates and kick-offs are converted to ${TZ} time automatically.`;
+  $("rank").innerHTML=nxt?`<div><div class="lbl">Next kick-off</div><div class="holder" style="font-size:22px">${nxt.h} v ${nxt.a}</div><div class="pts">${fD.format(nxt.t)}, ${fT.format(nxt.t)} · in ${untilTxt(nxt.t-now)}</div></div>`:`<div><div class="lbl">Next kick-off</div><div class="pts">No confirmed kick-offs</div></div>`;
+  let html="",cur="";
+  items.forEach(f=>{const day=f.tbc?fD.format(new Date(f.d+"T12:00:00")):fD.format(f.t);if(day!==cur){html+=`<div class="fxday">${day}</div>`;cur=day}
+    const hi=idx(f.h),ai=idx(f.a),lm=lastMeet(hi,ai);const venueT=f.tbc?"":new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZone:f.tz||VTZ[f.v.split(", ").pop()]||"UTC"}).format(f.t);
+    const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p];
+    html+=`<div class="fx1${nxt&&f===nxt?" next":""}"><div class="tm">${f.tbc?"TBC":fT.format(f.t)}<small>${f.tbc?"kick-off time":fZ(f.t)}</small></div>
+    <div class="side h"><button data-i="${hi}">${f.h} ${fl(hi)}</button></div><div class="v">v</div><div class="side"><button data-i="${ai}">${fl(ai)} ${f.a}</button></div>
+    <div class="pick">Model pick: <b>${pick[0]}</b> ${Math.round(pick[1]*100)}%<div class="bar2" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div></div>
+    <div class="meta">${f.c} · ${f.v}${venueT?` · ${venueT} local`:""}${lm?` · Last met: ${lm.res==="W"?f.h+" won":lm.res==="L"?f.a+" won":"drawn"} ${Math.max(lm.pf,lm.pa)}–${Math.min(lm.pf,lm.pa)} (${lm.date.slice(0,4)})`:""}</div></div>`});
+  $("fxList").innerHTML=html||`<p class="hint">No upcoming fixtures in the dashboard yet.</p>`;
+  $("fxList").querySelectorAll("button[data-i]").forEach(b=>b.addEventListener("click",()=>{setTeam(+b.dataset.i);scrollTo({top:0})}));
+  const byDay={};FINALS.forEach(s=>{const t=new Date(s.ko),k=fD.format(t);(byDay[k]=byDay[k]||[]).push({...s,t})});
+  const pj=(k)=>PROJ[k].map(([n,p])=>`<span style="white-space:nowrap">${fl(idx(n))} ${n} ${p}%</span>`).join(" · ");
+  $("fxFinals").innerHTML=Object.entries(byDay).map(([d,ss])=>`<div class="fwd"><h3>${d}</h3>${ss.map(s=>`<div class="fws${s.pos===1?" fwfinal":""}"><div class="t">${fT.format(s.t)} ${s.name}<span>${fZ(s.t)} · N${s.pos} v S${s.pos}</span></div><div class="l">North: ${pj("N"+s.pos)}</div><div class="l">South: ${pj("S"+s.pos)}</div></div>`).join("")}</div>`).join("");
+  $("fxSrc").innerHTML=`Fixtures and kick-off times from <a href="https://sports.yahoo.com/articles/nations-championship-fixtures-schedule-dates-145141593.html" target="_blank" rel="noopener">Yahoo Sports</a> and Wikipedia (<a href="https://en.wikipedia.org/wiki/2026_Nations_Championship" target="_blank" rel="noopener">Nations Championship</a>, <a href="https://en.wikipedia.org/wiki/2026_Bledisloe_Cup" target="_blank" rel="noopener">Bledisloe Cup</a>), as of 29 September 2026. "TBC" kick-offs had not been announced. Finals slots show each position's two most likely teams. Model picks are estimates, not betting advice.`;
+}
+const VTZ={"Auckland":"Pacific/Auckland","Sydney":"Australia/Sydney","Dublin":"Europe/Dublin","Turin":"Europe/Rome","Genoa":"Europe/Rome","Edinburgh":"Europe/London","Cardiff":"Europe/London","Twickenham":"Europe/London","Paris":"Europe/Paris","France":"Europe/Paris","Italy":"Europe/Rome"};
+state.msM="t";state.msSort="tf";
+function mSide(m,i){return m.h===i?0:1}
+function renderMatchAnalytics(G,era){
+  const S=G.filter(m=>m.det&&m.det[0]),C=G.filter(m=>m.det&&m.det[1]),key=state.msM;
+  document.querySelectorAll("#msMetric button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===key));
+  // trend by year
+  const by={};(key==="t"||key==="p"?S:C).forEach(m=>{const d=m.det,v=key==="t"?d[0][0]+d[0][1]:key==="p"?d[0][6]+d[0][7]:key==="y"?d[1][0]+d[1][1]:d[1][2]+d[1][3];(by[m.y]=by[m.y]||[0,0]);by[m.y][0]+=v;by[m.y][1]++});
+  const yrs=Object.keys(by).map(Number).filter(y=>by[y][1]>=(key==="y"||key==="r"?15:8)&&(key==="y"||key==="r"?y>=2010:true)).sort((a,b)=>a-b),data=yrs.map(y=>({y,v:by[y][0]/by[y][1],n:by[y][1]}));
+  const lab={t:"Tries",p:"Penalty goals",y:"Yellow cards",r:"Red cards"}[key];
+  if(data.length<2){$("msTrend").innerHTML=`<p class="hint">Not enough detailed Tests in this selection.</p>`}else{
+  const w=W("msTrend"),h=220,mg={l:38,r:40,t:14,b:26},iw=w-mg.l-mg.r,ih=h-mg.t-mg.b,top=Math.max(...data.map(d=>d.v))*1.15,raw=top/4,mag=10**Math.floor(Math.log10(raw)),nice=[1,2,2.5,5,10].map(x=>x*mag).find(x=>x>=raw),tp=nice*4;
+  const X=i=>mg.l+iw*i/(data.length-1),Y=v=>mg.t+ih-ih*v/tp;
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${lab} per Test by year">`;
+  const dp=nice<0.1?2:nice<1?(Number.isInteger(nice*10)?1:2):(Number.isInteger(nice)?0:1);for(let k=0;k<=4;k++){const v=nice*k;s+=`<line class="gl" x1="${mg.l}" x2="${w-mg.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${mg.l-6}" y="${Y(v)+4}" text-anchor="end">${v.toFixed(dp)}</text>`}
+  const line=data.map((d,i)=>(i?"L":"M")+X(i).toFixed(1)+","+Y(d.v).toFixed(1)).join("");
+  s+=`<path d="${line}L${X(data.length-1)},${Y(0)}L${X(0)},${Y(0)}Z" fill="var(--acc)" opacity=".12"/><path d="${line}" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const every=Math.ceil(data.length/Math.max(2,Math.floor(iw/46)));data.forEach((d,i)=>{if(i%every===0&&data.length-1-i>=every/2)s+=`<text x="${X(i)}" y="${h-8}" text-anchor="middle">${"'"+String(d.y).slice(2)}</text>`});
+  const L=data[data.length-1];s+=`<text x="${X(data.length-1)}" y="${h-8}" text-anchor="middle">${"'"+String(L.y).slice(2)}</text><circle cx="${X(data.length-1)}" cy="${Y(L.v)}" r="4.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/><text x="${X(data.length-1)+8}" y="${Y(L.v)+4}" style="fill:var(--ink);font-weight:600">${L.v.toFixed(key==="r"?2:1)}</text>`;
+  const cw=iw/(data.length-1);data.forEach((d,i)=>{s+=`<rect data-tip="<b>${d.y}</b> · ${d.n} Tests<br>${d.v.toFixed(2)} ${lab.toLowerCase()} per Test" x="${X(i)-cw/2}" y="${mg.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
+  s+=`<line class="axis" x1="${mg.l}" x2="${w-mg.r}" y1="${mg.t+ih}" y2="${mg.t+ih}"/></svg>`;$("msTrend").innerHTML=s;bindTips($("msTrend"))}
+  // key insights
+  const dec=S.filter(m=>m.hs!==m.as);const moreT=dec.filter(m=>m.det[0][0]!==m.det[0][1]);const tw=moreT.filter(m=>(m.det[0][0]>m.det[0][1])===(m.hs>m.as)).length;
+  const kickWins=dec.filter(m=>(m.hs>m.as&&m.det[0][0]<m.det[0][1])||(m.as>m.hs&&m.det[0][1]<m.det[0][0]));
+  const Cd=C.filter(m=>m.hs!==m.as&&m.det[1][0]+m.det[1][2]!==m.det[1][1]+m.det[1][3]);const fewer=Cd.filter(m=>{const ch=m.det[1][0]+2*m.det[1][2],ca=m.det[1][1]+2*m.det[1][3];return (ch<ca)===(m.hs>m.as)}).length;
+  const Rc=C.filter(m=>m.hs!==m.as&&(m.det[1][2]>0)!==(m.det[1][3]>0));const redL=Rc.filter(m=>(m.det[1][2]>0)===(m.as>m.hs)).length;
+  const b4=S.filter(m=>m.det[0][0]>=4||m.det[0][1]>=4),b4w=S.reduce((a,m)=>a+[0,1].filter(k=>m.det[0][k]>=4&&(k===0?m.hs>m.as:m.as>m.hs)).length,0),b4n=S.reduce((a,m)=>a+[0,1].filter(k=>m.det[0][k]>=4).length,0);
+  $("msKeys").innerHTML=[["Most tries wins",moreT.length?Math.round(tw/moreT.length*100)+"%":"–",`of ${moreT.length} decided Tests with unequal tries, the side scoring more tries won`],["Won on the boot",kickWins.length,`Tests won by the side that scored fewer tries (${dec.length?Math.round(kickWins.length/dec.length*100):0}% of results)`],["Cleaner side wins",Cd.length?Math.round(fewer/Cd.length*100)+"%":"–",`of ${Cd.length} decided Tests with unequal cards, the side with fewer cards won`],["Red card cost",Rc.length?Math.round(redL/Rc.length*100)+"%":"–",`of ${Rc.length} Tests where only one side had a player sent off, that side lost`],["4+ tries → win",b4n?Math.round(b4w/b4n*100)+"%":"–",`of ${b4n} times a side scored four or more tries, it won`]].slice(0,4).concat([]).map(([k,v,n])=>`<div><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+  // team table
+  const pool=ALL.map((t,i)=>{const gs=S.filter(m=>m.h===i||m.a===i),gc=C.filter(m=>m.h===i||m.a===i);if(gs.length<10)return null;const f=(arr,fn)=>arr.reduce((a,m)=>a+fn(m,mSide(m,i)),0);
+    const tf=f(gs,(m,k)=>m.det[0][k]),ta=f(gs,(m,k)=>m.det[0][1-k]),cm=f(gs,(m,k)=>m.det[0][2+k]),ca=f(gs,(m,k)=>m.det[0][4+k]),pm=f(gs,(m,k)=>m.det[0][6+k]),pa=f(gs,(m,k)=>m.det[0][8+k]),b4=gs.filter(m=>m.det[0][mSide(m,i)]>=4).length;
+    const yc=f(gc,(m,k)=>m.det[1][k]),rc=f(gc,(m,k)=>m.det[1][2+k]);
+    return{i,n:gs.length,nc:gc.length,tf:tf/gs.length,ta:ta/gs.length,td:(tf-ta)/gs.length,b4:b4/gs.length*100,pg:pm/gs.length,kick:(ca+pa)?(cm+pm)/(ca+pa)*100:null,yc:gc.length>=10?yc/gc.length:null,rc:gc.length>=10?rc:null}}).filter(Boolean);
+  const cols=[["n","Tests"],["tf","Tries for"],["ta","Tries against"],["td","Try diff"],["b4","4+ tries"],["pg","Pen goals"],["kick","Kicking"],["yc","Yellows"],["rc","Reds"]];
+  const sk=state.msSort,asc=sk==="ta"||sk==="yc"||sk==="rc";const rows=pool.sort((a,b)=>((a[sk]??(asc?1e9:-1e9))-(b[sk]??(asc?1e9:-1e9)))*(asc?1:-1)).slice(0,state.scope==="t10"?10:20);
+  const fm=(k,v)=>v==null?"–":k==="n"||k==="rc"?v:k==="b4"||k==="kick"?Math.round(v)+"%":k==="td"?(v>0?"+":"")+v.toFixed(1):v.toFixed(k==="yc"?2:1);
+  $("msTable").innerHTML=`<thead><tr><th>#</th><th>Team</th>${cols.map(([k,l])=>`<th data-s="${k}" class="${k===sk?"on":""}${k==="n"||k==="pg"||k==="kick"||k==="rc"?" x":""}">${l}${k===sk?(asc?" ↑":" ↓"):""}</th>`).join("")}</tr></thead><tbody>`+rows.map((r,k)=>`<tr data-i="${r.i}"><td class="pos">${k+1}</td><td><span class="nm">${fl(r.i)}${tname(r.i)}</span></td>${cols.map(([c])=>`<td class="${c==="n"||c==="pg"||c==="kick"||c==="rc"?"x":""}">${fm(c,r[c])}</td>`).join("")}</tr>`).join("")+`</tbody>`;
+  $("msTable").querySelectorAll("th[data-s]").forEach(th=>th.addEventListener("click",()=>{state.msSort=th.dataset.s;renderMatchAnalytics(G,era)}));
+  $("msTable").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{setTeam(+tr.dataset.i);scrollTo({top:0})}));
+  // try scorers (per nation)
+  const cnt={};S.forEach(m=>[0,1].forEach(k=>{const tm=k?m.a:m.h;(m.det[4+k]||"").split(";").map(z=>z.trim()).filter(z=>z&&!/penalty try/i.test(z)).forEach(z=>{const mm=z.match(/^(.*?)\s*\((\d+)\)$/);const nm=(mm?mm[1]:z).trim(),n=mm?+mm[2]:1;const key=tm+"|"+nm;cnt[key]=(cnt[key]||0)+n})}));
+  $("msTry").innerHTML=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,n],r)=>{const [tm,nm]=k.split("|");return `<div class="mli"><span class="r">${r+1}</span><span>${fl(+tm)}${esc(nm)} <span class="x">${tname(+tm)}</span></span><b>${n}</b></div>`}).join("")||`<p class="hint">No data.</p>`;
+  // referees
+  const rf={};G.forEach(m=>{if(!m.det||m.det[2]<0)return;const r=D.refs[m.det[2]];const o=rf[r]||(rf[r]={n:0,c:0,cn:0,hw:0,hn:0});o.n++;if(m.det[1]){o.c+=m.det[1][0]+m.det[1][1]+m.det[1][2]+m.det[1][3];o.cn++}if(!m.neutral){o.hn++;if(m.hs>m.as)o.hw++}});
+  $("msRef").innerHTML=Object.entries(rf).sort((a,b)=>b[1].n-a[1].n).slice(0,10).map(([r,o],k)=>`<div class="mli"><span class="r">${k+1}</span><span>${esc(r)} <span class="x">${o.cn>=5?(o.c/o.cn).toFixed(1)+" cards/Test · ":""}home sides won ${o.hn?Math.round(o.hw/o.hn*100):0}%</span></span><b>${o.n}</b></div>`).join("")||`<p class="hint">No data.</p>`;
+  // crowds
+  $("msCrowd").innerHTML=G.filter(m=>m.det&&m.det[3]).sort((a,b)=>b.det[3]-a.det[3]).slice(0,5).map((m,k)=>`<div class="mli"><span class="r">${k+1}</span><span>${fl(m.h)}${tname(m.h)} ${m.hs}–${m.as} ${tname(m.a)} <span class="x">${esc(m.venue[0])}, ${fmtDate(m.date)}</span></span><b>${m.det[3].toLocaleString()}</b></div>`).join("")||`<p class="hint">No data.</p>`;
+  $("msCov").textContent=`Based on ${S.length.toLocaleString()} Tests with a full scoring breakdown and ${C.length.toLocaleString()} with card data, out of ${G.length.toLocaleString()} in this selection (detail comes from Wikipedia match reports and is mostly available from 2000). Card counts come from team line-ups, which do not record every card (especially before about 2015), so card rates are likely understated; a yellow later upgraded to red may be counted as both. Kicking success may be overstated where reports list only successful kicks. Try scorers are grouped by surname within each nation. Only teams with 10+ detailed Tests appear in the table.`;
+}
+$("msMetric").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.msM=b.dataset.m;const era=ERAS.find(x=>x.id===state.era);renderMatchAnalytics(M.filter(m=>m.y>=era.from&&inScope(m)),era)});
+let NF_CACHE=null;
+function nationFacts(){
+  if(NF_CACHE)return NF_CACHE;
+  const yr=d=>d.slice(0,4),since=i=>WOMEN()||i<NT?"":" since 2000";
+  const teamsRk=ALL.map((t,i)=>RANK[t.id]?{i,pos:RANK[t.id].pos}:null).filter(Boolean).sort((a,b)=>a.pos-b.pos);
+  const used={},out=[];
+  const allG=i=>M.filter(m=>m.h===i||m.a===i).map(m=>view(m,i));
+  for(const {i,pos} of teamsRk){
+    const g=allG(i);if(!g.length)continue;const C=[];const nm=tname(i);
+    // biggest win / heaviest defeat
+    const bw=g.reduce((x,y)=>y.pf-y.pa>x.pf-x.pa?y:x),bl=g.reduce((x,y)=>y.pf-y.pa<x.pf-x.pa?y:x);
+    if(bw.pf>bw.pa)C.push({t:"Record win",sc:Math.min(bw.pf-bw.pa,100)/12,x:`Their biggest win${since(i)} is <b>${bw.pf}–${bw.pa} against ${tname(bw.opp)}</b> in ${yr(bw.date)}, a ${bw.pf-bw.pa}-point margin.`});
+    if(bl.pa>bl.pf)C.push({t:"Heaviest defeat",sc:Math.min(bl.pa-bl.pf,100)/14,x:`Their heaviest defeat${since(i)} was <b>${bl.pf}–${bl.pa} to ${tname(bl.opp)}</b> in ${yr(bl.date)}.`});
+    // streaks
+    const ws=streak(g,x=>x.res==="W");if(ws.best>=6)C.push({t:"Winning run",sc:ws.best/1.6,x:`They once won <b>${ws.best} Tests in a row</b>, from ${fmtDate(ws.bs.date)} to ${fmtDate(ws.be.date)}.`});
+    // current streak
+    let cur=0,cr=g[g.length-1].res;for(let k=g.length-1;k>=0&&g[k].res===cr;k--)cur++;
+    if(cur>=4&&cr!=="D")C.push({t:cr==="W"?"On a roll":"Tough spell",sc:cur*1.6,x:cr==="W"?`They come into their next Test on a <b>${cur}-match winning streak</b>, the last a ${g[g.length-1].pf}–${g[g.length-1].pa} win over ${tname(g[g.length-1].opp)}.`:`They have <b>lost their last ${cur} Tests</b>, most recently ${g[g.length-1].pf}–${g[g.length-1].pa} to ${tname(g[g.length-1].opp)}.`});
+    // per-opponent
+    const by={};g.forEach(x=>{(by[x.opp]=by[x.opp]||[]).push(x)});
+    for(const [o,gg] of Object.entries(by)){const r=rec(gg);const oi=+o;
+      if(r.p>=5&&r.w===0)C.push({t:"Bogey team",sc:4+r.p/1.5+(isTop(oi)?0:3),x:`They have <b>never beaten ${tname(oi)}</b> in ${r.p} attempts${since(i)&&oi>=NT?" since 2000":""}${r.d?` (${r.d} drawn)`:""}.`});
+      if(r.p>=6&&r.l===0&&r.d===0)C.push({t:"Perfect record",sc:3+r.p/1.8+(isTop(oi)?6:0),x:`They have <b>won all ${r.p} Tests against ${tname(oi)}</b>${since(i)}.`});}
+    if(!isTop(i)){const up=g.filter(x=>isTop(x.opp)&&x.res==="W");
+      const rkOf=o=>(RANK[ALL[o].id]||{pos:99}).pos,star=up.slice().sort((a,b)=>(rkOf(a.opp)-(a.wc?3:0))-(rkOf(b.opp)-(b.wc?3:0)))[0];
+      const desc=x=>`<b>${x.pf}–${x.pa} against ${tname(x.opp)}</b>${x.wc?` at the ${yr(x.date)} World Cup`:` in ${yr(x.date)}`}`;
+      if(up.length)C.push({t:"Giant-killers",sc:10+up.length*1.5,x:up.length===1?`Their one win over a top-10 nation${since(i)}: ${desc(star)}.`:`They have beaten top-10 nations <b>${up.length} times</b>${since(i)}, including ${desc(star)}.`});
+      else{const t10=g.filter(x=>isTop(x.opp));if(t10.length>=5)C.push({t:"Glass ceiling",sc:6+t10.length/4,x:`They are <b>still waiting for a first win over a top-10 nation</b>${since(i)}, after ${t10.length} attempts.`})}}
+    // world cup
+    const F=wcFinals(),titles=F.filter(f=>f.w===i);
+    if(titles.length)C.push({t:"World champions",sc:12+titles.length*2,x:titles.length===1?`<b>World champions in ${titles[0].y}</b>, beating ${tname(titles[0].r)} ${titles[0].ws}–${titles[0].rs} in the final.`:`<b>${titles.length}-time world champions</b> (${titles.map(f=>f.y).join(", ")}), most recently beating ${tname(titles[titles.length-1].r)} ${titles[titles.length-1].ws}–${titles[titles.length-1].rs} in the final.`});
+    const rw=g.filter(x=>x.wc);if(!titles.length&&rw.length>=4){const r=rec(rw);C.push({t:"World Cup",sc:5+(r.w/r.p)*6,x:`At Rugby World Cups${since(i)} they have won <b>${r.w} of ${r.p}</b> matches (${pct(r.w,r.p)}%).`})}
+    // fortress + best year
+    const hm=g.filter(x=>x.where==="Home");if(hm.length>=20){const r=rec(hm);if(r.w/r.p>=0.72)C.push({t:"Fortress",sc:(r.w/r.p)*11,x:`They have won <b>${pct(r.w,r.p)}% of home Tests</b> (${r.w} of ${r.p})${since(i)}.`})}
+    const ys={};g.forEach(x=>{(ys[x.y]=ys[x.y]||[]).push(x)});
+    for(const [y,gg] of Object.entries(ys)){const r=rec(gg);if(r.p>=6&&r.l===0)C.push({t:"Unbeaten year",sc:7+r.p/1.5,x:`They went <b>unbeaten through ${y}</b>: ${r.w} wins${r.d?` and ${r.d} draw${r.d>1?"s":""}`:""} from ${r.p} Tests.`})}
+    // highest score
+    const hs=g.reduce((x,y)=>y.pf>x.pf?y:x);if(hs.pf>=70)C.push({t:"Points machine",sc:hs.pf/13,x:`Their highest score${since(i)} is <b>${hs.pf} points</b>, against ${tname(hs.opp)} in ${yr(hs.date)}.`});
+    // pick best, penalise overused types
+    C.forEach(c=>c.adj=c.sc-(used[c.t]||0)*2.2);C.sort((a,b)=>b.adj-a.adj);const best=C[0];if(!best)continue;
+    used[best.t]=(used[best.t]||0)+1;out.push({i,pos,...best});
+  }
+  return NF_CACHE=out;
+}
+function renderNationFacts(){
+  $("nationFacts").innerHTML=nationFacts().map(f=>`<button class="nfc" data-i="${f.i}"><img src="${FLAGS[ALL[f.i].id]}" alt=""><div class="hd"><span class="nm">${tname(f.i)}</span><span class="rkc">${WOMEN()?"WOMEN'S ":""}WORLD #${f.pos}</span></div><div class="tx">${f.x}</div><div class="ty">${f.t}</div></button>`).join("");
+  $("nationFacts").querySelectorAll(".nfc").forEach(b=>b.addEventListener("click",()=>{setTeam(+b.dataset.i);scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}));
+}
+function renderOvFacts(G,era){
+  if(!G.length){$("ovFacts").innerHTML="";return}
+  const pairs={};G.forEach(m=>{const a=Math.min(m.h,m.a),b=Math.max(m.h,m.a),k=a+"-"+b;const p=pairs[k]||(pairs[k]={a,b,n:0,wa:0,wb:0,d:0});p.n++;const wa=(m.h===a?m.hs:m.as),wb=(m.h===a?m.as:m.hs);wa>wb?p.wa++:wb>wa?p.wb++:p.d++});
+  const P=Object.values(pairs),most=P.reduce((x,y)=>y.n>x.n?y:x),th=Math.max(4,Math.min(30,Math.floor(most.n*.4)));
+  const Q=P.filter(p=>p.n>=th),closest=Q.reduce((x,y)=>Math.abs(y.wa-y.wb)/y.n<Math.abs(x.wa-x.wb)/x.n?y:x),lop=Q.reduce((x,y)=>Math.max(y.wa,y.wb)/y.n>Math.max(x.wa,x.wb)/x.n?y:x);
+  const lw=lop.wa>=lop.wb?lop.a:lop.b,ll=lw===lop.a?lop.b:lop.a,lwn=Math.max(lop.wa,lop.wb);
+  const big=G.reduce((x,m)=>Math.abs(m.hs-m.as)>Math.abs(x.hs-x.as)?m:x),hiS=G.reduce((x,m)=>m.hs+m.as>x.hs+x.as?m:x);
+  const sc=m=>`${tname(m.h)} ${m.hs}–${m.as} ${tname(m.a)}`;
+  let run={n:0};ALL.forEach((t,i)=>{const s=streak(games(i,era.from),x=>x.res==="W");if(s.best>run.n)run={n:s.best,i,s}});
+  const home=ALL.map((t,i)=>{const g=games(i,era.from).filter(x=>x.where==="Home");return{i,p:g.length,w:g.filter(x=>x.res==="W").length}}).filter(x=>x.p>=25).sort((a,b)=>b.w/b.p-a.w/a.p)[0];
+  const yr=M[M.length-1].y,season=ALL.map((t,i)=>{const g=games(i,0).filter(x=>x.y===yr);return{i,...rec(g)}}).filter(x=>x.p>=4).sort((a,b)=>b.w/b.p-a.w/a.p||b.p-a.p)[0];
+  const f=[
+    ["Most-played rivalry",`${fl(most.a)}${fl(most.b)} ${most.n} Tests`,`${tname(most.a)} ${most.wa} wins, ${tname(most.b)} ${most.wb}, ${most.d} drawn`],
+    ["Closest rivalry",`${fl(closest.a)}${fl(closest.b)} ${closest.wa}–${closest.wb}`,`${tname(closest.a)} v ${tname(closest.b)} over ${closest.n} Tests (${closest.d} drawn)`],
+    ["Most one-sided rivalry",`${fl(lw)} ${pct(lwn,lop.n)}%`,`${tname(lw)} have won ${lwn} of ${lop.n} against ${tname(ll)}`],
+    ["Biggest winning margin",`${Math.abs(big.hs-big.as)} points`,`${sc(big)}, ${fmtDate(big.date)}`],
+    ["Highest-scoring Test",`${hiS.hs+hiS.as} points`,`${sc(hiS)}, ${fmtDate(hiS.date)}`],
+    ["Longest winning run",`${fl(run.i)} ${run.n} Tests`,`${tname(run.i)}, ${fmtDate(run.s.bs.date)} to ${fmtDate(run.s.be.date)}`],
+    ["Toughest place to visit",home?`${fl(home.i)} ${pct(home.w,home.p)}%`:"–",home?`${tname(home.i)} have won ${home.w} of ${home.p} home Tests`:"Not enough home Tests"],
+    [`Best record in ${yr}`,season?`${fl(season.i)} ${season.w}–${season.d}–${season.l}`:"–",season?`${tname(season.i)}, ${pct(season.w,season.p)}% of ${season.p} Tests won`:""]
+  ];
+  $("ovFacts").innerHTML=f.map(([k,v,n])=>`<div class="fx"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+}
+function renderLatest(){
+  $("latest").innerHTML=M.filter(inScope).slice(-12).reverse().map(m=>{const hw=m.hs>m.as,aw=m.as>m.hs;return `<div class="lt xp" tabindex="0" role="button" aria-expanded="false" data-k="${M.indexOf(m)}"><div class="dt">${fmtDate(m.date)}</div><div class="hm"><span class="tm ${hw?"win":""}">${tname(m.h)} ${fl(m.h)}</span></div><div class="sc">${m.hs}–${m.as}</div><div><span class="tm ${aw?"win":""}">${fl(m.a)} ${tname(m.a)}</span></div><div class="cm">${esc(m.comp||"Test match")} · ${esc(m.venue[1]||m.venue[0])}${m.neutral?" (neutral)":""}${m.det?' · <span class="plus">details ＋</span>':""}</div></div>`}).join("");
+  bindExpand($("latest"));
+}
+function renderTrend(G){
+  const by={};G.forEach(m=>{const k=Math.floor(m.y/10)*10;(by[k]=by[k]||[]).push(m.hs+m.as)});
+  const data=Object.keys(by).map(Number).sort((a,b)=>a-b).map(k=>({dec:k,v:by[k].reduce((s,x)=>s+x,0)/by[k].length,n:by[k].length}));
+  const w=W("trendChart"),narrow=w<520,h=narrow?200:220,m={l:30,r:14,t:22,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b,top=Math.ceil(Math.max(10,...data.map(d=>d.v))/10)*10;
+  const X=i=>m.l+(data.length===1?iw/2:iw*i/(data.length-1)),Y=v=>m.t+ih-ih*v/top;
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Average combined points per Test by decade">`;
+  for(let v=0;v<=top;v+=10)s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+  const line=data.map((d,i)=>(i?"L":"M")+X(i).toFixed(1)+","+Y(d.v).toFixed(1)).join("");
+  s+=`<path d="${line}L${X(data.length-1)},${Y(0)}L${X(0)},${Y(0)}Z" fill="var(--acc)" opacity=".12"/><path d="${line}" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const maxLab=Math.max(2,Math.floor(iw/(narrow?44:64))),step=Math.ceil(data.length/maxLab),lab=d=>narrow?"'"+String(d.dec).slice(2):d.dec+"s";
+  data.forEach((d,i)=>{if(i%step===0&&(data.length-1-i)>=step/2)s+=`<text x="${X(i)}" y="${h-8}" text-anchor="${i===0?"start":"middle"}">${lab(d)}</text>`});
+  s+=`<text x="${X(data.length-1)}" y="${h-8}" text-anchor="end">${lab(data[data.length-1])}</text>`;
+  const L=data[data.length-1];if(L)s+=`<circle cx="${X(data.length-1)}" cy="${Y(L.v)}" r="4.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/><text x="${X(data.length-1)-8}" y="${Y(L.v)-10}" text-anchor="end" style="fill:var(--ink);font-weight:600">${L.v.toFixed(1)}</text>`;
+  const cw=data.length>1?iw/(data.length-1):iw;data.forEach((d,i)=>{s+=`<rect data-tip="<b>${d.dec}s</b> · ${d.n} Tests<br>${d.v.toFixed(1)} points per Test" x="${X(i)-cw/2}" y="${m.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  $("trendChart").innerHTML=s;bindTips($("trendChart"));
+}
+
+// ---------- Trophy cabinet ----------
+const CUP=`<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M13 5h18v10a9 9 0 0 1-18 0z" fill="currentColor"/><path d="M13 8H7.5a5.5 5.5 0 0 0 6 6.8M31 8h5.5a5.5 5.5 0 0 1-6 6.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 23.5h4v6h-4z" fill="currentColor"/><path d="M15 30h14l2 6H13z" fill="currentColor"/><rect x="11" y="36" width="22" height="3.5" rx="1" fill="currentColor"/><path d="M17 9v6a5 5 0 0 0 3 4.6" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+function lum(hex){const h=hex.replace("#","");if(h.length<6)return .5;const c=[0,2,4].map(k=>parseInt(h.slice(k,k+2),16)/255).map(v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2]}
+function tcol(i){if(i==null||i<0)return "var(--muted)";const t=ALL[i];if(t.id==="england")return "#C8102E";const p=t.p||"#777";const L=lum(p);return L>.8?(t.s||"var(--acc)"):L<.02?"var(--ink)":p}
+const SIXRE=/Six Nations|Five Nations|Home Nations/;
+function champMatches(y){return M.filter(m=>m.y===y&&SIXRE.test(m.comp||"")&&!/women/i.test(m.comp||""))}
+function grandSlam(y){const G=champMatches(y);if(G.length<6)return -1;const ts=[...new Set(G.flatMap(m=>[m.h,m.a]))];for(const t of ts){const g=G.filter(m=>m.h===t||m.a===t).map(m=>view(m,t));if(g.length===ts.length-1&&g.every(x=>x.res==="W"))return t}return -1}
+function tripleCrown(y){const HN=["England","Ireland","Scotland","Wales"].map(nameIdx),G=champMatches(y).filter(m=>HN.includes(m.h)&&HN.includes(m.a));for(const t of HN){const beat=new Set(G.filter(m=>(m.h===t&&m.hs>m.as)||(m.a===t&&m.as>m.hs)).map(m=>m.h===t?m.a:m.h));if(beat.size===3)return t}return -1}
+function trophyState(T){
+  const o={T,holder:null,tx:"",rc:"",nx:"",hist:null,gs:null,sub:`First contested ${T.founded}`};
+  const tally=h=>{const c={};Object.values(h).forEach(n=>{const i=typeof n==="number"?n:nameIdx(n);if(i>=0)c[i]=(c[i]||0)+1});return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([i,n])=>[+i,n])};
+  const tallyTxt=(c,k)=>c.slice(0,k||4).map(([i,n])=>`<b>${tname(i)} ${n}</b>`).join(" · ");
+  if(T.kind==="worldcup"){const F=wcFinals(),L=F[F.length-1];o.holder=L.w;o.tx=`Beat ${tname(L.r)} ${L.ws}–${L.rs} in the ${L.y} final in ${esc(L.m.venue[1]||L.m.venue[0])}.`;const h={};F.forEach(f=>h[f.y]=f.w);o.hist=h;o.rc=`Titles: ${tallyTxt(tally(h),5)}`;o.sub=`${F.length} tournaments since ${T.founded}`}
+  else if(T.kind==="series"){const h={};Object.entries(T.hist).forEach(([y,n])=>h[+y]=nameIdx(n));const ys=Object.keys(h).map(Number).sort((a,b)=>a-b),ly=ys[ys.length-1];o.holder=h[ly];o.hist=h;
+    if(T.gs){o.gs={};ys.forEach(y=>{const g=grandSlam(y);if(g>=0)o.gs[y]=g})}
+    const gsNow=o.gs&&o.gs[ly]===h[ly];o.tx=`${ly} champions${gsNow?", with a Grand Slam":""}.${T.note?" "+T.note+".":""}`;o.rc=`Titles since ${ys[0]}: ${tallyTxt(tally(h))}`}
+  else if(T.kind==="triple"){const h={},last=Math.max(...M.filter(m=>SIXRE.test(m.comp||"")).map(m=>m.y));for(let y=1996;y<=last;y++){const w=tripleCrown(y);if(w>=0)h[y]=w}o.hist=h;
+    const ys=Object.keys(h).map(Number),ly=Math.max(...ys);o.holder=h[last]!=null?h[last]:null;o.tx=o.holder!=null?`Won in ${last}.`:`Not won in ${last}; last won by ${tname(h[ly])} in ${ly}.`;o.rc=`Winners since 1996: ${tallyTxt(tally(h))}`}
+  else if(T.kind==="static"){o.holder=T.holder?nameIdx(T.holder):null;o.tx=T.note||"";
+    if(T.name==="Nations Championship"&&typeof PROJ!=="undefined"){const f=FINALS.find(x=>x.pos===1);o.tx=`Inaugural edition: the final is ${f?fD.format(new Date(f.ko)):"in November"} at Twickenham.`;o.rc=`Forecast favourites to reach it: <b>${PROJ.N1[0][0]}</b> (${PROJ.N1[0][1]}% to top the North) and <b>${PROJ.S1[0][0]}</b> (${PROJ.S1[0][1]}% to top the South).`}}
+  else if(T.kind==="lineal"){const ch=LINEAL[T.key].map(([d,l,w,sc])=>({d,l:nameIdx(l),w:nameIdx(w),sc,src:1}));let cur=ch[ch.length-1];
+    M.filter(m=>m.date>cur.d).forEach(m=>{const h=cur.w;if(m.h!==h&&m.a!==h)return;const v=view(m,h);if(v.res==="L"){cur={d:m.date,l:h,w:v.opp,sc:`${v.pf}–${v.pa}`};ch.push(cur)}});
+    o.holder=cur.w;const def=M.filter(m=>m.date>cur.d&&(m.h===cur.w||m.a===cur.w)).length;
+    o.tx=`Took it from ${tname(cur.l)} (${cur.sc.replace("-","–")}) on ${fmtDate(cur.d)}${def?`, and has defended it ${def} time${def>1?"s":""} since`:""}.`;
+    const c={};ch.forEach(x=>c[x.w]=(c[x.w]||0)+1);o.rc=`Title changes: ${ch.length} since ${T.founded}. Most reigns: ${Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([i,n])=>`<b>${tname(+i)} ${n}</b>`).join(" · ")}`;
+    const h={},yNow=+M[M.length-1].date.slice(0,4);let k=0,hold=ch[0].w;for(let y=+ch[0].d.slice(0,4);y<=yNow;y++){while(k<ch.length&&+ch[k].d.slice(0,4)<=y){hold=ch[k].w;k++}if(nameIdx(ALL[hold].name)>=0)h[y]=hold}o.hist=h;o.lineal=true;o.sub=`Unofficial · first contested ${T.founded}`;
+    if(!WOMEN()){const now=Date.now(),nx=FIX.map(f=>({...f,t:f.ko?new Date(f.ko):new Date(f.d+"T12:00:00Z")})).filter(f=>f.t.getTime()>now&&[f.h,f.a].includes(ALL[cur.w].name)).sort((x,y)=>x.t-y.t)[0];if(nx)o.nx=`Next defence: ${nx.h} v ${nx.a}, ${fD.format(nx.t)}`}}
+  else if(T.kind==="bilateral"){const [a,b]=T.teams.map(nameIdx),re=T.comp?new RegExp(T.comp):null;
+    const G=M.filter(m=>((m.h===a&&m.a===b)||(m.h===b&&m.a===a))&&!m.wc&&m.y>=T.founded&&(!re||re.test(m.comp||"")));
+    if(G.length){const L=G[G.length-1],dec=G.filter(m=>m.hs!==m.as),LD=dec[dec.length-1];o.holder=LD?(LD.hs>LD.as?LD.h:LD.a):null;
+      const va=G.map(m=>view(m,a)),r=rec(va);
+      o.tx=L.hs===L.as?`Kept after a ${L.hs}–${L.as} draw on ${fmtDate(L.date)}.`:`Won ${Math.max(L.hs,L.as)}–${Math.min(L.hs,L.as)} on ${fmtDate(L.date)}${L.comp?` (${esc(L.comp.replace(/^\d{4}(–\d{2})? /,""))})`:""}.`;
+      if(T.note)o.tx+=" "+T.note;
+      o.rc=`Since ${T.founded}: <b>${tname(a)} ${r.w}</b> · <b>${tname(b)} ${r.l}</b>${r.d?` · ${r.d} drawn`:""} in ${r.p} Tests${WOMEN()?" in this dataset":""}`}
+    o.sub=`${fl(a)} ${tname(a)} v ${tname(b)} ${fl(b)} · since ${T.founded}`;
+    if(!WOMEN()){const now=Date.now(),nx=FIX.map(f=>({...f,t:f.ko?new Date(f.ko):new Date(f.d+"T12:00:00Z")})).filter(f=>f.t.getTime()>now&&[f.h,f.a].includes(ALL[a].name)&&[f.h,f.a].includes(ALL[b].name)).sort((x,y)=>x.t-y.t)[0];if(nx)o.nx=`Next up: ${nx.h} v ${nx.a}, ${fD.format(nx.t)}`}}
+  return o}
+function troCard(o){const h=o.holder;const hd=h!=null&&h>=0?`<button class="hd" data-i="${h}"><img src="${FLAGS[ALL[h].id]}" alt=""><span><span class="lb">Holders</span><span class="who">${tname(h)}</span></span></button>`:`<div class="hd none"><span><span class="lb">Holders</span><span class="who">${o.T.name==="Nations Championship"?"To be decided":"Vacant"}</span></span></div>`;
+  return `<div class="tro" style="--tc:${tcol(h)}"><div class="cup">${CUP}</div><div class="tn">${esc(o.T.name)}</div><div class="tf">${o.sub}</div>${o.T.blurb&&(o.T.kind==="lineal"||o.T.kind==="bilateral")?`<div class="bl">${esc(o.T.blurb)}</div>`:""}${hd}<div class="tx">${o.tx}</div>${o.rc?`<div class="rc">${o.rc}</div>`:""}${o.nx?`<div class="nx">${o.nx}</div>`:""}</div>`}
+function renderTrophies(){
+  const Wm=WOMEN(),L=TROPHIES.filter(t=>t.g===(Wm?"w":"m")),S=L.map(trophyState);
+  $("union").textContent=`Trophy cabinet · ${Wm?"women's":"men's"} rugby`;
+  $("teamName").textContent="Trophy Cabinet";
+  const held={};S.forEach(o=>{if(o.holder!=null&&o.holder>=0)(held[o.holder]=held[o.holder]||[]).push(o.T.name)});
+  const tl=Object.entries(held).map(([i,n])=>[+i,n]).sort((a,b)=>b[1].length-a[1].length||tname(a[0]).localeCompare(tname(b[0])));
+  $("heroSub").textContent=`${L.length} ${Wm?"women's":"men's"} trophies tracked: who holds each one today and who has won them most. Up to date to ${fmtDate(M[M.length-1].date)}.`;
+  const top=tl[0];$("rank").innerHTML=top?`<img class="hold" src="${FLAGS[ALL[top[0]].id]}" alt=""><div><div class="lbl">Most silverware</div><div class="holder">${tname(top[0])}</div><div class="pts">${top[1].length} of ${L.length} trophies held</div></div>`:"";
+  $("trHint").textContent=`Current holders of the ${L.length} trophies below. Click a nation to open its page.`;
+  $("trTally").innerHTML=tl.map(([i,n])=>`<button class="trT" data-i="${i}"><img src="${FLAGS[ALL[i].id]}" alt=""><span class="nm">${tname(i)}</span><span class="n">${n.length}</span><span class="ls">${n.map(esc).join(", ")}</span></button>`).join("");
+  $("trMajor").innerHTML=S.filter(o=>o.T.kind!=="bilateral").map(troCard).join("");
+  const bi=S.filter(o=>o.T.kind==="bilateral");$("trBiWrap").hidden=!bi.length;$("trBi").innerHTML=bi.map(troCard).join("");
+  // roll of honour
+  const rows=S.filter(o=>o.hist);const y0=Math.min(1996,...rows.flatMap(o=>Object.keys(o.hist).map(Number)).filter(y=>y>=1987)),y1=Math.max(...rows.flatMap(o=>Object.keys(o.hist).map(Number)));
+  const Y=[];for(let y=Math.max(y0,Wm?1991:1987);y<=y1;y++)Y.push(y);const cols=`grid-template-columns:repeat(${Y.length},1fr)`;
+  let r=`<div></div><div class="ax" style="${cols}">${Y.map(y=>`<span>${y%5===0?y:""}</span>`).join("")}</div>`;
+  rows.forEach(o=>{const c={};Object.values(o.hist).forEach(i=>c[i]=(c[i]||0)+1);const ct=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([i,n])=>`${tname(+i)} ${n}`).join(" · ");
+    r+=`<div class="rl">${esc(o.T.name)}<small>${o.lineal?"Holder at year end":o.T.kind==="worldcup"?"Final winners":o.T.kind==="triple"?"Computed from results":"Champions"}</small></div><div class="yrs" style="${cols}">${Y.map(y=>{const i=o.hist[y];if(i==null)return `<span class="yr" style="background:transparent" aria-hidden="true"></span>`;const gs=o.gs&&o.gs[y]===i;return `<span class="yr${gs?" gs":""}" data-tip="<b>${y}</b> · ${esc(o.T.name)}<br>${tname(i)}${gs?" (Grand Slam)":""}"><img src="${FLAGS[ALL[i].id]}" alt="${tname(i)} ${y}"></span>`}).join("")}</div><div class="cnt">${o.lineal?`Years ending as holder since ${o.T.founded}: `:""}${ct}</div>`});
+  $("trRoll").innerHTML=r;bindTips($("trRoll"));$("trGsNote").hidden=Wm;
+  $("trRoll").style.minWidth=Math.max(640,150+Y.length*17)+"px";
+  $("trSrc").innerHTML=`Championship winners and current holders of the major titles from Wikipedia, checked 29 September 2026. Raeburn and Utrecht Shield title histories follow the lineage lists on Wikipedia (maintained by raeburnandutrechtshields.com), with later changes applied from this dashboard's results. Rivalry-trophy holders, Triple Crowns and Grand Slams are worked out from the match results in this dashboard, so a trophy with unusual series rules may occasionally differ from the official holder.`;
+  document.querySelectorAll("#trophies [data-i]").forEach(b=>b.addEventListener("click",()=>{setTeam(+b.dataset.i);scrollTo({top:0})}));
+}
+
+let currentGames=[];
+document.addEventListener("click",e=>{if(e.target&&e.target.id==="emptyBtn")setGender("m")});
+function render(){
+  const fx=state.team===-2,ov=state.team===-1,tr=state.team===-3,pl=state.team===-4,t=(ov||fx||tr||pl)?OVERVIEW:ALL[state.team],era=ERAS.find(e=>e.id===state.era),Wm=WOMEN();
+  document.body.classList.toggle("women",Wm);
+  applyTheme(t);
+  document.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.i===state.team));
+  {const sel=document.querySelector(".chip[aria-pressed=\"true\"]"),pk=$("picker");if(sel)pk.scrollTo({left:sel.offsetLeft-pk.clientWidth/2+sel.offsetWidth/2,behavior:"smooth"});}
+  document.querySelectorAll("#eras button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.e===state.era));
+  document.querySelectorAll("#scope button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===state.scope));
+  const other=!ov&&!tr&&state.team>=NT;$("scopeWrap").hidden=other||Wm;
+  const mt=$("moreTeams");mt.value=other?String(state.team):"";mt.classList.toggle("on",other);
+  $("foot").innerHTML=Wm?`Data: ${M.length.toLocaleString()} women's Test matches, 1982 to ${fmtDate(M[M.length-1].date)} (source: Wikipedia match records). Coverage is fullest for the Six Nations, World Cups, WXV and Pacific Four; some older tours and friendlies are missing, and women's venues are not recorded, so home and away splits treat the first-named team as the home side. World Rugby women's rankings as published on 6 April 2026. Flags: Noto Color Emoji.`:`Data: Test results between the top 10 rugby union nations, 1871 to ${fmtDate(M[M.length-1].date)} (${M.length.toLocaleString()} matches). For the other 144 nations, Tests are included from 2000 onwards (source: Wikipedia match records). World Rugby men's rankings as updated after the matches of 27 September 2026. Flags: Noto Color Emoji. Points values changed several times before 1992, so early scorelines are not directly comparable.`;
+  $("emptyView").hidden=true;$("overview").hidden=!ov;$("fixtures").hidden=!fx;$("trophies").hidden=!tr;$("players").hidden=!pl;$("teamView").hidden=ov||fx||tr||pl;$("heroFlag").hidden=ov||fx||tr||pl;$("heroMosaic").hidden=!(ov||fx||tr||pl);$("ctlWrap").hidden=fx||tr||pl;$("fxWomen").hidden=!Wm;
+  if(fx){renderFixtures();return}
+  if(tr){renderTrophies();return}
+  if(pl){renderPlayers();return}
+  if(ov){renderOverview(era);return}
+  const all=games(state.team,0),g=games(state.team,era.from);currentGames=g;
+  $("emptyView").hidden=true;
+  if(!all.length){$("teamView").hidden=true;$("emptyView").hidden=false;$("union").textContent=Wm?"Women's Test results":"Test results";$("teamName").textContent=t.name;const hf=$("heroFlag");hf.src=FLAGS[t.id];hf.alt="Flag of "+t.name;
+    const rk=RANK[t.id];$("rank").innerHTML=rk?`<div class="num"><small>#</small>${rk.pos}</div><div><div class="lbl">World Rugby<br>${Wm?"women's ranking":"ranking"}</div><div class="pts">${rk.pts.toFixed(2)} pts</div></div>`:"";
+    $("heroSub").textContent=Wm?"There are no women's Tests for this nation in the dataset yet.":"No Tests in this dataset.";$("emptyH").textContent=Wm?"No women's Tests yet":"No Tests";$("emptyP").textContent=Wm?`${t.name} have no women's 15-a-side Tests in the Wikipedia records this dashboard uses.`:"";$("emptyBtn").hidden=!Wm;return}
+  $("union").textContent=Wm?(t.union?t.union+" · "+(WNICK[t.id]||"Women's team"):(WNICK[t.id]||"Women's Test results")):other?"Test results since 2000":t.union+" · "+t.nick;
+  $("teamName").textContent=t.name;
+  const hf=$("heroFlag");hf.src=FLAGS[t.id];hf.alt="Flag of "+t.name;hf.classList.remove("pop");void hf.offsetWidth;hf.classList.add("pop");
+  const rk=RANK[t.id];$("rank").innerHTML=rk?`<div class="num"><small>#</small>${rk.pos}</div><div><div class="lbl">World Rugby<br>${Wm?"women's ranking":"ranking"}</div><div class="pts">${rk.pts.toFixed(2)} pts</div></div>`:`<div><div class="lbl">World Rugby ${Wm?"women's ":""}ranking</div><div class="pts">${Wm?"Outside the top 20":"Outside the top 30"}</div></div>`;
+  const opp=state.scope==="all"||other||Wm?"":" against the top 10";
+  if(Wm)$("heroSub").textContent=all.length?`First women's Test in this dataset: ${fmtDate(all[0].date)}. ${all.length} women's Tests, of which ${g.length} fall in the ${era.label.toLowerCase()} window.`:"No women's Tests for this nation in the dataset yet. Switch to Men to see their men's record.";
+  else $("heroSub").textContent=all.length?`First Test in this dataset: ${fmtDate(all[0].date)}. ${all.length} Tests${opp}, of which ${g.length} fall in the ${era.label.toLowerCase()} window.${other?" Results for nations outside the top 10 are only included from 2000.":state.scope==="all"?" Matches against nations outside the top 10 are included from 2000.":""}`:"No Tests in this selection.";
+  renderKpis(g);renderDecades(g);renderPoints(g);renderYears(g);renderH2H(g);renderForm(all);renderSplits(g);renderFacts(g);renderMatchStats(g);renderPerf(g);renderSquad(g);
+  {const seen=[...new Set(g.map(x=>x.opp))].sort((a,b)=>tname(a).localeCompare(tname(b)));if(state.opp>=0&&!seen.includes(state.opp))state.opp=-1;
+   $("oppSel").innerHTML=`<option value="-1">All opponents</option>`+seen.map(i=>`<option value="${i}">${tname(i)}</option>`).join("");}
+  $("oppSel").value=state.opp;
+  renderResults(g);
+}
+
+function renderKpis(g){
+  const r=rec(g),pf=g.reduce((s,x)=>s+x.pf,0),pa=g.reduce((s,x)=>s+x.pa,0);
+  const wc=g.filter(x=>x.wc),rw=rec(wc);
+  const from=ERAS.find(e=>e.id===state.era).from,pool=(state.scope==="t10"&&state.team<NT?TEAMS:ALL).map((_,i)=>{const q=rec(games(i,from));return{i,p:q.p,v:q.p?q.w/q.p:0}}).filter(x=>x.p>=20||x.i===state.team).sort((a,b)=>b.v-a.v);
+  const rank=pool.findIndex(x=>x.i===state.team)+1,poolTxt=pool.length===10?"of the 10":`of ${pool.length} nations (20+ Tests)`;
+  const k=[
+    ["Win rate",pct(r.w,r.p)+"%",r.p<20&&pool.length!==10?"Too few Tests to rank":rank===1?`Best ${poolTxt}`:`${ord(rank)}-best ${poolTxt}`,1],
+    ["Tests",r.p,`${r.w} W · ${r.d} D · ${r.l} L`],
+    ["Avg scored",r.p?(pf/r.p).toFixed(1):"–","points per Test"],
+    ["Avg conceded",r.p?(pa/r.p).toFixed(1):"–","points per Test"],
+    ["Avg margin",r.p?((pf-pa)/r.p>0?"+":"")+((pf-pa)/r.p).toFixed(1):"–","points per Test"],
+    ["World Cup",rw.p?pct(rw.w,rw.p)+"%":"–",rw.p?`${rw.w} W of ${rw.p} RWC Tests`:"No RWC Tests in this era"]
+  ];
+  $("kpis").innerHTML=k.map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join("");
+}
+
+function byDecade(g){const d={};g.forEach(x=>{const k=Math.floor(x.y/10)*10;(d[k]=d[k]||[]).push(x)});return Object.keys(d).map(Number).sort((a,b)=>a-b).map(k=>({dec:k,g:d[k]}))}
+function W(id){return Math.max(280,$(id).clientWidth)}
+
+function renderDecades(g){
+  if(!g.length){$("decadeChart").innerHTML='<p class="hint">No Tests in this era.</p>';return}
+  const data=byDecade(g),w=W("decadeChart"),h=230,m={l:42,r:6,t:8,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  const n=data.length,bw=Math.min(24,iw/n-2);
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Win, draw, loss share by decade">`;
+  [0,25,50,75,100].forEach(v=>{const y=m.t+ih-ih*v/100;s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${y}" y2="${y}"/><text x="${m.l-6}" y="${y+4}" text-anchor="end">${v}%</text>`});
+  data.forEach((d,i)=>{const r=rec(d.g),x=m.l+iw*(i+.5)/n-bw/2;
+    const hw=ih*r.w/r.p,hd=ih*r.d/r.p,hl=ih*r.l/r.p;const gap=2;const topK=hl>0?"l":hd>0?"d":"w";
+    let y=m.t+ih;
+    const seg=(hh,c,k)=>{if(hh<=0)return"";const yy=y-hh;const t=yy+gap,hh2=Math.max(0,hh-gap),rr=k===topK?Math.min(4,hh2,bw/2):0;const o=rr?`<path d="M${x},${t+hh2}V${t+rr}Q${x},${t} ${x+rr},${t}H${x+bw-rr}Q${x+bw},${t} ${x+bw},${t+rr}V${t+hh2}Z" fill="${c}"/>`:`<rect x="${x}" y="${t}" width="${bw}" height="${hh2}" fill="${c}"/>`;y=yy;return o};
+    s+=`<g data-tip="<b>${d.dec}s</b><br>${r.p} Tests<br>Won ${r.w} (${pct(r.w,r.p)}%)<br>Drawn ${r.d} · Lost ${r.l}">`+seg(hw,"var(--acc)","w")+seg(hd,"var(--draw)","d")+seg(hl,"var(--loss)","l")+`<rect x="${x-2}" y="${m.t}" width="${bw+4}" height="${ih}" fill="transparent"/></g>`;
+    const every=Math.ceil(n/Math.max(2,Math.floor(iw/40)));if(i%every===0)s+=`<text x="${x+bw/2}" y="${h-8}" text-anchor="middle">${n>9?"'"+String(d.dec).slice(2):d.dec+"s"}</text>`;
+  });
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  $("decadeChart").innerHTML=s;bindTips($("decadeChart"));
+}
+
+function renderPoints(g){
+  if(!g.length){$("pointsChart").innerHTML='<p class="hint">No Tests in this era.</p>';return}
+  const data=byDecade(g).map(d=>({dec:d.dec,f:d.g.reduce((s,x)=>s+x.pf,0)/d.g.length,a:d.g.reduce((s,x)=>s+x.pa,0)/d.g.length,n:d.g.length}));
+  const w=W("pointsChart"),h=230,m={l:30,r:10,t:10,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  const max=Math.max(10,...data.flatMap(d=>[d.f,d.a]));const top=Math.ceil(max/10)*10;
+  const X=i=>m.l+(data.length===1?iw/2:iw*i/(data.length-1)),Y=v=>m.t+ih-ih*v/top;
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Average points scored and conceded by decade">`;
+  for(let v=0;v<=top;v+=top>40?20:10){s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`}
+  const path=k=>data.map((d,i)=>(i?"L":"M")+X(i).toFixed(1)+","+Y(d[k]).toFixed(1)).join("");
+  s+=`<path d="${path("f")}" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s+=`<path d="${path("a")}" fill="none" stroke="var(--loss)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/>`;
+  const step=Math.ceil(data.length/Math.max(2,Math.floor(iw/44)));
+  data.forEach((d,i)=>{if(i%step===0&&(data.length-1-i)>=step/2)s+=`<text x="${X(i)}" y="${h-8}" text-anchor="middle">${"'"+String(d.dec).slice(2)}</text>`});
+  s+=`<text x="${X(data.length-1)}" y="${h-8}" text-anchor="middle">${"'"+String(data[data.length-1].dec).slice(2)}</text>`;
+  const last=data[data.length-1];if(last){s+=`<circle cx="${X(data.length-1)}" cy="${Y(last.f)}" r="4.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/><circle cx="${X(data.length-1)}" cy="${Y(last.a)}" r="4" fill="var(--loss)" stroke="var(--card)" stroke-width="2"/>`}
+  const cw=data.length>1?iw/(data.length-1):iw;
+  data.forEach((d,i)=>{s+=`<rect data-tip="<b>${d.dec}s</b> · ${d.n} Tests<br>Scored ${d.f.toFixed(1)} per Test<br>Conceded ${d.a.toFixed(1)} per Test" x="${X(i)-cw/2}" y="${m.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  $("pointsChart").innerHTML=s;bindTips($("pointsChart"));
+}
+
+function renderYears(g){
+  const ys={};g.forEach(x=>{(ys[x.y]=ys[x.y]||[]).push(x)});
+  const y0=g.length?g[0].y:1871,y1=M[M.length-1].y,years=[];for(let y=y0;y<=y1;y++)years.push(y);
+  const w=W("yearStrip"),cell=Math.max(4,Math.min(26,Math.floor((w-2)/Math.min(years.length,80)))),perRow=Math.floor((w)/cell),rows=Math.ceil(years.length/perRow),h=rows*(cell+18);
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Win rate by year">`;
+  years.forEach((y,i)=>{const r=Math.floor(i/perRow),c=i%perRow,x=c*cell,yy=r*(cell+18);const gg=ys[y];
+    if(!gg){s+=`<rect x="${x+1}" y="${yy+1}" width="${cell-2}" height="${cell-2}" rx="2" fill="none" stroke="var(--grid)" data-tip="<b>${y}</b><br>No Tests against the top 10"/>`}
+    else{const q=rec(gg),v=q.w/q.p;s+=`<rect x="${x+1}" y="${yy+1}" width="${cell-2}" height="${cell-2}" rx="2" fill="color-mix(in oklab,var(--acc) ${Math.round(8+v*92)}%,var(--card))" data-tip="<b>${y}</b> · ${q.p} Test${q.p>1?"s":""}<br>${q.w} W · ${q.d} D · ${q.l} L (${pct(q.w,q.p)}%)"/>`}
+    if(y%10===0)s+=`<text x="${x+1}" y="${yy+cell+13}">${y}</text>`;
+  });
+  s+=`</svg><div class="legend" style="margin:6px 0 0"><span>0%</span>${[0,.25,.5,.75,1].map(v=>`<i style="background:color-mix(in oklab,var(--acc) ${Math.round(8+v*92)}%,var(--card))"></i>`).join("")}<span>100% won</span><span><i style="border:1px solid var(--grid)"></i>No Tests</span></div>`;
+  $("yearStrip").innerHTML=s;bindTips($("yearStrip"));
+}
+
+function renderH2H(g){
+  const all=ALL.map((o,i)=>{if(i===state.team)return null;const gg=g.filter(x=>x.opp===i);if(!gg.length)return null;const r=rec(gg);return{i,o,r,pf:gg.reduce((s,x)=>s+x.pf,0),pa:gg.reduce((s,x)=>s+x.pa,0),last:gg[gg.length-1]}}).filter(Boolean).sort((a,b)=>b.r.p-a.r.p||b.r.w/b.r.p-a.r.w/a.r.p);
+  const LIM=12,rows=state.h2hAll?all:all.slice(0,LIM);
+  $("h2hMore").hidden=all.length<=LIM;$("h2hMore").textContent=state.h2hAll?"Show fewer":`Show all ${all.length} opponents`;
+  $("h2h").innerHTML=`<thead><tr><th>Opponent</th><th class="num">P</th><th class="num">W</th><th class="num">D</th><th class="num">L</th><th class="barcell">Share</th><th class="num">Win %</th></tr></thead><tbody>`+rows.map(x=>{const r=x.r;
+    const bar=r.p?`<div class="bar"><i class="w" style="flex:${r.w}"></i><i class="d" style="flex:${r.d}"></i><i class="l" style="flex:${r.l}"></i></div>`:`<span class="hint">No meetings</span>`;
+    const tipTxt=r.p?`<b>vs ${x.o.name}</b><br>${r.p} Tests · ${r.w} W ${r.d} D ${r.l} L<br>Points ${x.pf}–${x.pa}<br>Last: ${x.last.res} ${x.last.pf}–${x.last.pa}, ${fmtDate(x.last.date)}`:`No Tests vs ${x.o.name} in this era`;
+    return `<tr data-o="${x.i}" data-tip="${esc(tipTxt)}"><td><span class="opp"><img src="${FLAGS[x.o.id]}" alt="" style="width:20px">${x.o.name}</span></td><td class="num">${r.p}</td><td class="num">${r.w}</td><td class="num">${r.d}</td><td class="num">${r.l}</td><td class="barcell">${bar}</td><td class="num pct">${r.p?pct(r.w,r.p)+"%":"–"}</td></tr>`}).join("")+`</tbody>`;
+  bindTips($("h2h"));
+  $("h2h").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{const o=+tr.dataset.o;state.opp=state.opp===o?-1:o;$("oppSel").value=state.opp;renderResults(currentGames);markH2H();$("results").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"nearest"})}));
+  markH2H();
+}
+$("h2hMore").addEventListener("click",()=>{state.h2hAll=!state.h2hAll;renderH2H(currentGames)});
+function markH2H(){$("h2h").querySelectorAll("tbody tr").forEach(tr=>tr.classList.toggle("sel",+tr.dataset.o===state.opp))}
+
+function renderForm(all){
+  const l=all.slice(-10);
+  $("form").innerHTML=l.map(x=>`<div class="fm ${x.res}" data-tip="<b>${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa}</b> vs ${ALL[x.opp].name}<br>${fmtDate(x.date)} · ${esc(x.venue[1])}<br>${esc(x.comp)}" aria-label="${x.res}">${x.res}</div>`).join("");
+  bindTips($("form"));
+}
+
+function renderSplits(g){
+  $("splits").innerHTML=["Home","Away","Neutral"].map(k=>{const r=rec(g.filter(x=>x.where===k));
+    return `<div class="split"><div class="top"><b>${k}</b><span>${r.p?`${r.w}–${r.d}–${r.l} · <b>${pct(r.w,r.p)}%</b> won`:"No Tests"}</span></div>${r.p?`<div class="bar" data-tip="<b>${k}</b><br>${r.p} Tests: ${r.w} W, ${r.d} D, ${r.l} L"><i class="w" style="flex:${r.w}"></i><i class="d" style="flex:${r.d}"></i><i class="l" style="flex:${r.l}"></i></div>`:""}</div>`}).join("");
+  bindTips($("splits"));
+}
+
+function streak(g,fn){let best=0,cur=0,s=null,bs=null,be=null;g.forEach(x=>{if(fn(x)){if(!cur)s=x;cur++;if(cur>best){best=cur;bs=s;be=x}}else cur=0});return{best,bs,be}}
+function renderFacts(g){
+  if(!g.length){$("facts").innerHTML=`<p class="hint">No Tests in this era.</p>`;return}
+  const bw=g.reduce((b,x)=>x.pf-x.pa>b.pf-b.pa?x:b,g[0]),bl=g.reduce((b,x)=>x.pf-x.pa<b.pf-b.pa?x:b,g[0]);
+  const hi=g.reduce((b,x)=>x.pf>b.pf?x:b,g[0]);
+  const ws=streak(g,x=>x.res==="W"),ls=streak(g,x=>x.res==="L");
+  const nemesis=ALL.map((o,i)=>{const gg=g.filter(x=>x.opp===i);const r=rec(gg);return{o,r}}).filter(x=>x.r.p>=3).sort((a,b)=>a.r.w/a.r.p-b.r.w/b.r.p)[0];
+  const f=[
+    ["Biggest win",bw.pf>bw.pa?`${bw.pf}–${bw.pa}`:"–",bw.pf>bw.pa?`vs ${ALL[bw.opp].name}, ${fmtDate(bw.date)}`:"No wins in this era"],
+    ["Heaviest defeat",bl.pf<bl.pa?`${bl.pf}–${bl.pa}`:"–",bl.pf<bl.pa?`vs ${ALL[bl.opp].name}, ${fmtDate(bl.date)}`:"No defeats in this era"],
+    ["Longest winning run",ws.best+" Tests",ws.best?`${fmtDate(ws.bs.date)} to ${fmtDate(ws.be.date)}`:""],
+    ["Longest losing run",ls.best+" Tests",ls.best?`${fmtDate(ls.bs.date)} to ${fmtDate(ls.be.date)}`:""],
+    ["Most points in a Test",hi.pf,`vs ${ALL[hi.opp].name}, ${fmtDate(hi.date)}`],
+    ["Toughest opponent",nemesis?nemesis.o.name:"–",nemesis?`Won ${nemesis.r.w} of ${nemesis.r.p} (${pct(nemesis.r.w,nemesis.r.p)}%)`:"Fewer than 3 meetings"]
+  ];
+  $("facts").innerHTML=f.map(([k,v,n])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+}
+
+function detHTML(m,side){ // side 0: home perspective as listed
+  const d=m.det;if(!d)return (m.ms||m.lu)?`<div class="dx">${m.ms?sheetHTML(m):""}${m.lu?lineupHTML(m):""}</div>`:`<div class="dx"><span class="hint">No extra match detail available for this Test.</span></div>`;
+  const [sc,cd,ri,att,ts1,ts2]=d,H=tname(m.h),A=tname(m.a),o=[];
+  const row=(lab,a,b)=>`<div class="dr"><span class="dl">${lab}</span><span class="dv">${a}</span><span class="dv">${b}</span></div>`;
+  let s=`<div class="dr hd"><span class="dl"></span><span class="dv">${fl(m.h)} ${H}</span><span class="dv">${fl(m.a)} ${A}</span></div>`;
+  if(sc){s+=row("Tries",sc[0],sc[1])+row("Conversions",`${sc[2]}/${sc[4]}`,`${sc[3]}/${sc[5]}`)+row("Penalty goals",sc[8]>sc[6]?`${sc[6]}/${sc[8]}`:sc[6],sc[9]>sc[7]?`${sc[7]}/${sc[9]}`:sc[7])+(sc[10]||sc[11]?row("Drop goals",sc[10],sc[11]):"")}
+  if(cd)s+=row("Cards",cardHTML(cd[0],cd[2]),cardHTML(cd[1],cd[3]));
+  if(sc&&(ts1||ts2))s+=`<div class="ds"><b>Try scorers</b> · ${H}: ${esc(ts1||"none")} · ${A}: ${esc(ts2||"none")}</div>`;
+  const meta=[ri>=0?`Referee: ${esc(D.refs[ri])}`:"",att?`Attendance: ${att.toLocaleString()}`:""].filter(Boolean).join(" · ");
+  if(meta)s+=`<div class="ds">${meta}</div>`;
+  if(!sc&&!cd)s+=`<div class="ds hint">Scoring breakdown not available for this Test.</div>`;
+  if(m.ms)s+=sheetHTML(m);
+  if(m.lu)s+=lineupHTML(m);
+  return `<div class="dx">${s}</div>`}
+function cardHTML(y,r){return (y||r)?`${y?`<i class="yc" title="Yellow cards"></i>${y}`:""} ${r?`<i class="rcd" title="Red cards"></i>${r}`:""}`.trim():"0"}
+function bindExpand(root){root.querySelectorAll("[data-k]").forEach(el=>{el.addEventListener("click",e=>{if(e.target.closest("a"))return;const k=+el.dataset.k,nx=el.nextElementSibling;if(nx&&nx.classList.contains("dx")){nx.remove();el.setAttribute("aria-expanded","false");return}el.insertAdjacentHTML("afterend",detHTML(M[k]));el.setAttribute("aria-expanded","true")});el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();el.click()}})})}
+function renderMatchStats(g){
+  const S=g.filter(x=>x.det&&x.det[0]),C=g.filter(x=>x.det&&x.det[1]),me=x=>x.h===state.team?0:1;
+  const sum=(arr,f)=>arr.reduce((s,x)=>s+f(x),0),per=(a,b)=>b?(a/b).toFixed(1):"–";
+  const tf=sum(S,x=>x.det[0][me(x)]),ta=sum(S,x=>x.det[0][1-me(x)]),cm=sum(S,x=>x.det[0][2+me(x)]),ca=sum(S,x=>x.det[0][4+me(x)]),pm=sum(S,x=>x.det[0][6+me(x)]),pa=sum(S,x=>x.det[0][8+me(x)]),dg=sum(S,x=>x.det[0][10+me(x)]);
+  const b4=S.filter(x=>x.det[0][me(x)]>=4).length,yc=sum(C,x=>x.det[1][me(x)]),yo=sum(C,x=>x.det[1][1-me(x)]),rc=sum(C,x=>x.det[1][2+me(x)]),ro=sum(C,x=>x.det[1][3-me(x)]);
+  $("msHint").textContent=S.length||C.length?`Scoring detail for ${S.length} and card detail for ${C.length} of this team's ${g.length} Tests in the selected era (mostly matches since 2000, from Wikipedia match reports). Kicking success may be overstated because some reports list only successful kicks, and try scorers are grouped by surname as written in the reports.`:"No detailed match data for this team in the selected era.";
+  const kick=(cm+pm)&&(ca+pa)?Math.round((cm+pm)/(ca+pa)*100)+"%":"–";
+  $("mstats").innerHTML=[["Tries per Test",per(tf,S.length),`${per(ta,S.length)} conceded`],["4+ try games",S.length?Math.round(b4/S.length*100)+"%":"–",`${b4} of ${S.length} Tests`],["Goal-kicking",kick,`${cm}/${ca} conversions · ${pm}/${pa} penalties`],["Penalty goals",per(pm,S.length),`per Test · ${dg} drop goal${dg===1?"":"s"}`],["Yellow cards",per(yc,C.length),`per Test · opponents ${per(yo,C.length)}`],["Red cards",rc,`opponents ${ro} · in ${C.length} Tests`],["Most tries in a Test",S.length?Math.max(...S.map(x=>x.det[0][me(x)])):"–",""],["Tries conceded per Test",per(ta,S.length),""]]
+    .map(([k,v,n])=>`<div><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+  const cnt={};S.forEach(x=>{const t=x.det[4+me(x)]||"";t.split(";").map(z=>z.trim()).filter(z=>z&&!/penalty try/i.test(z)).forEach(z=>{const mm=z.match(/^(.*?)\s*\((\d+)\)$/);const nm=(mm?mm[1]:z).trim(),n=mm?+mm[2]:1;cnt[nm]=(cnt[nm]||0)+n})});
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  $("topTry").innerHTML=top.length?`<span style="border:0;padding-left:0;color:var(--muted)">Top try scorers:</span>`+top.map(([n,c])=>`<span>${esc(n)}<b>${c}</b></span>`).join(""):"";
+}
+function renderResults(g){
+  let l=g.slice().reverse();if(state.opp>=0)l=l.filter(x=>x.opp===state.opp);
+  const total=l.length;l=l.slice(0,12);
+  $("resHint").textContent=total?`Most recent ${l.length} of ${total}${state.opp>=0?" vs "+ALL[state.opp].name:""}`:"No results for this selection";
+  $("results").innerHTML=l.map(x=>`<div class="res xp" tabindex="0" role="button" aria-expanded="false" data-k="${M.indexOf(M.find(m=>m.date===x.date&&m.h===x.h&&m.a===x.a))}"><div class="dt">${fmtDate(x.date)}</div><div style="min-width:0"><span class="tag ${x.res}">${x.res}</span>${x.where==="Away"?"at ":"vs "}${ALL[x.opp].name}${x.wc?'<span class="wc">RWC</span>':""}<span class="comp">${esc(x.comp||"Test match")} · ${esc(x.venue[1])}</span></div><div class="sc">${x.pf}–${x.pa}${x.det||x.ms||x.lu?'<span class="plus" aria-hidden="true">＋</span>':""}</div></div>`).join("");
+  bindExpand($("results"));
+}
+
+// ===== Match stats: attack, defence, set piece (ESPN team stats) =====
+const SK=STATS.k,SI=Object.fromEntries(SK.map((k,i)=>[k,i]));
+// per-team-per-match accessor: own and opposition stat vectors for team t
+const sv=(m,t)=>{const s=m.ms;if(!s)return null;return m.h===t?[s[0],s[1]]:[s[1],s[0]]};
+const sg=(v,k)=>{const x=v[SI[k]];return x==null?NaN:x};
+// Metric definitions. kind "n": mean per Test; "r": ratio of sums (a/b); "p": mean of a 0–1 share.
+const PM={
+  tks:{l:"Tackle success",u:"%",kind:"r",a:v=>sg(v,"tackles"),b:v=>sg(v,"tackles")+sg(v,"missedTackles"),hi:1,g:"d",d:"Share of attempted tackles completed"},
+  tk:{l:"Tackles made",u:"",kind:"n",f:v=>sg(v,"tackles"),hi:0,g:"d",d:"Tackles made per Test (more usually means less ball)"},
+  mt:{l:"Missed tackles",u:"",kind:"n",f:v=>sg(v,"missedTackles"),hi:-1,g:"d",d:"Missed tackles per Test"},
+  to:{l:"Turnovers conceded",u:"",kind:"n",f:v=>sg(v,"turnoversConceded"),hi:-1,g:"a",d:"Times the team lost the ball, per Test"},
+  cb:{l:"Line breaks",u:"",kind:"n",f:v=>sg(v,"cleanBreaks"),hi:1,g:"a",d:"Clean breaks through the defensive line per Test"},
+  db:{l:"Defenders beaten",u:"",kind:"n",f:v=>sg(v,"defendersBeaten"),hi:1,g:"a",d:"Defenders beaten per Test"},
+  mr:{l:"Metres carried",u:"",kind:"n",f:v=>sg(v,"metres"),hi:1,g:"a",d:"Metres made with ball in hand per Test"},
+  of:{l:"Offloads",u:"",kind:"n",f:v=>sg(v,"offload"),hi:1,g:"a",d:"Passes out of the tackle per Test"},
+  kh:{l:"Kicks from hand",u:"",kind:"n",f:v=>sg(v,"kicksFromHand"),hi:0,g:"a",d:"Kicks in open play per Test (a style marker, not good or bad)"},
+  po:{l:"Possession",u:"%",kind:"p",f:v=>sg(v,"possession"),hi:0,g:"a",d:"Share of possession"},
+  te:{l:"Territory",u:"%",kind:"p",f:v=>sg(v,"territory"),hi:1,g:"a",d:"Share of play in the opposition half"},
+  sc:{l:"Scrum success",u:"%",kind:"r",a:v=>sg(v,"scrumsWon"),b:v=>sg(v,"scrumsTotal"),hi:1,g:"s",d:"Own-feed scrums won"},
+  lo:{l:"Lineout success",u:"%",kind:"r",a:v=>sg(v,"lineoutsWon"),b:v=>sg(v,"totalLineouts"),hi:1,g:"s",d:"Own-throw lineouts won"},
+  ls:{l:"Lineout steals",u:"",kind:"n",f:v=>sg(v,"lineoutWonSteal"),hi:1,g:"s",d:"Opposition lineouts stolen per Test"},
+  ml:{l:"Mauls won",u:"",kind:"n",f:v=>sg(v,"maulsWon"),hi:1,g:"s",d:"Mauls won per Test"},
+  rk:{l:"Ruck success",u:"%",kind:"r",a:v=>sg(v,"rucksWon"),b:v=>sg(v,"rucksTotal"),hi:1,g:"s",d:"Own rucks won"},
+  pc:{l:"Penalties conceded",u:"",kind:"n",f:v=>sg(v,"penaltiesConceded"),hi:-1,g:"s",d:"Penalties conceded per Test"},
+  fk:{l:"Free kicks conceded",u:"",kind:"n",f:v=>sg(v,"totalFreeKicksConceded"),hi:-1,g:"s",d:"Free kicks conceded per Test"},
+  yc:{l:"Yellow cards",u:"",kind:"n",f:v=>sg(v,"yellowCards"),hi:-1,g:"s",d:"Yellow cards per Test"}
+};
+const ATT=["tks","mt","tk","cb","db","mr","of","kh","to","po","te"],SET=["sc","lo","ls","ml","rk","pc","fk","yc"];
+// aggregate metric over list of [own,opp] vectors; side 0 = own, 1 = opponents
+function agg(key,vs,side){const p=PM[key];let a=0,b=0,n=0;for(const x of vs){const v=x[side];if(p.kind==="r"){const aa=p.a(v),bb=p.b(v);if(isNaN(aa)||isNaN(bb)||!bb)continue;a+=aa;b+=bb;n++}else{const f=p.f(v);if(isNaN(f))continue;a+=f;n++}}
+  if(!n)return null;return p.kind==="r"?a/b*100:p.kind==="p"?a/n*100:a/n}
+const fmtM=(key,v)=>v==null?"–":(PM[key].u==="%"?v.toFixed(1)+"%":v>=100?Math.round(v).toLocaleString():v.toFixed(1));
+state.adM="tks";state.spM="sc";state.lbC="all";state.lbS="all";state.lbSort="tks";
+// rank of team among nations with >=8 stat Tests in the same window
+function perfRank(key,from,t){const out=[];for(let i=0;i<ALL.length;i++){const vs=games(i,from).filter(x=>x.ms).map(x=>sv(x,i));if(vs.length<8&&i!==t)continue;const v=agg(key,vs,0);if(v!=null)out.push({i,v,n:vs.length})}
+  const hi=PM[key].hi;if(!hi)return null;out.sort((a,b)=>hi>0?b.v-a.v:a.v-b.v);const r=out.findIndex(x=>x.i===t)+1;const me=out.find(x=>x.i===t);return r&&me&&me.n>=8?{r,of:out.length}:null}
+
+function perfChart(el,key,g,t){
+  const by={};g.filter(x=>x.ms).forEach(x=>{(by[x.y]=by[x.y]||[]).push(sv(x,t))});
+  const ys=Object.keys(by).map(Number).sort((a,b)=>a-b);
+  if(!ys.length){el.innerHTML='<p class="hint">No match stats for this team in the selected era.</p>';return}
+  const data=ys.map(y=>({y,n:by[y].length,o:agg(key,by[y],0),a:agg(key,by[y],1)}));
+  drawYears(el,data,v=>fmtM(key,v),PM[key].l,PM[key].u==="%",t,"Test"+" with stats");
+}
+function drawYears(el,data,FM,label,pctK,t,unit){
+  const w=W(el.id),h=230,m={l:44,r:56,t:12,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  const _d=data.filter(d=>d.o!=null||d.a!=null);data.length=0;data.push(..._d);if(!data.length){el.innerHTML='<p class="hint">No values for this measure in the selected era.</p>';return}
+  const vals=data.flatMap(d=>[d.o,d.a]).filter(v=>v!=null);let lo=Math.min(...vals),hi=Math.max(...vals);
+  const span=Math.max(hi-lo,pctK?6:hi*0.2||1);lo=Math.max(0,lo-span*.25);hi=hi+span*.25;if(pctK)hi=Math.min(100,hi);
+  const step=niceStep((hi-lo)/4);lo=Math.floor(lo/step)*step;hi=Math.ceil(hi/step)*step;
+  const X=i=>m.l+(data.length===1?iw/2:iw*i/(data.length-1)),Y=v=>m.t+ih-ih*(v-lo)/(hi-lo);
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label} by year, team vs opponents">`;
+  for(let v=lo;v<=hi+1e-9;v+=step)s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${pctK?Math.round(v)+"%":(step<1?v.toFixed(1):Math.round(v).toLocaleString())}</text>`;
+  const path=k=>{let p="",pen=false;data.forEach((d,i)=>{if(d[k]==null){pen=false;return}p+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(d[k]).toFixed(1);pen=true});return p};
+  s+=`<path d="${path("a")}" fill="none" stroke="var(--loss)" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round"/>`;
+  s+=`<path d="${path("o")}" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  data.forEach((d,i)=>{if(d.o!=null)s+=`<circle cx="${X(i)}" cy="${Y(d.o)}" r="${data.length>14?2.5:3.5}" fill="var(--acc)" stroke="var(--card)" stroke-width="1.5"/>`});
+  const L=data[data.length-1];
+  const ly=(v,o)=>Y(v)+4;let yo=L.o!=null?ly(L.o):null,ya=L.a!=null?ly(L.a):null;if(yo!=null&&ya!=null&&Math.abs(yo-ya)<13){if(yo<ya){yo-=7;ya+=7}else{yo+=7;ya-=7}}
+  if(L.o!=null)s+=`<circle cx="${X(data.length-1)}" cy="${Y(L.o)}" r="4.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/><text x="${X(data.length-1)+9}" y="${yo}" style="fill:var(--ink);font-weight:600">${FM(L.o)}</text>`;
+  if(L.a!=null)s+=`<text x="${X(data.length-1)+9}" y="${ya}" style="fill:var(--ink2)">${FM(L.a)}</text>`;
+  const every=Math.ceil(data.length/Math.max(2,Math.floor(iw/46)));
+  data.forEach((d,i)=>{if(i%every===0||i===data.length-1)if(i===data.length-1||data.length-1-i>=every/2)s+=`<text x="${X(i)}" y="${h-8}" text-anchor="middle">${data.length>8?"'"+String(d.y).slice(2):d.y}</text>`});
+  const cw=data.length>1?iw/(data.length-1):iw;
+  data.forEach((d,i)=>{s+=`<rect data-tip="<b>${d.y}</b> · ${d.n} ${unit.replace("Test","Test"+(d.n>1?"s":""))}<br>${esc(ALL[t].name)}: <b>${FM(d.o)}</b><br>Opponents: ${FM(d.a)}" x="${X(i)-cw/2}" y="${m.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  el.innerHTML=s;bindTips(el);
+}
+function niceStep(x){const p=Math.pow(10,Math.floor(Math.log10(x||1))),f=x/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p}
+
+function perfPanel(pre,keys,stKey,g,t){
+  const from=ERAS.find(e=>e.id===state.era).from,G=g.filter(x=>x.ms),vs=G.map(x=>sv(x,t)),key=state[stKey];
+  $(pre+"Seg").innerHTML=keys.map(k=>`<button data-m="${k}" aria-pressed="${k===key}">${PM[k].l}</button>`).join("");
+  $(pre+"Hint").textContent=G.length?`${PM[key].d}, by calendar year. ${ALL[t].name} against their opponents in the same matches. Based on ${G.length} of ${g.length} Tests in this era that have team stats.`:"";
+  $(pre+"Wrap").hidden=!G.length;if(!G.length)return;
+  perfChart($(pre+"Chart"),key,g,t);
+  $(pre+"Tiles").innerHTML=keys.map(k=>{const o=agg(k,vs,0),a=agg(k,vs,1),r=perfRank(k,from,t);
+    return `<button class="pt${k===key?" on":""}" data-m="${k}" aria-pressed="${k===key}"><span class="k">${PM[k].l}</span><span class="v">${fmtM(k,o)}</span><span class="n">Opponents ${fmtM(k,a)}${r?` · ${ord(r.r)} of ${r.of}`:""}</span></button>`}).join("");
+}
+function renderPerf(g){
+  const t=state.team,any=g.some(x=>x.ms);
+  $("perfNone").hidden=any;
+  perfPanel("ad",ATT,"adM",g,t);perfPanel("sp",SET,"spM",g,t);
+  if(!any){$("adWrap").hidden=true;$("spWrap").hidden=true}
+}
+["ad","sp"].forEach(pre=>{const h=e=>{const b=e.target.closest("[data-m]");if(!b)return;state[pre==="ad"?"adM":"spM"]=b.dataset.m;renderPerf(currentGames)};$(pre+"Seg").addEventListener("click",h);$(pre+"Tiles").addEventListener("click",h)});
+
+// Match detail: side-by-side stat sheet
+const SHEET=[["Possession","possession","p"],["Territory","territory","p"],["Metres carried","metres"],["Line breaks","cleanBreaks"],["Defenders beaten","defendersBeaten"],["Offloads","offload"],["Passes","passes"],["Kicks from hand","kicksFromHand"],["Tackles made","tackles"],["Missed tackles","missedTackles"],["Turnovers conceded","turnoversConceded"],["Scrums won (own feed)","scrumsWon","f","scrumsTotal"],["Lineouts won (own throw)","lineoutsWon","f","totalLineouts"],["Lineout steals","lineoutWonSteal"],["Mauls won","maulsWon"],["Rucks won","rucksWon","f","rucksTotal"],["Penalties conceded","penaltiesConceded"],["Free kicks conceded","totalFreeKicksConceded"]];
+function sheetHTML(m){const [H,A]=m.ms;let s=`<div class="sheet"><div class="sh-h"><b>Match stats</b><span class="hint">Bar shows each side's share</span></div>`;
+  for(const [lab,k,f,tot] of SHEET){const a=sg(H,k),b=sg(A,k);if(isNaN(a)&&isNaN(b))continue;
+    const fa=f==="p"?Math.round(a*100)+"%":f==="f"&&!isNaN(sg(H,tot))?`${a}/${sg(H,tot)}`:a,fb=f==="p"?Math.round(b*100)+"%":f==="f"&&!isNaN(sg(A,tot))?`${b}/${sg(A,tot)}`:b;
+    const ra=f==="f"?(sg(H,tot)?a/sg(H,tot):0):a,rb=f==="f"?(sg(A,tot)?b/sg(A,tot):0):b,sh=ra+rb?ra/(ra+rb)*100:50;
+    s+=`<div class="shr"><span class="sv">${fa}</span><span class="sl">${lab}<span class="sb"><i style="width:${sh.toFixed(1)}%"></i><i style="width:${(100-sh).toFixed(1)}%"></i></span></span><span class="sv r">${fb}</span></div>`}
+  return s+`</div>`}
+
+// Overview: leaderboard
+const LBC=[["all","All competitions",()=>true],["6n","Six Nations",c=>/Six Nations/i.test(c)],["rc","Rugby Championship",c=>/Rugby Championship|Tri Nations/i.test(c)],["wc","World Cup",(c,m)=>m.wc]];
+const LBK=["tks","mt","cb","db","mr","of","kh","po","te","sc","lo","pc"];
+function renderBoard(G){
+  const SG=G.filter(m=>m.ms);$("lbWrap").hidden=!SG.length;if(!SG.length)return;
+  const yrs=[...new Set(SG.map(m=>m.y))].sort((a,b)=>b-a);if(state.lbS!=="all"&&!yrs.includes(+state.lbS))state.lbS="all";
+  $("lbSeason").innerHTML=`<option value="all">All seasons (${yrs[yrs.length-1]}–${yrs[0]})</option>`+yrs.map(y=>`<option value="${y}">${y}</option>`).join("");$("lbSeason").value=state.lbS;
+  $("lbComp").innerHTML=LBC.map(([id,l])=>`<button data-c="${id}" aria-pressed="${id===state.lbC}">${l}</button>`).join("");
+  const cf=LBC.find(c=>c[0]===state.lbC)[2];
+  const pool=SG.filter(m=>cf(m.comp||"",m)&&(state.lbS==="all"||m.y===+state.lbS));
+  const tm={};pool.forEach(m=>{[[m.h,0],[m.a,1]].forEach(([t,k])=>{(tm[t]=tm[t]||[]).push(k?[m.ms[1],m.ms[0]]:[m.ms[0],m.ms[1]])})});
+  const min=state.lbS==="all"?5:2;
+  const tp={};pool.filter(m=>m.px).forEach(m=>[[m.h,0],[m.a,1]].forEach(([t,k])=>{const o=tp[t]||(tp[t]={pk:[],ag:[]});if(m.px[k][0])o.pk.push(m.px[k][0]);if(m.px[k][2])o.ag.push(m.px[k][2])}));
+  let rows=Object.entries(tm).filter(([,v])=>v.length>=min).map(([t,v])=>({t:+t,n:v.length,v:Object.assign(Object.fromEntries(LBK.map(k=>[k,agg(k,v,0)])),{xpk:tp[t]&&tp[t].pk.length?avg(tp[t].pk):null,xag:tp[t]&&tp[t].ag.length?avg(tp[t].ag):null})}));
+  const sk=state.lbSort,dir=(PM[sk]?PM[sk].hi:1)<0?1:-1;rows.sort((a,b)=>((a.v[sk]??(dir>0?1e9:-1e9))-(b.v[sk]??(dir>0?1e9:-1e9)))*dir);
+  const best={};LBK.forEach(k=>{const h=PM[k].hi;if(!h)return;const vv=rows.map(r=>r.v[k]).filter(v=>v!=null);best[k]=h>0?Math.max(...vv):Math.min(...vv)});
+  $("lbHint").textContent=`${pool.length} Tests with team stats${state.lbS==="all"?"":" in "+state.lbS}. Nations with at least ${min} of these Tests. Click a column to rank by it; the leader in each column is bold.`;
+  $("lbTable").innerHTML=`<thead><tr><th>#</th><th>Nation</th><th>Tests</th>${LBK.map(k=>`<th data-s="${k}" class="${k===sk?"on":""}" title="${esc(PM[k].d)}">${PM[k].l}</th>`).join("")}<th data-s="xpk" class="${sk==="xpk"?"on":""}" title="Average combined weight of the starting pack">Pack weight</th><th data-s="xag" class="${sk==="xag"?"on":""}" title="Average age of the starting XV">XV age</th></tr></thead><tbody>`+
+    rows.map((r,i)=>`<tr data-t="${r.t}"><td class="pos">${i+1}</td><td><span class="nm">${fl(r.t)}${tname(r.t)}</span></td><td>${r.n}</td>${LBK.map(k=>`<td${r.v[k]!=null&&r.v[k]===best[k]?' class="lead"':""}>${fmtM(k,r.v[k])}</td>`).join("")}<td>${r.v.xpk?Math.round(r.v.xpk)+" kg":"–"}</td><td>${r.v.xag?r.v.xag.toFixed(1):"–"}</td></tr>`).join("")+`</tbody>`;
+  $("lbTable").querySelectorAll("th[data-s]").forEach(th=>th.addEventListener("click",()=>{state.lbSort=th.dataset.s;renderBoard(G)}));
+  $("lbTable").querySelectorAll("tr[data-t]").forEach(tr=>tr.addEventListener("click",()=>{const i=+tr.dataset.t;setTeam(i);scrollTo({top:0,behavior:"smooth"})}));
+}
+$("lbComp").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.lbC=b.dataset.c;const era=ERAS.find(x=>x.id===state.era);renderBoard(M.filter(m=>m.y>=era.from&&inScope(m)))});
+$("lbSeason").addEventListener("change",e=>{state.lbS=e.target.value;const era=ERAS.find(x=>x.id===state.era);renderBoard(M.filter(m=>m.y>=era.from&&inScope(m)))});
+
+// ===== Players (ESPN line-ups + bios, Wikipedia caps) =====
+const PP=PLY.p,PKI=Object.fromEntries(PLY.pk.map((k,i)=>[k,i]));
+const POSG=["Prop","Hooker","Lock","Back row","Scrum-half","Fly-half","Centre","Wing","Full-back"];
+const UNIT={"Prop":"Front row","Hooker":"Front row","Lock":"Second row","Back row":"Back row","Scrum-half":"Half-backs","Fly-half":"Half-backs","Centre":"Centres","Wing":"Back three","Full-back":"Back three"};
+const UNITS=["Front row","Second row","Back row","Half-backs","Centres","Back three"];
+const UCOL=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"];
+const YR=31557600000,avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const ageAt=(dob,d)=>dob?(Date.parse(d)-Date.parse(dob))/YR:null;
+const TODAY=MM[MM.length-1].date;
+[[MM,"m"],[MW,"w"]].forEach(([Ms,g])=>{const L=PLY.lu[g]||{},apps={};Ms.forEach((m,k)=>{const l=L[k];if(!l)return;m.lu=l;
+  m.px=l.map(row=>{const st=row.slice(0,15),wt=i=>i>=0?PP[i][5]:null;const pk=st.slice(0,8).map(wt),bk=st.slice(8).map(wt);
+    const sum=a=>a.every(x=>x)?a.reduce((s,x)=>s+x,0):null;const ag=st.filter(i=>i>=0&&PP[i][6]).map(i=>ageAt(PP[i][6],m.date));const ht=st.filter(i=>i>=0&&PP[i][4]).map(i=>PP[i][4]);const ex=st.filter(i=>i>=0).map(i=>apps[i]||0);
+    return [sum(pk),sum(bk),ag.length>=12?avg(ag):null,ht.length>=12?avg(ht):null,ex.length>=13?ex.reduce((a,b)=>a+b,0)*15/ex.length:null]});
+  l.forEach(row=>row.forEach(i=>{if(i>=0)apps[i]=(apps[i]||0)+1}))})});
+const PX={pk:{l:"Pack weight",d:"Combined weight of the starting forwards (1–8)",f:v=>Math.round(v)+" kg",i:0,hi:0},bk:{l:"Backline weight",d:"Combined weight of the starting backs (9–15)",f:v=>Math.round(v)+" kg",i:1,hi:0},
+  ag:{l:"Starting XV age",d:"Average age of the starting XV on match day",f:v=>v.toFixed(1)+" yrs",i:2,hi:0},ht:{l:"Starting XV height",d:"Average height of the starting XV",f:v=>Math.round(v)+" cm",i:3,hi:0},
+  ex:{l:"XV experience",d:"Previous Tests between the starting XV, counted from the line-ups we hold",f:v=>Math.round(v)+" Tests",i:4,hi:1}};
+const PXK=["pk","bk","ag","ht","ex"];state.pxM="pk";
+function pxAgg(key,ms,t,side){const i=PX[key].i,v=ms.map(m=>{const k=(m.h===t)?(side?1:0):(side?0:1);return m.px[k][i]}).filter(x=>x!=null);return v.length?avg(v):null}
+function pxRank(key,from,t){if(!PX[key].hi&&key!=="pk")return null;const out=[];for(let i=0;i<ALL.length;i++){const ms=games(i,from).filter(x=>x.px);if(ms.length<8)continue;const v=pxAgg(key,ms,i,0);if(v!=null)out.push({i,v})}out.sort((a,b)=>b.v-a.v);const r=out.findIndex(x=>x.i===t)+1;return r?{r,of:out.length}:null}
+function renderSquad(g){
+  const t=state.team,G=g.filter(x=>x.px),key=state.pxM,from=ERAS.find(e=>e.id===state.era).from;
+  $("sqWrap").hidden=!G.length;
+  if(G.length){
+    $("sqSeg").innerHTML=PXK.map(k=>`<button data-m="${k}" aria-pressed="${k===key}">${PX[k].l}</button>`).join("");
+    $("sqHint").textContent=`${PX[key].d}, by calendar year, ${ALL[t].name} against their opponents. From ${G.length} of ${g.length} Tests in this era with full line-ups. Weights and heights are each player's listed profile, not their match-day figure.`;
+    const by={};G.forEach(x=>(by[x.y]=by[x.y]||[]).push(x));
+    const data=Object.keys(by).map(Number).sort((a,b)=>a-b).map(y=>({y,n:by[y].length,o:pxAgg(key,by[y],t,0),a:pxAgg(key,by[y],t,1)}));
+    drawYears($("sqChart"),data,PX[key].f,PX[key].l,false,t,"Test with line-ups");
+    const big=G.map(x=>({x,v:x.px[x.h===t?0:1][0]})).filter(o=>o.v).sort((a,b)=>b.v-a.v)[0];
+    $("sqTiles").innerHTML=PXK.map(k=>{const o=pxAgg(k,G,t,0),a=pxAgg(k,G,t,1),r=pxRank(k,from,t);return `<button class="pt${k===key?" on":""}" data-m="${k}" aria-pressed="${k===key}"><span class="k">${PX[k].l}</span><span class="v">${o!=null?PX[k].f(o):"–"}</span><span class="n">Opponents ${a!=null?PX[k].f(a):"–"}${r?` · ${ord(r.r)} of ${r.of}`:""}</span></button>`}).join("")+
+      (big?`<div class="pt" style="cursor:default"><span class="k">Heaviest pack</span><span class="v">${Math.round(big.v)} kg</span><span class="n">v ${tname(big.x.opp)}, ${fmtDate(big.x.date)}</span></div>`:"");
+  }
+  // current squad + most used
+  const W_=WOMEN(),sq=PLY.sq[(W_?"w:":"m:")+ALL[t].name];
+  $("csWrap").hidden=!sq&&!G.length;
+  if(sq){const ord_=p=>{const i=POSG.findIndex(x=>p&&p.toLowerCase().startsWith(x.toLowerCase().slice(0,4)));return i<0?9:i};
+    $("csHint").textContent=`${sq.length} players in the latest squad listed on Wikipedia, with official Test caps. Per-game numbers come from the matches with player stats we hold.`;
+    $("csTable").innerHTML=`<thead><tr><th>Player</th><th>Position</th><th>Age</th><th>Caps</th><th>Club</th><th title="Tests in our line-up records">Tests held</th><th>Tackles /g</th><th>Metres /g</th></tr></thead><tbody>`+
+      sq.slice().sort((a,b)=>ord_(a[1])-ord_(b[1])||b[3]-a[3]).map(r=>{const p=r[5]>=0?PP[r[5]]:null,sn=p?p[14]:0,pg=k=>p&&sn>=3?(p[15][PKI[k]]/sn).toFixed(1):"–";const ag=ageAt(r[2],TODAY);
+        return `<tr${p?` data-p="${r[5]}"`:""}><td><span class="nm">${esc(r[0])}${r[6]?' <span class="wc">C</span>':""}</span></td><td>${esc(r[1])}</td><td>${ag?Math.floor(ag):"–"}</td><td><span class="capb"><i style="width:${Math.min(100,r[3]/1.5)}%"></i><b>${r[3]}</b></span></td><td class="club">${esc(r[4]||"")}</td><td>${p?p[8]:"–"}</td><td>${pg("tackles")}</td><td>${pg("metres")}</td></tr>`}).join("")+`</tbody>`;
+    bindPlayerRows($("csTable"))}
+  else $("csTable").innerHTML="";
+  const cnt={};g.filter(x=>x.lu).forEach(x=>{const row=x.lu[x.h===t?0:1];row.forEach((i,j)=>{if(i>=0){const o=cnt[i]||(cnt[i]={n:0,s:0});o.n++;if(j<15)o.s++}})});
+  const top=Object.entries(cnt).sort((a,b)=>b[1].n-a[1].n).slice(0,10);
+  $("muList").innerHTML=top.length?top.map(([i,o],k)=>{const p=PP[i];return `<div class="mli xp" data-p="${i}" tabindex="0" role="button"><span class="r">${k+1}</span><span>${esc(p[0])} <span class="x">${p[3]||""}</span></span><b>${o.n}</b></div>`}).join(""):'<p class="hint">No line-ups in this era.</p>';
+  bindPlayerRows($("muList"));$("csNoSq").hidden=!!sq;
+}
+$("sqSeg").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;state.pxM=b.dataset.m;renderSquad(currentGames)});
+$("sqTiles").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;state.pxM=b.dataset.m;renderSquad(currentGames)});
+
+// Line-ups in match detail
+function lineupHTML(m){if(!m.lu)return"";const col=(row,px)=>row.map((i,j)=>{if(i<0)return"";const p=PP[i];return `<div class="lur${j===15?" bench":""}"><span class="j">${j+1}</span><span class="pn" data-p="${i}">${esc(p[0])}</span><span class="kg">${p[5]?p[5]+" kg":""}</span></div>`}).join("");
+  const pk=m.px.map(x=>x[0]?Math.round(x[0])+" kg pack":"");
+  return `<div class="sheet"><div class="sh-h"><b>Line-ups</b><span class="hint">${pk[0]||"–"} v ${pk[1]||"–"}</span></div><div class="lu2"><div>${col(m.lu[0])}</div><div>${col(m.lu[1])}</div></div></div>`}
+
+// ===== Players view =====
+state.plTeam="all";state.plPos="all";state.plSince="2020";state.plSort="apps";state.plQ="";state.plN=40;state.plSel=-1;state.capN="all";
+const PCOL=[["apps","Tests held",p=>p[8]],["caps","Caps",p=>p[12]],["age","Age",p=>p[6]?ageAt(p[6],TODAY):null],["h","Height",p=>p[4]],["w","Weight",p=>p[5]],["tr","Tries",p=>p[15][PKI.tries]],["tk","Tackles /g",p=>p[14]>=5?p[15][PKI.tackles]/p[14]:null],["mt","Missed /g",p=>p[14]>=5?p[15][PKI.missedTackles]/p[14]:null],["me","Metres /g",p=>p[14]>=5?p[15][PKI.metres]/p[14]:null],["cb","Breaks /g",p=>p[14]>=5?p[15][PKI.cleanBreaks]/p[14]:null],["db","Beaten /g",p=>p[14]>=5?p[15][PKI.defendersBeaten]/p[14]:null],["of","Offloads /g",p=>p[14]>=5?p[15][PKI.offload]/p[14]:null]];
+const fmtC=(k,v)=>v==null?"–":k==="age"?Math.floor(v):k==="h"?v+" cm":k==="w"?v+" kg":["tk","mt","me","cb","db","of"].includes(k)?(k==="me"?Math.round(v):v.toFixed(1)):v;
+function plPool(){const g=WOMEN()?"w":"m";return PP.map((p,i)=>[p,i]).filter(([p])=>p[2]===g&&p[8]>0)}
+function renderPlayers(){
+  const Wm=WOMEN(),pool=plPool(),N=Wm?"women's":"men's";
+  $("union").textContent=`Player stats · ${N} Test rugby`;$("teamName").textContent="Players";
+  const withStats=pool.filter(([p])=>p[14]>0).length;
+  $("heroSub").textContent=`${pool.length.toLocaleString()} ${N} Test players from the line-ups we hold (${Wm?"Women's Rugby World Cups since 2017":"mostly Six Nations, Rugby Championship and World Cup Tests since 2000, plus other Tests since 2022"}), ${withStats.toLocaleString()} with per-match stats. Official caps come from Wikipedia.`;
+  const cl=Wm?[]:PLY.cl;const lead=cl[0];
+  $("rank").innerHTML=lead?`<div><div class="lbl">Most Test caps</div><div class="holder">${esc(lead[0])}</div><div class="pts">${lead[1]} caps · ${esc(lead[2])}${lead[3]!==lead[1]?` ${lead[3]} + Lions`:""}</div></div>`:"";
+  // KPIs
+  const ps=pool.map(x=>x[0]),act=ps.filter(p=>p[11]>="2024");
+  const by=(f,arr=ps)=>arr.filter(p=>f(p)!=null).sort((a,b)=>f(b)-f(a))[0];
+  const heavy=by(p=>p[5]),tall=by(p=>p[4]),mostT=by(p=>p[8]),young=ps.filter(p=>p[6]&&p[10]).map(p=>({p,a:ageAt(p[6],p[10])})).filter(o=>o.a>16).sort((a,b)=>a.a-b.a)[0];
+  const tk=ps.filter(p=>p[14]>=15).map(p=>({p,v:p[15][PKI.tackles]/p[14]})).sort((a,b)=>b.v-a.v)[0];
+  const k=[["Players",pool.length.toLocaleString(),`${act.length.toLocaleString()} played since 2024`,1],["Heaviest",heavy?heavy[5]+" kg":"–",heavy?`${heavy[0]}, ${tname(heavy[1])}`:""],["Tallest",tall?tall[4]+" cm":"–",tall?`${tall[0]}, ${tname(tall[1])}`:""],["Most Tests held",mostT?mostT[8]:"–",mostT?`${mostT[0]}, ${tname(mostT[1])}`:""],["Youngest debut",young?young.a.toFixed(1)+" yrs":"–",young?`${young.p[0]}, ${tname(young.p[1])}`:""],["Tackles per game",tk?tk.v.toFixed(1):"–",tk?`${tk.p[0]} (15+ games)`:""]];
+  $("plKpis").innerHTML=k.map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${esc(c)}</div></div>`).join("");
+  renderCaps();renderPlFacts(ps);renderPlTable();renderScatter();renderBigger();
+}
+function renderCaps(){
+  const Wm=WOMEN();$("capWrap").hidden=Wm;if(Wm)return;
+  const teams=[...new Set(PLY.cl.map(r=>r[2]))].sort();
+  $("capNation").innerHTML=`<option value="all">All nations</option>`+teams.map(t=>`<option${t===state.capN?" selected":""}>${esc(t)}</option>`).join("");
+  const L=PLY.cl.filter(r=>state.capN==="all"||r[2]===state.capN).slice(0,state.capN==="all"?15:30),mx=PLY.cl[0][1];
+  $("capList").innerHTML=L.map((r,i)=>{const ti=ALL.findIndex(a=>a.name===r[2]);return `<div class="capr"><span class="r">${i+1}</span><span class="nm">${ti>=0?fl(ti):""}${esc(r[0])}<span class="x">${esc(r[5])} · ${esc(r[4])}</span></span><span class="bar1"><i style="width:${r[1]/mx*100}%"></i></span><b>${r[1]}</b></div>`}).join("");
+}
+$("capNation").addEventListener("change",e=>{state.capN=e.target.value;renderCaps()});
+function renderPlFacts(ps){
+  const st=ps.filter(p=>p[14]>=15),per=(p,k)=>p[15][PKI[k]]/p[14];
+  const best=(f,arr)=>arr.slice().sort((a,b)=>f(b)-f(a))[0];
+  const f=[];
+  const mb=best(p=>per(p,"metres"),st);if(mb)f.push(["Most metres per game",Math.round(per(mb,"metres"))+" m",`${mb[0]}, ${tname(mb[1])} · ${mb[14]} games`]);
+  const cb=best(p=>per(p,"cleanBreaks"),st);if(cb)f.push(["Most line breaks per game",per(cb,"cleanBreaks").toFixed(2),`${cb[0]}, ${tname(cb[1])}`]);
+  const db=best(p=>per(p,"defendersBeaten"),st);if(db)f.push(["Most defenders beaten per game",per(db,"defendersBeaten").toFixed(1),`${db[0]}, ${tname(db[1])}`]);
+  const ofl=best(p=>per(p,"offload"),st);if(ofl)f.push(["Offload king",per(ofl,"offload").toFixed(1)+" per game",`${ofl[0]}, ${tname(ofl[1])}`]);
+  const fw=st.filter(p=>["Prop","Hooker","Lock","Back row"].includes(p[3]));const tkr=best(p=>p[15][PKI.tackles]/(p[15][PKI.tackles]+p[15][PKI.missedTackles]||1),fw.filter(p=>p[15][PKI.tackles]>=150));if(tkr){const v=tkr[15][PKI.tackles]/(tkr[15][PKI.tackles]+tkr[15][PKI.missedTackles]);f.push(["Surest forward tackler",(v*100).toFixed(1)+"%",`${tkr[0]}, ${tname(tkr[1])} · 150+ tackles`])}
+  const tr=best(p=>p[15][PKI.tries],ps);if(tr)f.push(["Most tries in our records",tr[15][PKI.tries],`${tr[0]}, ${tname(tr[1])} · ${tr[14]} games with stats`]);
+  const cap=best(p=>p[13],ps);if(cap)f.push(["Most Tests as captain",cap[13],`${cap[0]}, ${tname(cap[1])}`]);
+  const old=ps.filter(p=>p[6]&&p[11]).map(p=>({p,a:ageAt(p[6],p[11])})).sort((a,b)=>b.a-a.a)[0];if(old)f.push(["Oldest player",old.a.toFixed(1)+" yrs",`${old.p[0]}, ${tname(old.p[1])}, ${fmtDate(old.p[11])}`]);
+  $("plFacts").innerHTML=f.map(([k,v,n])=>`<div class="fx"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${esc(n)}</div></div>`).join("");
+}
+function renderPlTable(){
+  const pool=plPool();const teams=[...new Set(pool.map(([p])=>p[1]))].sort((a,b)=>tname(a).localeCompare(tname(b)));
+  $("plTeam").innerHTML=`<option value="all">All nations</option>`+teams.map(i=>`<option value="${i}">${tname(i)}</option>`).join("");$("plTeam").value=state.plTeam;if($("plTeam").value!==String(state.plTeam)){state.plTeam="all";$("plTeam").value="all"}
+  $("plPos").innerHTML=`<option value="all">All positions</option>`+POSG.map(p=>`<option>${p}</option>`).join("");$("plPos").value=state.plPos;$("plSince").value=state.plSince;
+  const q=state.plQ.trim().toLowerCase();
+  let L=pool.filter(([p])=>(state.plTeam==="all"||p[1]===+state.plTeam)&&(state.plPos==="all"||p[3]===state.plPos)&&(state.plSince==="all"||p[11]>=state.plSince)&&(!q||p[0].toLowerCase().includes(q)));
+  const c=PCOL.find(x=>x[0]===state.plSort),f=c[2],asc=state.plSort==="age"&&false;
+  L.sort((a,b)=>{const x=f(a[0]),y=f(b[0]);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return y-x});
+  $("plCount").textContent=`${L.length.toLocaleString()} player${L.length===1?"":"s"}`;
+  const shown=L.slice(0,state.plN);
+  $("plTable").innerHTML=`<thead><tr><th>#</th><th>Player</th><th>Pos</th>${PCOL.map(([k,l])=>`<th data-s="${k}" class="${k===state.plSort?"on":""}">${l}</th>`).join("")}</tr></thead><tbody>`+
+    shown.map(([p,i],n)=>`<tr data-p="${i}"${i===state.plSel?' class="sel"':""}><td class="pos">${n+1}</td><td><span class="nm">${fl(p[1])}${esc(p[0])}</span></td><td>${p[3]||"–"}</td>${PCOL.map(([k,,f])=>`<td>${fmtC(k,f(p))}</td>`).join("")}</tr>`).join("")+`</tbody>`;
+  $("plMore").hidden=L.length<=state.plN;
+  $("plTable").querySelectorAll("th[data-s]").forEach(th=>th.addEventListener("click",()=>{state.plSort=th.dataset.s;state.plN=40;renderPlTable()}));
+  bindPlayerRows($("plTable"));
+}
+["plTeam","plPos","plSince"].forEach(id=>$(id).addEventListener("change",e=>{state[id]=e.target.value;state.plN=40;renderPlTable();if(id==="plTeam")renderScatter()}));
+$("plQ").addEventListener("input",e=>{state.plQ=e.target.value;state.plN=40;renderPlTable()});
+$("plMore").addEventListener("click",()=>{state.plN+=60;renderPlTable()});
+function bindPlayerRows(root){root.querySelectorAll("[data-p]").forEach(el=>{el.style.cursor="pointer";el.addEventListener("click",e=>{e.stopPropagation();openPlayer(+el.dataset.p)});el.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();openPlayer(+el.dataset.p)}})})}
+// Player card (dialog-like panel)
+function openPlayer(i){
+  const p=PP[i];state.plSel=i;const sn=p[14],per=k=>sn?p[15][PKI[k]]/sn:null;
+  const peers=PP.filter(q=>q[2]===p[2]&&q[3]===p[3]&&q[14]>=10),pavg=k=>avg(peers.map(q=>q[15][PKI[k]]/q[14]));
+  const bars=[["Tackles","tackles"],["Missed tackles","missedTackles"],["Metres","metres"],["Carries","runs"],["Line breaks","cleanBreaks"],["Defenders beaten","defendersBeaten"],["Offloads","offload"],["Turnovers conceded","turnoversConceded"],["Penalties conceded","penaltiesConceded"]].map(([l,k])=>{const v=per(k),a=pavg(k),pv=peers.map(q=>q[15][PKI[k]]/q[14]).sort((x,y)=>x-y),p95=pv.length?pv[Math.floor(pv.length*.95)]:0,mx=Math.max(v||0,a||0,p95)*1.08||1;return `<div class="pbr"><span class="pl">${l}</span><span class="pt2"><i class="me" style="width:${(v||0)/mx*100}%"></i><i class="av" style="left:${(a||0)/mx*100}%"></i></span><span class="pv">${v==null?"–":v>=20?Math.round(v):v.toFixed(1)}<small>${a==null?"":" avg "+(a>=20?Math.round(a):a.toFixed(1))}</small></span></div>`}).join("");
+  const age=ageAt(p[6],TODAY),deb=ageAt(p[6],p[10]);
+  const tests=M.filter(m=>m.lu&&(m.lu[0].includes(i)||m.lu[1].includes(i)));
+  const yrs={};tests.forEach(m=>yrs[m.y]=(yrs[m.y]||0)+1);const ys=Object.keys(yrs).map(Number),y0=Math.min(...ys),y1=Math.max(...ys),ym=Math.max(...Object.values(yrs));
+  const spark=ys.length?`<div class="ptl">${Array.from({length:y1-y0+1},(_,k)=>y0+k).map(y=>`<i style="height:${(yrs[y]||0)/ym*100}%" data-tip="<b>${y}</b> · ${yrs[y]||0} Test${yrs[y]===1?"":"s"}"></i>`).join("")}</div><div class="ptla"><span>${y0}</span><span>${y1}</span></div>`:"";
+  $("pcard").innerHTML=`<div class="pc-h"><div><div class="eyebrow2">${fl(p[1])} ${tname(p[1])} · ${p[3]||"Position not listed"}${p[16]?" · "+esc(p[16]):""}</div><h3>${esc(p[0])}</h3></div><button class="showall" id="pcClose">Close</button></div>
+   <div class="pc-g"><div class="stt pcs">${[["Caps",p[12]??"–",p[12]!=null?"official, from Wikipedia":"not in a current squad list"],["Tests held",p[8],p[10]?`${p[9]} starts · ${fmtDate(p[10])} to ${fmtDate(p[11])}`:"named in a squad, not yet used"],["Age",age?Math.floor(age):"–",deb?`debut in our records at ${deb.toFixed(1)}`:""],["Size",p[4]?p[4]+" cm":"–",p[5]?p[5]+" kg":""],["Tries",p[15][PKI.tries],`in ${sn} games with stats`],["Captain",p[13]||0,"Tests as captain"]].map(([k,v,n])=>`<div><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("")}</div>
+   <div><div class="sub3" style="margin-top:0">Per game, against the average ${(p[3]||"player").toLowerCase()}</div>${sn>=3?bars:'<p class="hint">Fewer than three games with player stats.</p>'}<div class="sub3">Tests by year</div>${spark}</div></div>`;
+  const d=$("pdlg");if(!d.open){try{d.showModal()}catch(e){d.setAttribute("open","")}}bindTips($("pcard"));$("pcClose").onclick=()=>d.close();
+  if(state.team===-4)renderPlTable();
+}
+$("pdlg").addEventListener("click",e=>{if(e.target===$("pdlg"))$("pdlg").close()});
+// Scatter: height v weight by unit
+function renderScatter(){
+  const pool=plPool().filter(([p])=>p[4]&&p[5]&&p[3]&&p[11]>="2015"),hl=state.plTeam;
+  const el=$("plScatter"),w=W("plScatter"),h=320,m={l:44,r:12,t:10,b:34},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  const xs=pool.map(([p])=>p[4]),ys=pool.map(([p])=>p[5]);const x0=Math.floor(Math.min(...xs)/5)*5,x1=Math.ceil(Math.max(...xs)/5)*5,y0=Math.floor(Math.min(...ys)/10)*10,y1=Math.ceil(Math.max(...ys)/10)*10;
+  const X=v=>m.l+iw*(v-x0)/(x1-x0),Y=v=>m.t+ih-ih*(v-y0)/(y1-y0);
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Player height against weight, coloured by position unit">`;
+  for(let v=y0;v<=y1;v+=10)s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+  for(let v=x0;v<=x1;v+=10)s+=`<text x="${X(v)}" y="${h-16}" text-anchor="middle">${v}</text>`;
+  s+=`<text x="${m.l+iw/2}" y="${h-2}" text-anchor="middle">Height (cm)</text><text x="${m.l}" y="${m.t+10}" dx="4">kg</text>`;
+  const dim=hl!=="all";
+  pool.forEach(([p,i])=>{const u=UNITS.indexOf(UNIT[p[3]]),on=!dim||p[1]===+hl;s+=`<circle cx="${(X(p[4])+(i%7-3)*0.35).toFixed(1)}" cy="${(Y(p[5])+(i%5-2)*0.35).toFixed(1)}" r="${on&&dim?4:3}" fill="${UCOL[u]}" fill-opacity="${on?(dim?.95:.55):.08}" stroke="var(--card)" stroke-width="${on&&dim?1:0}" data-p="${i}" data-tip="<b>${esc(p[0])}</b><br>${tname(p[1])} · ${p[3]}<br>${p[4]} cm · ${p[5]} kg"/>`});
+  UNITS.forEach((u,k)=>{const g=pool.filter(([p])=>UNIT[p[3]]===u);if(!g.length)return;const ax=avg(g.map(([p])=>p[4])),ay=avg(g.map(([p])=>p[5]));s+=`<circle cx="${X(ax)}" cy="${Y(ay)}" r="7" fill="${UCOL[k]}" stroke="var(--ink)" stroke-width="2"/>`});
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  el.innerHTML=s;bindTips(el);bindPlayerRows(el);
+  $("plLegend").innerHTML=UNITS.map((u,k)=>{const g=pool.filter(([p])=>UNIT[p[3]]===u);return `<span><i style="background:${UCOL[k]};border-radius:50%"></i>${u} <span class="x">${g.length?Math.round(avg(g.map(([p])=>p[4])))+" cm · "+Math.round(avg(g.map(([p])=>p[5])))+" kg":""}</span></span>`}).join("")+`<span><i style="background:transparent;border:2px solid var(--ink);border-radius:50%"></i>Unit average</span>`;
+  $("scHint").textContent=`${pool.length.toLocaleString()} players who have played since 2015, from their listed profiles.${dim?` ${tname(+hl)} highlighted.`:" Pick a nation in the explorer to highlight its players."}`;
+}
+function renderBigger(){
+  const Ms=M.filter(m=>m.px&&isTop(m.h)&&isTop(m.a));const by={};Ms.forEach(m=>m.px.forEach(x=>{const o=by[m.y]||(by[m.y]={pk:[],bk:[],ag:[]});if(x[0])o.pk.push(x[0]);if(x[1])o.bk.push(x[1]);if(x[2])o.ag.push(x[2])}));
+  const data=Object.keys(by).map(Number).sort((a,b)=>a-b).filter(y=>by[y].pk.length>=6).map(y=>({y,n:by[y].pk.length/2,o:avg(by[y].pk)/8,a:avg(by[y].bk)/7}));
+  $("bgWrap").hidden=data.length<3;if(data.length<3)return;
+  drawYears2($("plTrend"),data);
+  const a=data[0],b=data[data.length-1];
+  $("bgHint").textContent=`Average listed weight of the starting forwards and backs in Tests between the top ten, ${a.y}–${b.y}. Forwards ${a.o.toFixed(1)} → ${b.o.toFixed(1)} kg, backs ${a.a.toFixed(1)} → ${b.a.toFixed(1)} kg. Profiles list current or final playing weights, so earlier years may read slightly heavy.`;
+}
+function drawYears2(el,data){ // two series, both kg per player
+  const w=W(el.id),h=230,m={l:40,r:60,t:12,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  const vals=data.flatMap(d=>[d.o,d.a]);let lo=Math.floor(Math.min(...vals)/5)*5-5,hi=Math.ceil(Math.max(...vals)/5)*5+5;
+  const X=i=>m.l+iw*i/(data.length-1),Y=v=>m.t+ih-ih*(v-lo)/(hi-lo);
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Average forward and back weight by year">`;
+  for(let v=lo;v<=hi;v+=5)s+=`<line class="gl" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`;
+  const path=k=>data.map((d,i)=>(i?"L":"M")+X(i).toFixed(1)+","+Y(d[k]).toFixed(1)).join("");
+  s+=`<path d="${path("o")}" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="${path("a")}" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const L=data[data.length-1];s+=`<circle cx="${X(data.length-1)}" cy="${Y(L.o)}" r="4.5" fill="var(--c1)" stroke="var(--card)" stroke-width="2"/><circle cx="${X(data.length-1)}" cy="${Y(L.a)}" r="4.5" fill="var(--c2)" stroke="var(--card)" stroke-width="2"/><text x="${X(data.length-1)+9}" y="${Y(L.o)+4}" style="fill:var(--ink);font-weight:600">${L.o.toFixed(1)}</text><text x="${X(data.length-1)+9}" y="${Y(L.a)+4}" style="fill:var(--ink);font-weight:600">${L.a.toFixed(1)}</text>`;
+  const every=Math.ceil(data.length/Math.max(2,Math.floor(iw/46)));data.forEach((d,i)=>{if(i%every===0||i===data.length-1)s+=`<text x="${X(i)}" y="${h-8}" text-anchor="middle">'${String(d.y).slice(2)}</text>`});
+  const cw=iw/(data.length-1);data.forEach((d,i)=>{s+=`<rect data-tip="<b>${d.y}</b> · ${Math.round(d.n)} Tests<br>Forwards ${d.o.toFixed(1)} kg<br>Backs ${d.a.toFixed(1)} kg" x="${X(i)-cw/2}" y="${m.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
+  s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;el.innerHTML=s;bindTips(el);
+}
+
+let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{if(state.team===-1){const era=ERAS.find(e=>e.id===state.era);const G=M.filter(m=>m.y>=era.from&&inScope(m));renderTrend(G);if(!WOMEN())renderMoney();renderMatchAnalytics(G,era);return}if(state.team===-4){renderScatter();renderBigger();return}if(state.team<0)return;const g=currentGames;renderDecades(g);renderPoints(g);renderYears(g);renderPerf(g);renderSquad(g)},150)});
+render();
+</script>

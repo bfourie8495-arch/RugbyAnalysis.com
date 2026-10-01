@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Rugby sevens results and honours: World Series champions, every series tournament final, Olympic and Rugby World Cup Sevens medals, for men and women.">
+__ICONS__
+<title>Sevens | Rugby Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap">
+<style>
+__CSS__
+.seasons{display:flex;gap:4px;background:color-mix(in oklab,var(--on-p) 12%,transparent);padding:4px;border-radius:10px;flex-wrap:wrap;max-width:480px}
+.seasons select{font:600 13px var(--body);padding:8px 10px;border-radius:7px;border:0;background:var(--on-p);color:var(--p)}
+.hb td.x2,.hb th.x2{text-align:right}
+.hb .med{display:inline-flex;gap:3px}
+.hb .med i{font-style:normal;font:700 11px/1 var(--body);border-radius:999px;padding:3px 6px}
+.med .g{background:#E9C44A;color:#3B2B00}.med .s{background:#C9CED6;color:#1E2530}.med .b{background:#C98A4B;color:#2B1400}
+.sc7{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.sc7:last-child{border-bottom:0}
+.sc7 .yr{font:700 16px/1 var(--display);color:var(--acc)}
+.sc7 .w{display:flex;align-items:center;gap:8px;font-weight:600}
+.sc7 .w img{width:24px}
+.sc7 .o{color:var(--muted);font-size:12.5px;display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.sc7 .o img{width:16px;vertical-align:-3px;margin-right:3px}
+.sc7 .pts{font:700 17px/1 var(--display);white-space:nowrap}
+.tr7{display:grid;grid-template-columns:86px 1fr auto 1fr;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--grid);font-size:14px}
+.tr7:last-child{border-bottom:0}
+.tr7 .dt{color:var(--muted);font-size:12.5px;line-height:1.25}
+.tr7 .dt b{display:block;color:var(--ink);font-size:13.5px;font-weight:600}
+.tr7 .h{text-align:right;display:flex;gap:7px;justify-content:flex-end;align-items:center;font-weight:700}
+.tr7 .a{display:flex;gap:7px;align-items:center}
+.tr7 img{width:22px}
+.tr7 .s{font:700 18px/1 var(--display);min-width:58px;text-align:center;white-space:nowrap}
+.tr7 .tf{font:600 10.5px/1 var(--body);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+@media (max-width:560px){.tr7{grid-template-columns:1fr auto 1fr}.tr7 .dt{grid-column:1/-1}}
+.wbar{display:grid;grid-template-columns:130px 1fr 36px;gap:10px;align-items:center;font-size:14px;padding:4px 0}
+.wbar .n{display:flex;align-items:center;gap:7px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbar .n img{width:20px}
+.wbar .t{height:14px;background:var(--grid);border-radius:4px;overflow:hidden}
+.wbar .t i{display:block;height:100%;background:var(--acc);border-radius:4px}
+.wbar b{font:700 17px/1 var(--display);text-align:right}
+.ssn{display:grid;gap:8px}
+.sr{display:grid;grid-template-columns:70px 1fr 64px;gap:10px;align-items:center;font-size:14px}
+.sr .yr{font-weight:600}
+.sr .trk{position:relative;height:22px;background:var(--grid);border-radius:5px;overflow:hidden}
+.sr .trk i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:5px}
+.sr .trk span{position:absolute;left:8px;top:3px;font:600 12px/16px var(--body);color:var(--card);white-space:nowrap}
+.sr .trk span.out{color:var(--ink)}
+.sr .pos{font:700 18px/1 var(--display);text-align:right}
+.sr .pos small{font:500 11px var(--body);color:var(--muted);display:block}
+.chip img.fl{width:24px}
+.note{font-size:13px;color:var(--muted)}
+.clickable{cursor:pointer}
+.clickable:hover{background:color-mix(in oklab,var(--acc) 6%,transparent)}
+/*__REDESIGN__*/
+</style>
+</head>
+<body>
+<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./">__LOGO__<span>Rugby Analysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="Type of rugby"><a href="./" id="intlLink">International</a><a href="clubs.html" id="clubLink">Club</a><a href="sevens.html" aria-current="page">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="ident">
+      <img class="hflag" id="heroFlag" alt="" hidden>
+      <div class="mosaic" id="heroMosaic"></div>
+      <div style="min-width:0">
+        <div class="eyebrow" id="union"></div>
+        <h1 id="teamName"></h1>
+        <div class="sub" id="heroSub"></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="rank" id="rank"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="ov">
+  <section class="kpis" id="ovKpis" aria-label="Headline numbers"></section>
+  <section class="panel">
+    <h2>Honours board</h2>
+    <p class="hint" id="hbHint"></p>
+    <div class="tscroll"><table class="lg hb" id="hb"></table></div>
+  </section>
+  <div class="grid3">
+    <section class="panel">
+      <h2>World Series champions</h2>
+      <p class="hint" id="scHint"></p>
+      <div id="scList"></div>
+    </section>
+    <div style="display:grid;gap:18px;align-content:start">
+      <section class="panel">
+        <h2>Tournament wins</h2>
+        <p class="hint">Series tournaments won by each nation</p>
+        <div id="wins"></div>
+      </section>
+      <section class="panel">
+        <h2>Olympic Games</h2>
+        <p class="hint">Gold-medal matches since sevens joined the Olympics in 2016</p>
+        <div id="oly"></div>
+      </section>
+      <section class="panel">
+        <h2>Rugby World Cup Sevens</h2>
+        <p class="hint">Finals</p>
+        <div id="rwc"></div>
+      </section>
+    </div>
+  </div>
+  <section class="panel">
+    <div class="filterbar"><h2 style="flex:1">Tournament finals</h2><label for="seaSel" class="hint" style="margin:0">Season</label><select id="seaSel"></select></div>
+    <p class="hint" id="trHint"></p>
+    <div id="trList"></div>
+  </section>
+</main>
+
+<main class="wrap" id="tv" hidden>
+  <section class="kpis" id="tKpis" aria-label="Team honours"></section>
+  <div class="grid3">
+    <section class="panel">
+      <h2>World Series finishes</h2>
+      <p class="hint">Final standing each season (top six recorded)</p>
+      <div class="ssn" id="tSeries"></div>
+    </section>
+    <div style="display:grid;gap:18px;align-content:start">
+      <section class="panel">
+        <h2>Olympics and World Cup</h2>
+        <p class="hint">Medals and finals</p>
+        <div id="tMajor"></div>
+      </section>
+      <section class="panel">
+        <h2>Favourite venues</h2>
+        <p class="hint">Series tournaments won at each stop</p>
+        <div id="tHosts"></div>
+      </section>
+    </div>
+  </div>
+  <section class="panel">
+    <h2>Finals</h2>
+    <p class="hint" id="tfHint"></p>
+    <div id="tFinals"></div>
+    <button class="showall" id="tfMore" hidden>Show all</button>
+  </section>
+</main>
+
+<footer class="wrap" id="foot"></footer>
+<div class="tip" id="tip" role="tooltip"></div>
+<script>
+const D=__DATA__;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%100]||"th");
+const MONS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const sLab=x=>{const m=x.match(/^(\d{4})–(\d{2,4})$/);return m?m[1].slice(2)+"–"+m[2].slice(-2):x};
+const ymTxt=ym=>{const[y,m]=ym.split("-");return MONS[m-1]+" "+y};
+const tip=$("tip");
+function showTip(e,h){tip.innerHTML=h;tip.classList.add("on");mv(e)}function mv(e){const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;tip.style.left=Math.max(8,x)+"px";tip.style.top=Math.max(8,y)+"px"}
+function bindTips(root){root.querySelectorAll("[data-tip]").forEach(el=>{el.addEventListener("pointerenter",e=>showTip(e,el.dataset.tip));el.addEventListener("pointermove",mv);el.addEventListener("pointerleave",()=>tip.classList.remove("on"))})}
+const fl=t=>D.flags[t]?`<img src="${D.flags[t]}" alt="">`:"";
+const THEME={m:{p:"#0F2B2A",onp:"#FFFFFF",al:"#0B8A6E",ad:"#3FE0B8",stripe:"linear-gradient(90deg,#3FE0B8 0 50%,#FFFFFF 50%)"},w:{p:"#2E1244",onp:"#FFFFFF",al:"#8A3FC8",ad:"#C9A0FF",stripe:"linear-gradient(90deg,#C9A0FF 0 50%,#FFFFFF 50%)"}};
+let state={g:"m",team:null,sea:null,tfAll:false};
+try{const h=decodeURIComponent(location.hash.slice(1));if(h.startsWith("women"))state.g="w";else if(h.startsWith("men"))state.g="m";else if(localStorage.getItem("rl-g")==="w")state.g="w";const t=h.split("/")[1];if(t)state.team=t}catch(e){}
+
+const EV=g=>D.events.filter(e=>e.g===g),TOP=g=>D.top[g],MED=(g,k)=>D.med.filter(m=>m.g===g&&m.kind===k);
+function honours(g){const H={};const h=t=>H[t]||(H[t]={t,series:0,s2:0,top3:0,wins:0,finals:0,og:0,os:0,ob:0,rwc:0,rwcF:0});
+  TOP(g).forEach(s=>s.codes.forEach((c,k)=>{if(!c)return;const x=h(c);if(k===0)x.series++;if(k===1)x.s2++;if(k<3)x.top3++}));
+  EV(g).forEach(e=>{if(e.ch){h(e.ch).wins++;h(e.ch).finals++}if(e.ru)h(e.ru).finals++});
+  MED(g,"oly").forEach(m=>{h(m.ch).og++;h(m.ru).os++;if(m.b1)h(m.b1).ob++});
+  MED(g,"rwc7").forEach(m=>{h(m.ch).rwc++;h(m.ch).rwcF++;h(m.ru).rwcF++});
+  return Object.values(H).sort((a,b)=>b.series-a.series||b.wins-a.wins||b.og-a.og||b.finals-a.finals)}
+function applyTheme(t){const r=document.documentElement.style;r.setProperty("--p",t.p);r.setProperty("--on-p",t.onp);r.setProperty("--acc-l",t.al);r.setProperty("--acc-d",t.ad);r.setProperty("--stripe",t.stripe||`linear-gradient(90deg,${t.al} 0 50%,${t.onp} 50%)`)}
+function teamTheme(t){const c=D.cols[t];if(!c)return THEME[state.g];return{p:c[0],onp:c[1],al:c[2],ad:c[3]}}
+function buildPicker(){const H=honours(state.g).filter(x=>x.wins||x.series||x.og||x.rwc||x.top3>=2);
+  $("picker").innerHTML=`<button class="chip" data-t="" aria-pressed="false"><svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><ellipse cx="13" cy="9" rx="11.5" ry="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9h10M10 7v4M13 7v4M16 7v4" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>${state.g==="w"?"Women's":"Men's"} sevens</button>`+H.map(x=>`<button class="chip" data-t="${esc(x.t)}" aria-pressed="false"><img class="fl" src="${D.flags[x.t]||""}" alt="">${esc(x.t)}</button>`).join("")}
+$("picker").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;state.team=b.dataset.t||null;state.tfAll=false;go();scrollTo({top:0})});
+$("gsw").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.dataset.g===state.g)return;state.g=b.dataset.g;state.team=null;state.sea=null;buildPicker();go()});
+function go(){render();try{localStorage.setItem("rl-g",state.g);history.replaceState(null,"","#"+(state.g==="w"?"women":"men")+(state.team?"/"+state.team:""))}catch(e){}}
+
+function render(){const g=state.g,W=g==="w";
+  document.querySelectorAll("#gsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===g));
+  $("intlLink").href=W?"./#women/overview":"./#overview";$("clubLink").href=W?"clubs.html#pwr":"clubs.html";
+  document.querySelectorAll("#picker .chip").forEach(b=>b.setAttribute("aria-pressed",(b.dataset.t||null)===state.team));
+  {const sel=document.querySelector("#picker .chip[aria-pressed=\"true\"]"),pk=$("picker");if(sel)pk.scrollTo({left:sel.offsetLeft-pk.clientWidth/2+sel.offsetWidth/2,behavior:"smooth"})}
+  const E=EV(g),first=TOP(g)[0].season;
+  $("foot").innerHTML=`Data: ${D.events.length} World Series tournaments (men since 1999–2000, women since 2012–13), plus every Olympic and Rugby World Cup Sevens final (source: Wikipedia). Series standings list the top six each season. Final scores are missing for a few older tournaments, and tournament counts can differ by one or two from official totals where double-header weekends are recorded as one event.`;
+  $("ov").hidden=!!state.team;$("tv").hidden=!state.team;$("heroFlag").hidden=!state.team;$("heroMosaic").hidden=!!state.team;
+  if(state.team){renderTeam();bindTips(document.body);return}
+  applyTheme(THEME[g]);
+  const H=honours(g);$("heroMosaic").innerHTML=H.slice(0,10).map(x=>fl(x.t)).join("");
+  $("union").textContent=`${W?"Women's":"Men's"} rugby sevens · since ${first}`;$("teamName").textContent=`${W?"Women's":"Men's"} Sevens`;
+  const last=TOP(g)[TOP(g).length-1],o=MED(g,"oly").slice(-1)[0],r=MED(g,"rwc7").slice(-1)[0];
+  $("heroSub").textContent=`${E.length} World Series tournaments over ${TOP(g).length} seasons, plus the Olympic Games and Rugby World Cup Sevens.`;
+  $("rank").innerHTML=`<img class="hold" src="${D.flags[last.codes[0]]||""}" alt=""><div><div class="lbl">${last.season} series champions</div><div class="holder">${esc(last.codes[0])}</div><div class="pts">${last.pts?last.pts+" pts · ":""}Olympic champions: ${esc(o.ch)} (${o.y})</div></div>`;
+  const wc={};E.forEach(e=>wc[e.ch]=(wc[e.ch]||0)+1);const topW=Object.entries(wc).sort((a,b)=>b[1]-a[1]);
+  const lastEv=E.slice().sort((a,b)=>a.ym.localeCompare(b.ym)).slice(-1)[0];
+  $("ovKpis").innerHTML=[["Series champions",last.codes[0],last.season,1],["Most series titles",H[0].t,`${H[0].series} titles`],["Most tournament wins",topW[0][0],`${topW[0][1]} of ${E.length}`],["Olympic champions",o.ch,`${o.y}, beat ${o.ru} ${o.s}`],["World Cup Sevens",r.ch,`${r.y}, beat ${r.ru} ${r.s}`],["Latest tournament",lastEv.ch,`${lastEv.host}, ${ymTxt(lastEv.ym)}`]]
+    .map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v" style="font-size:${String(b).length>8?"24px":""}">${esc(b)}</div><div class="n">${esc(c)}</div></div>`).join("");
+  // honours board
+  $("hbHint").textContent=`Every nation with a series title, tournament win or global medal. Series titles since ${first}; Olympics since 2016; World Cup Sevens since ${W?2009:1993}. Click a nation to open its page.`;
+  const medH=x=>(x.og||x.os||x.ob)?`<span class="med">${x.og?`<i class="g" title="Gold">${x.og}</i>`:""}${x.os?`<i class="s" title="Silver">${x.os}</i>`:""}${x.ob?`<i class="b" title="Bronze">${x.ob}</i>`:""}</span>`:"–";
+  $("hb").innerHTML=`<thead><tr><th>#</th><th>Nation</th><th class="x2">Series titles</th><th class="x2 x">Series top 3</th><th class="x2">Tournament wins</th><th class="x2 x">Finals</th><th>Olympic medals</th><th class="x2">World Cup Sevens</th></tr></thead><tbody>`+
+    H.filter(x=>x.series||x.wins||x.og||x.os||x.ob||x.rwc||x.rwcF).map((x,k)=>`<tr data-t="${esc(x.t)}"><td class="pos">${k+1}</td><td><span class="nm">${fl(x.t)}${esc(x.t)}</span><span class="sub">${x.series} series · ${x.wins} tournaments${x.og?` · ${x.og} Olympic gold`:""}</span></td><td class="x2 cups">${x.series||"–"}</td><td class="x2 x">${x.top3||"–"}</td><td class="x2 pct">${x.wins||"–"}</td><td class="x2 x">${x.finals||"–"}</td><td>${medH(x)}</td><td class="x2">${x.rwc?x.rwc+(x.rwc>1?" titles":" title"):x.rwcF?"finalist":"–"}</td></tr>`).join("")+`</tbody>`;
+  $("hb").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{state.team=tr.dataset.t;go();scrollTo({top:0})}));
+  // series champions
+  $("scHint").textContent=`Top three each season, most recent first`;
+  $("scList").innerHTML=TOP(g).slice().reverse().map(s=>`<div class="sc7"><div class="yr">${sLab(s.season)}</div><div><span class="w">${fl(s.codes[0])}${esc(s.codes[0])}</span><span class="o">${s.codes.slice(1,3).map((c,k)=>`<span>${k?"3rd":"2nd"} ${fl(c)}${esc(c)}</span>`).join("")}</span></div><div class="pts">${s.pts?s.pts+" pts":""}</div></div>`).join("");
+  // wins bars
+  const mx=topW[0][1];$("wins").innerHTML=topW.map(([t,n])=>`<div class="wbar clickable" data-t="${esc(t)}"><span class="n">${fl(t)}${esc(t)}</span><span class="t"><i style="width:${(n/mx*100).toFixed(1)}%"></i></span><b>${n}</b></div>`).join("");
+  $("wins").querySelectorAll("[data-t]").forEach(el=>el.addEventListener("click",()=>{state.team=el.dataset.t;go();scrollTo({top:0})}));
+  const finals=(k)=>MED(g,k).slice().reverse().map(m=>`<div class="sc7"><div class="yr">${m.y}</div><div><span class="w">${fl(m.ch)}${esc(m.ch)}</span><span class="o"><span>beat ${fl(m.ru)}${esc(m.ru)}</span>${m.b1&&k==="oly"?`<span>bronze ${fl(m.b1)}${esc(m.b1)}</span>`:""}<span>${esc(m.host||"")}</span></span></div><div class="pts">${esc(m.s)}</div></div>`).join("");
+  $("oly").innerHTML=finals("oly");$("rwc").innerHTML=finals("rwc7");
+  // tournaments by season
+  const seas=[...new Set(E.map(e=>e.season))];if(!state.sea||!seas.includes(state.sea))state.sea=seas[seas.length-1];
+  $("seaSel").innerHTML=seas.slice().reverse().map(s=>`<option ${s===state.sea?"selected":""}>${s}</option>`).join("");
+  const L=E.filter(e=>e.season===state.sea).sort((a,b)=>a.ym.localeCompare(b.ym)),st=TOP(g).find(s=>s.season===state.sea);
+  $("trHint").textContent=`${L.length} tournament${L.length>1?"s":""} in ${state.sea}${st?`. Series champions: ${st.codes[0]}`:""}.`;
+  $("trList").innerHTML=L.map(trLine).join("");
+}
+$("seaSel").addEventListener("change",e=>{state.sea=e.target.value;render()});
+function trLine(e){return `<div class="tr7"><div class="dt"><b>${esc(e.host)}</b>${ymTxt(e.ym)}</div><div class="h">${esc(e.ch)} ${fl(e.ch)}</div><div class="s">${e.s1!=null?e.s1+"–"+e.s2:'<span class="tf">won</span>'}</div><div class="a">${e.ru?fl(e.ru)+" "+esc(e.ru):'<span class="note">runner-up not recorded</span>'}</div></div>`}
+
+function renderTeam(){const g=state.g,t=state.team,W=g==="w",H=honours(g),x=H.find(h=>h.t===t)||{t,series:0,s2:0,top3:0,wins:0,finals:0,og:0,os:0,ob:0,rwc:0,rwcF:0};
+  applyTheme(teamTheme(t));const hf=$("heroFlag");hf.src=D.flags[t]||"";hf.alt="Flag of "+t;
+  $("union").textContent=`${W?"Women's":"Men's"} rugby sevens`;$("teamName").textContent=t;
+  const E=EV(g),fin=E.filter(e=>e.ch===t||e.ru===t).sort((a,b)=>b.ym.localeCompare(a.ym)),won=fin.filter(e=>e.ch===t);
+  const rank=H.indexOf(x)+1;
+  $("heroSub").textContent=`${x.wins} World Series tournament win${x.wins===1?"":"s"} from ${x.finals} final${x.finals===1?"":"s"}${x.series?`, and ${x.series} series title${x.series>1?"s":""}`:""}.`;
+  $("rank").innerHTML=`<div class="num"><small>#</small>${rank}</div><div><div class="lbl">${W?"Women's":"Men's"} sevens<br>honours board</div><div class="pts">${x.series} series · ${x.wins} tournaments</div></div>`;
+  $("tKpis").innerHTML=[["Series titles",x.series,`${x.top3} top-3 finishes`,1],["Tournament wins",x.wins,`of ${E.length} series events`],["Finals won",x.finals?Math.round(x.wins/x.finals*100)+"%":"–",`${x.wins} of ${x.finals}`],["Olympic medals",x.og+x.os+x.ob,x.og+x.os+x.ob?`${x.og} gold · ${x.os} silver · ${x.ob} bronze`:"none yet"],["World Cup Sevens",x.rwc,x.rwc?"titles":x.rwcF?"finalist":"no finals"],["Last title",won[0]?won[0].host:"–",won[0]?ymTxt(won[0].ym):""]]
+    .map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v" style="font-size:${String(b).length>8?"24px":""}">${esc(b)}</div><div class="n">${esc(c)}</div></div>`).join("");
+  $("tSeries").innerHTML=TOP(g).slice().reverse().map(s=>{const p=s.codes.indexOf(t);const w=p>=0?(6-p)/6*100:0;return `<div class="sr" data-tip="<b>${s.season}</b><br>${p>=0?ord(p+1)+" in the series":"Outside the top six"}"><div class="yr">${sLab(s.season)}</div><div class="trk">${p>=0?`<i style="width:${w.toFixed(0)}%"></i>`:""}<span class="${w<45?"out":""}" style="${w<45&&p>=0?`left:calc(${w.toFixed(0)}% + 8px)`:""}">${p===0?"Champions"+(s.pts?` · ${s.pts} pts`:""):p>=0?ord(p+1):"Outside top 6"}</span></div><div class="pos">${p>=0?ord(p+1):"–"}</div></div>`}).join("");
+  const maj=[...D.med.filter(m=>m.g===g&&[m.ch,m.ru,m.b1,m.b2].includes(t))].sort((a,b)=>b.y-a.y);
+  $("tMajor").innerHTML=maj.map(m=>{const oly=m.kind==="oly";const res=m.ch===t?(oly?"Gold":"Champions"):m.ru===t?(oly?"Silver":"Runners-up"):m.b1===t?(oly?"Bronze":"Semi-finalists"):(oly?"Fourth":"Semi-finalists");return `<div class="sc7"><div class="yr">${m.y}</div><div><span class="w">${oly?"Olympic Games":"World Cup Sevens"}</span><span class="o"><span>${esc(m.host||"")}</span>${m.ch===t?`<span>beat ${fl(m.ru)}${esc(m.ru)} ${esc(m.s)}</span>`:m.ru===t?`<span>lost to ${fl(m.ch)}${esc(m.ch)} ${esc(m.s)}</span>`:""}</span></div><div class="pts">${res}</div></div>`}).join("")||`<p class="hint">No Olympic or World Cup Sevens medals or finals yet.</p>`;
+  const hc={};won.forEach(e=>hc[e.host]=(hc[e.host]||0)+1);const hs=Object.entries(hc).sort((a,b)=>b[1]-a[1]);const hm=hs.length?hs[0][1]:1;
+  $("tHosts").innerHTML=hs.map(([h,n])=>`<div class="wbar"><span class="n">${esc(h)}</span><span class="t"><i style="width:${(n/hm*100).toFixed(1)}%"></i></span><b>${n}</b></div>`).join("")||`<p class="hint">No tournament wins yet.</p>`;
+  $("tfHint").textContent=fin.length?`${fin.length} World Series final${fin.length>1?"s":""}: ${won.length} won, ${fin.length-won.length} lost. Most recent first.`:"No World Series finals yet.";
+  const lim=state.tfAll?999:12;$("tFinals").innerHTML=fin.slice(0,lim).map(trLine).join("");$("tfMore").hidden=fin.length<=12;$("tfMore").textContent=state.tfAll?"Show fewer":`Show all ${fin.length}`;
+}
+$("tfMore").addEventListener("click",()=>{state.tfAll=!state.tfAll;renderTeam()});
+buildPicker();render();
+</script>
+</body>
+</html>

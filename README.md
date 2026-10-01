@@ -1,0 +1,49 @@
+# RugbyAnalysis.com
+
+This repository holds the site and the data pipeline that keeps it up to date.
+Every morning a GitHub job pulls the latest results, fixtures, team stats,
+line-ups, player profiles and World Rugby rankings, rebuilds the pages and saves
+them here. Cloudflare sees the change and redeploys rugbyanalysis.com within a
+minute or two. Nobody needs to touch anything.
+
+## What updates by itself
+
+| Updated daily | Source |
+|---|---|
+| Test results (men's; women's World Cup) | ESPN match centres |
+| Upcoming Test fixtures and model picks | ESPN, World Rugby rankings |
+| Team match stats, line-ups, player stats | ESPN |
+| New players' height, weight, date of birth | ESPN |
+| World Rugby rankings (men and women) | World Rugby |
+| Club results, fixtures and tables: URC, Premiership, Top 14, Super Rugby Pacific, Champions Cup, Challenge Cup, Currie Cup, NPC | ESPN |
+| Current squads and official caps (Mondays) | Wikipedia |
+
+Records, win rates, head-to-heads, trophy holders, form guides, leaderboards and
+league tables are all recalculated from the data on every run.
+
+Not covered by the automatic feeds (they stay as they are until updated by hand):
+Premiership Women's Rugby, Japan League One, the Sevens pages, women's Tests
+outside World Cups, and a few men's competitions ESPN does not carry (for
+example the Pacific Nations Cup).
+
+## Folder layout
+
+```
+site/                  the finished website (what Cloudflare serves)
+pipeline/update.py     downloads new data into the files in pipeline/
+pipeline/build_all.py  rebuilds site/ from those files
+pipeline/*.csv, *.json the data
+.github/workflows/update.yml  the daily schedule
+wrangler.jsonc         tells Cloudflare to serve the site/ folder
+```
+
+## Running it yourself
+
+```
+pip install -r pipeline/requirements.txt
+python pipeline/update.py      # fetch new data
+python pipeline/build_all.py   # rebuild site/
+```
+
+To run the refresh straight away on GitHub: Actions tab → "Daily data refresh"
+→ "Run workflow".
