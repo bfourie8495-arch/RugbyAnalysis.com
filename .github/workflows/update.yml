@@ -2,7 +2,8 @@ name: Daily data refresh
 
 on:
   schedule:
-    - cron: "30 5 * * *"   # every day at 05:30 UTC
+       - cron: "17 5 * * *"    # 05:17 UTC every day
+       - cron: "47 21 * * *"   # 21:47 UTC every day (catches evening results)
   workflow_dispatch:         # adds a "Run workflow" button for a manual refresh
 
 permissions:
