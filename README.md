@@ -36,6 +36,7 @@ pipeline/*.csv, *.json the data
 pipeline/matchday.js   the Match Centre landing page and head-to-head page
                (+ matchday.css), slotted into template.html by build.py
 .github/workflows/update.yml  the daily schedule
+.github/workflows/deploy.yml  publishes site/ to Cloudflare after every change
 wrangler.jsonc         tells Cloudflare to serve the site/ folder
 ```
 
@@ -49,3 +50,11 @@ python pipeline/build_all.py   # rebuild site/
 
 To run the refresh straight away on GitHub: Actions tab → "Daily data refresh"
 → "Run workflow".
+
+## Deploying
+
+`deploy.yml` publishes `site/` to Cloudflare whenever `main` changes and after
+each daily refresh. It needs two repository secrets (Settings → Secrets and
+variables → Actions): `CLOUDFLARE_API_TOKEN` (a Cloudflare API token made from the
+"Edit Cloudflare Workers" template) and `CLOUDFLARE_ACCOUNT_ID`. To redeploy by
+hand: Actions tab → "Deploy site to Cloudflare" → "Run workflow".
