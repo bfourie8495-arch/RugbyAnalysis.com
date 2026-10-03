@@ -669,6 +669,7 @@ footer{color:var(--muted)}
 .mcgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 .mct{border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
 .mct h3{margin:0 0 8px;font:600 11px/1.2 var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.mcsto{grid-column:1/-1}
 .mcins{background:color-mix(in oklab,var(--acc) 5%,var(--card))}
 .mdlead{font:650 17px/1.4 var(--body);margin:0 0 8px;letter-spacing:-.01em}
 .mdp{font-size:14px;color:var(--ink2);margin:0 0 6px}
@@ -1121,7 +1122,7 @@ const WRWC=[[1991,"United States","England",19,6,"Cardiff"],[1994,"England","Uni
 const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%100]||"th");
 
 let state={team:-5,era:"all",opp:-1,scope:"all",h2hAll:false,g:"m"};
-const SPECIAL={overview:-1,fixtures:-2,trophies:-3,players:-4,matchday:-5};
+const SPECIAL={overview:-1,fixtures:-2,trophies:-3,players:-4,matchday:-5,h2h:-6};
 const idOf=i=>i===-2?"fixtures":i===-3?"trophies":i===-4?"players":i===-5?"matchday":i===-6?"h2h/"+ALL[state.pair[0]].id+"-v-"+ALL[state.pair[1]].id:i<0?"overview":ALL[i].id;
 const parseId=h=>{if(h in SPECIAL)return SPECIAL[h];const p=/^h2h\/(.+)-v-(.+)$/.exec(h);if(p){const a=ALL.findIndex(t=>t.id===p[1]),b=ALL.findIndex(t=>t.id===p[2]);if(a>=0&&b>=0&&a!==b){state.pair=[a,b];return -6}return -5}const i=ALL.findIndex(t=>t.id===h);return i<0?-5:i};
 try{let h=decodeURIComponent(location.hash.slice(1));let g=null;if(h.startsWith("women/")){g="w";h=h.slice(6)}else if(h==="women"){g="w";h="overview"}else if(h)g="m";
@@ -2030,6 +2031,55 @@ function drawYears2(el,data){ // two series, both kg per player
 }
 
 let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{if(state.team===-1){const era=ERAS.find(e=>e.id===state.era);const G=M.filter(m=>m.y>=era.from&&inScope(m));renderTrend(G);if(!WOMEN())renderMoney();renderMatchAnalytics(G,era);return}if(state.team===-4){renderScatter();renderBigger();return}if(state.team<0)return;const g=currentGames;renderDecades(g);renderPoints(g);renderYears(g);renderPerf(g);renderSquad(g)},150)});
+// ===== Rivalry stories for the Match Centre =====
+// Hand-written background for each pairing: why it matters and where its trophy's name comes from.
+// Keyed by the two team names in alphabetical order, joined with "|". Edit freely; build.py inlines this file.
+const STORY={
+"Australia|New Zealand":"The trans-Tasman rivalry dates from the first Test in Sydney in 1903. The Bledisloe Cup was donated by Lord Bledisloe, then Governor-General of New Zealand, and first contested in 1932. New Zealand have held it for most of the professional era, so every Wallabies side is measured by whether it can win it back.",
+"Argentina|Ireland":"A rivalry forged at World Cups. Argentina knocked Ireland out in a 1999 play-off in Lens, beat them again in the 2007 pool and ran them off the park 43–20 in the 2015 quarter-final in Cardiff. Ireland have had the better of the rivalry since.",
+"Italy|South Africa":"South Africa beat Italy 101–0 in Durban in 1999, but Italy's 20–18 win in Florence in 2016 is still one of the great upsets in Test rugby and their only win over the Springboks.",
+"New Zealand|Scotland":"One of the longest waits in rugby: Scotland have played the All Blacks since 1905 and never beaten them. They came closest with a 0–0 draw in 1964 and a 25–25 draw in 1983, and several recent games at Murrayfield have gone to the final minutes.",
+"Fiji|France":"France usually have the edge, but Fiji's 21–14 win at the Stade de France in 2018 was their first over the French. Many of the Fijians play their club rugby in the Top 14, so plenty of these players know each other well.",
+"Japan|Wales":"Japan stunned Wales 23–8 in Tokyo in 2013 and beat them again in Kitakyushu in 2025, so the Welsh no longer treat this as a routine win.",
+"Australia|England":"Rugby's great sporting rivalry between the old country and the colony. Australia won the 1991 World Cup final at Twickenham; Jonny Wilkinson's extra-time drop goal won England the 2003 final in Sydney. The Ella-Mobbs Trophy (the Cook Cup until 2024) honours Wallaby great Mark Ella and Edgar Mobbs, the England captain killed at Passchendaele in 1917.",
+"France|South Africa":"Two of the most physical sides in the game. South Africa's 29–28 win over hosts France in the 2023 World Cup quarter-final in Paris is one of the best Tests ever played, and France have been looking for revenge since.",
+"Argentina|Italy":"A Latin rivalry with family ties: millions of Argentines have Italian roots, and several players have represented one country while qualifying for the other. The two are often close on the rankings, so these Tests tend to be tight.",
+"New Zealand|Wales":"Wales handed the 1905 Originals their only defeat of that tour, after Bob Deans' disputed try was ruled out, and won again in 1935 and 1953. They haven't beaten the All Blacks since 1953, a run that gets talked about every time these two meet in Cardiff.",
+"Fiji|Ireland":"Fiji have never beaten Ireland, but the Flying Fijians are one of the most dangerous counter-attacking sides in the world and are now in the top tier full-time through the Nations Championship.",
+"England|Japan":"Eddie Jones links these two: he coached Japan to their famous 2015 World Cup win over South Africa in Brighton and then coached England for seven years. Japan are still looking for a first win over England.",
+"Australia|Scotland":"Both play for the Hopetoun Cup, named after the Earl of Hopetoun, a Scot who became Australia's first Governor-General. It's a rivalry of close finishes, none more so than the 2015 World Cup quarter-final, which Australia won 35–34 with a last-minute Bernard Foley penalty.",
+"Argentina|France":"Argentina announced themselves at the 2007 World Cup by beating hosts France 17–12 in the opening game in Paris and again in the bronze final. Many Pumas play their club rugby in France, which adds an edge.",
+"Ireland|South Africa":"The modern heavyweight rivalry, regularly between the top two sides in the world rankings. Ireland won 13–8 at the 2023 World Cup and the 2024 series in South Africa was shared 1–1, with each Test decided by one score.",
+"Fiji|Italy":"A meeting of near-equals. Fiji have beaten Italy three times, and Italy remember losing 22–19 in Suva in 2017. With both now in the Nations Championship, wins here count for seeding.",
+"Japan|Scotland":"Japan's 28–21 win in Yokohama at the 2019 World Cup, played the day after Typhoon Hagibis nearly forced its cancellation, sent the hosts into their first quarter-final and Scotland home.",
+"Australia|Wales":"They play for the James Bevan Trophy, named after Wales' first captain, who was born in Australia. Wales' 40–6 win at the 2023 World Cup helped knock the Wallabies out in the pool stage for the first time.",
+"England|New Zealand":"They play for the Hillary Shield, named after Sir Edmund Hillary, the New Zealander who first climbed Everest with Tenzing Norgay. England's 19–7 win in the 2019 World Cup semi-final in Yokohama is the high point for England.",
+"New Zealand|South Africa":"Rugby's greatest rivalry, first played in 1921. The 1995 World Cup final at Ellis Park, with Nelson Mandela in a Springbok jersey, is part of South African history, and South Africa beat New Zealand 12–11 in the 2023 final. The Freedom Cup was introduced in 2004 to mark ten years of democracy in South Africa.",
+"Australia|South Africa":"The Mandela Challenge Plate is named after Nelson Mandela and was first contested in 2000. These two also met in the opening game of the 1995 World Cup, South Africa's first after isolation.",
+"Argentina|Australia":"They play for the Puma Trophy, named after Argentina's nickname, Los Pumas, and first contested in 2000. These games have become much closer since Argentina joined the southern-hemisphere championship in 2012.",
+"Argentina|New Zealand":"For almost a century Argentina couldn't beat the All Blacks. Their first win, 25–15 in Sydney in 2020, was one of the great days in Pumas history, and they have won again since.",
+"Argentina|South Africa":"Argentina's first win over the Springboks came in Durban in 2015. Since then the Pumas have become regular opponents in the southern-hemisphere championship.",
+"Australia|Ireland":"They play for the Lansdowne Cup, named after Lansdowne Road, Ireland's old home ground. Michael Lynagh's late try for Australia to win the 1991 World Cup quarter-final in Dublin is still painful for Irish fans.",
+"Australia|France":"The Trophée des Bicentenaires was first contested in 1989 to mark two bicentenaries: the French Revolution in 1789 and the founding of European settlement in Australia in 1788. France won the 1987 World Cup semi-final thriller in Sydney with Serge Blanco's late try; Australia won the 1999 final in Cardiff.",
+"France|New Zealand":"They play for the Dave Gallaher Trophy, named after the captain of the 1905 Originals, who was killed at Passchendaele in 1917. France have beaten New Zealand at three World Cups, including the 1999 semi-final comeback and the 2007 quarter-final in Cardiff; New Zealand won the 2011 final 8–7.",
+"South Africa|Wales":"They play for the Prince William Cup, named after Prince William, patron of the Welsh Rugby Union, and first contested in 2007. South Africa won the 2019 World Cup semi-final 19–16.",
+"England|South Africa":"South Africa beat England in the 2007 and 2019 World Cup finals and won the 2023 semi-final 16–15 with a late penalty.",
+"England|Scotland":"The oldest international fixture: they played the first ever Test at Raeburn Place in Edinburgh in 1871. The Calcutta Cup, first contested in 1879, was made from the silver rupees left in the account of the Calcutta Football Club when it disbanded.",
+"England|Ireland":"They play for the Millennium Trophy, a Viking helmet introduced in 1988 to mark Dublin's millennium.",
+"Ireland|Scotland":"They play for the Centenary Quaich, first contested in 1989. A quaich is a traditional Scottish two-handled drinking cup.",
+"France|Italy":"They play for the Giuseppe Garibaldi Trophy, introduced in 2007 for the 200th anniversary of the birth of Garibaldi, the hero of Italian unification, who was born in Nice and fought for France in 1870.",
+"Scotland|Wales":"They play for the Doddie Weir Cup, named after the Scotland lock who raised millions for motor neurone disease research after his diagnosis. He died in 2022.",
+"France|Scotland":"They play for the Auld Alliance Trophy, named after the alliance between Scotland and France that dates from 1295 and first contested in 2018 in memory of the rugby internationals killed in the First World War.",
+"Italy|Scotland":"They play for the Cuttitta Cup, named after Massimo Cuttitta, the former Italy captain and Scotland scrum coach, who died in 2021.",
+"England|France":"Le Crunch: neighbours, old rivals and usually two of the strongest sides in Europe. The result often decides the championship.",
+"England|Wales":"The fiercest of the Home Nations rivalries, with plenty of history and plenty said in the build-up. It's the game Wales most want to win.",
+"France|Ireland":"In the modern era this has usually been the biggest game in the European championship, between the two strongest sides in Europe.",
+"Ireland|Wales":"An old Celtic rivalry that often has a championship or Grand Slam on the line.",
+"France|Wales":"Wales and France have played since 1908 and have decided several championships between them."
+};
+const storyOf=(a,b)=>STORY[[a,b].sort().join("|")];
+// Wikipedia's squad lists use local terms; show the common name alongside them
+const POSN={"First five-eighth":"First five-eighth (fly-half)","Second five-eighth":"Second five-eighth (inside centre)","Half-back":"Half-back (scrum-half)","Second row":"Second row (lock)"};
 // ===== Match Centre (the landing page) and the two-team head-to-head page =====
 // Inserted into template.html by build.py. Everything here is computed in the browser
 // from the same data the rest of the dashboard uses (results, ESPN stats, squads,
@@ -2105,12 +2155,12 @@ function watch(i){const sq=PLY.sq["m:"+ALL[i].name];if(!sq)return[];const rows=s
   take("Ball carrier",o=>per(o,"metres"),v=>`${Math.round(v)} m carried a Test`);
   take("Defence",o=>per(o,"tackles"),v=>`${v.toFixed(1)} tackles a Test`);
   return out}
-const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
+const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(POSN[x.o.r[1]]||x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
 
 function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>view(m,hi)),r=rec(V),L=V[V.length-1];
   const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p],rk=i=>{const x=RANKM[slugOf(i)];return x?`World no. ${x.pos}`:"Unranked"};
   const fm=i=>dots(lastN(MM,i,5),x=>`${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa} v ${tname(x.opp)}, ${fmtDate(x.date)}`);
-  const ins=insights(f,G),st=stakes(f);
+  const ins=insights(f,G),st=stakes(f),sto=storyOf(f.h,f.a);
   const when=f.tbc?`${fD.format(new Date(f.d+"T12:00:00"))} · kick-off TBC`:`${fD.format(f.t)} · ${fT.format(f.t)} ${fZ(f.t)}`;
   const cd=!f.tbc&&f.t>now?`<span class="mdcd">in ${untilTxt(f.t-now)}</span>`:"";
   const side=(i,cls)=>`<button class="mdt ${cls}" data-i="${i}"><img src="${FLAGS[ALL[i].id]}" alt=""><span class="mdn">${tname(i)}</span><span class="mdr">${rk(i)}</span>${fm(i)}</button>`;
@@ -2125,6 +2175,7 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>vie
     <div class="mcbar" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div>
     <div class="mcbl"><span>${f.h} ${Math.round(f.p*100)}%</span><span>${f.a} ${Math.round((1-f.p)*100)}%</span></div></div>
   <div class="mcgrid">
+    ${sto?`<section class="mct mcsto"><h3>The rivalry</h3><p class="mdp">${esc(sto)}</p></section>`:""}
     <section class="mct"><h3>Head to head</h3>${hist}</section>
     <section class="mct mcins"><h3>Insight from the data</h3>${ins.length?`<p class="mdlead">${ins[0].t}</p>${ins.slice(1,3).map(x=>`<p class="mdp">${x.t}</p>`).join("")}`:`<p class="hint">Not enough shared history for an insight yet.</p>`}</section>
     <section class="mct"><h3>What's on the line</h3>${st.length?`<ul class="mdst">${st.map(s=>`<li>${s}</li>`).join("")}</ul>`:`<p class="hint">Nothing beyond the result.</p>`}</section>
@@ -2151,7 +2202,7 @@ function renderMatchday(){const now=Date.now(),items=upcoming();
 }
 
 // ===== Two-team head-to-head =====
-state.pair=state.pair||[idx("New Zealand"),idx("Australia")];state.pvAll=false;
+{const n=upcoming()[0];state.pair=state.pair||(n?[n.hi,n.ai]:[idx("New Zealand"),idx("Australia")]);}state.pvAll=false;
 function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===state.era),Gall=meetings(M,a,b),G=Gall.filter(m=>m.y>=era.from),V=G.map(m=>view(m,a)),r=rec(V),A=tname(a),B=tname(b);
   $("union").textContent=`Head to head · ${Wm?"women's ":""}Tests`;$("teamName").textContent=`${A} v ${B}`;
   const opts=ALL.map((t,i)=>i).filter(i=>M.some(m=>m.h===i||m.a===i)).sort((x,y)=>tname(x).localeCompare(tname(y)));
@@ -2214,6 +2265,10 @@ $("pvSwap").addEventListener("click",()=>pvSet(state.pair[1],state.pair[0]));
 // Match Centre chip first in the nav; links like #h2h/england-v-france route without a reload
 {const b=document.createElement("button");b.className="chip";b.id="team-matchday";b.dataset.i="-5";b.setAttribute("aria-pressed","false");
  b.innerHTML=`<svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><circle cx="13" cy="9" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 5v4.5l3 2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>Match Centre`;
+ $("picker").insertBefore(b,$("team-overview"));}
+// Head to head chip straight after it; opens on the pair last viewed (next fixture by default)
+{const b=document.createElement("button");b.className="chip";b.id="team-h2h";b.dataset.i="-6";b.setAttribute("aria-pressed","false");
+ b.innerHTML=`<svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 6h14l-3-3M23 12H9l3 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Head to head`;
  $("picker").insertBefore(b,$("team-overview"));}
 addEventListener("hashchange",()=>{let h=decodeURIComponent(location.hash.slice(1)),g="m";if(h.startsWith("women/")){g="w";h=h.slice(6)}else if(h==="women"){g="w";h="overview"}
   const i=h?parseId(h):-5;if(g!==state.g){state.team=i;setGender(g)}else setTeam(i);scrollTo({top:0})});
