@@ -73,7 +73,7 @@ function watch(i){const sq=PLY.sq["m:"+ALL[i].name];if(!sq)return[];const rows=s
   take("Ball carrier",o=>per(o,"metres"),v=>`${Math.round(v)} m carried a Test`);
   take("Defence",o=>per(o,"tackles"),v=>`${v.toFixed(1)} tackles a Test`);
   return out}
-const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
+const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(x.o.p[3]||x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
 
 function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>view(m,hi)),r=rec(V),L=V[V.length-1];
   const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p],rk=i=>{const x=RANKM[slugOf(i)];return x?`World no. ${x.pos}`:"Unranked"};
