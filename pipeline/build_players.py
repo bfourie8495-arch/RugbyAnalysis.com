@@ -15,8 +15,7 @@ def idx(d):
   return ix
 IX={'m':idx(M),'w':idx(W)}
 GRP={1:'Prop',3:'Prop',2:'Hooker',4:'Lock',5:'Lock',6:'Back row',7:'Back row',8:'Back row',9:'Scrum-half',10:'Fly-half',11:'Wing',14:'Wing',12:'Centre',13:'Centre',15:'Full-back'}
-BIO={'prop':'Prop','hooker':'Hooker','lock':'Lock','Flanker':'Back row','back-row':'Back row','scrum-half':'Scrum-half','Halfback':'Scrum-half','fly-half':'Fly-half','five-eighth':'Fly-half','centre':'Centre','wing':'Wing','Fullback':'Full-back','utility back':'Utility back','outside back':'Wing','front-row':'Prop'}
-BACKS={'Fly-half','Centre','Wing','Full-back'}
+BIO={'prop':'Prop','hooker':'Hooker','lock':'Lock','Flanker':'Back row','back-row':'Back row','scrum-half':'Scrum-half','Halfback':'Scrum-half','fly-half':'Fly-half','five-eighth':'Fly-half','centre':'Centre','wing':'Wing','Fullback':'Full-back','utility back':'Centre','outside back':'Wing','front-row':'Prop'}
 PK=['tackles','missedTackles','metres','runs','cleanBreaks','defendersBeaten','offload','tries','tryAssists','points','turnoversConceded','penaltiesConceded','kicksFromHand','lineoutsWon','yellowCards','redCards','conversionGoals','penaltyGoals','passes']
 pl={};LU={'m':{},'w':{}};miss=0
 for eid,(lg,date,sides) in sorted(R.items(),key=lambda x:x[1][1]):
@@ -82,12 +81,8 @@ for r in WK['caps'][1:]:
 ids=sorted(pl,key=lambda a:(-pl[a]['apps'],a));PI={a:i for i,a in enumerate(ids)}
 PL=[]
 for a in ids:
-  q=pl[a];b=A.get(a,{});gc=collections.Counter()
-  for jj,n in q['jers'].items():gc[GRP[jj]]+=n
-  gm=gc.most_common(2)
-  pos=gm[0][0] if gm else BIO.get(b.get('pos'),'')
-  # backs who start regularly in two back positions (e.g. 10 and 15) are utility backs
-  if len(gm)==2 and gm[0][0] in BACKS and gm[1][0] in BACKS and gm[1][1]>=3 and gm[1][1]>=.25*sum(gc.values()):pos='Utility back'
+  q=pl[a];b=A.get(a,{});j=q['jers'].most_common(1)
+  pos=GRP[j[0][0]] if j else BIO.get(b.get('pos'),'')
   PL.append([b.get('fn') or b.get('n') or '?',NI[q['team']],q['g'],pos,b.get('h'),b.get('w'),b.get('b'),b.get('bp'),q['apps'],q['starts'],q['first'],q['last'],q.get('caps'),q['capt'],q['sn'],q['s'],q.get('club')])
 LUo={g:{i:[[PI.get(x,-1) if x else -1 for x in row] for row in lu] for i,lu in d.items()} for g,d in LU.items()}
 SQo={k:[r[:5]+[PI.get(r[5],-1) if r[5] else -1,r[6]] for r in v] for k,v in SQ.items()}

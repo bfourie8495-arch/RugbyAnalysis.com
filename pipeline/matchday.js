@@ -73,12 +73,12 @@ function watch(i){const sq=PLY.sq["m:"+ALL[i].name];if(!sq)return[];const rows=s
   take("Ball carrier",o=>per(o,"metres"),v=>`${Math.round(v)} m carried a Test`);
   take("Defence",o=>per(o,"tackles"),v=>`${v.toFixed(1)} tackles a Test`);
   return out}
-const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(x.o.p[3]||x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
+const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(POSN[x.o.r[1]]||x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
 
 function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>view(m,hi)),r=rec(V),L=V[V.length-1];
   const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p],rk=i=>{const x=RANKM[slugOf(i)];return x?`World no. ${x.pos}`:"Unranked"};
   const fm=i=>dots(lastN(MM,i,5),x=>`${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa} v ${tname(x.opp)}, ${fmtDate(x.date)}`);
-  const ins=insights(f,G),st=stakes(f);
+  const ins=insights(f,G),st=stakes(f),sto=storyOf(f.h,f.a);
   const when=f.tbc?`${fD.format(new Date(f.d+"T12:00:00"))} · kick-off TBC`:`${fD.format(f.t)} · ${fT.format(f.t)} ${fZ(f.t)}`;
   const cd=!f.tbc&&f.t>now?`<span class="mdcd">in ${untilTxt(f.t-now)}</span>`:"";
   const side=(i,cls)=>`<button class="mdt ${cls}" data-i="${i}"><img src="${FLAGS[ALL[i].id]}" alt=""><span class="mdn">${tname(i)}</span><span class="mdr">${rk(i)}</span>${fm(i)}</button>`;
@@ -93,6 +93,7 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>vie
     <div class="mcbar" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div>
     <div class="mcbl"><span>${f.h} ${Math.round(f.p*100)}%</span><span>${f.a} ${Math.round((1-f.p)*100)}%</span></div></div>
   <div class="mcgrid">
+    ${sto?`<section class="mct mcsto"><h3>The rivalry</h3><p class="mdp">${esc(sto)}</p></section>`:""}
     <section class="mct"><h3>Head to head</h3>${hist}</section>
     <section class="mct mcins"><h3>Insight from the data</h3>${ins.length?`<p class="mdlead">${ins[0].t}</p>${ins.slice(1,3).map(x=>`<p class="mdp">${x.t}</p>`).join("")}`:`<p class="hint">Not enough shared history for an insight yet.</p>`}</section>
     <section class="mct"><h3>What's on the line</h3>${st.length?`<ul class="mdst">${st.map(s=>`<li>${s}</li>`).join("")}</ul>`:`<p class="hint">Nothing beyond the result.</p>`}</section>
