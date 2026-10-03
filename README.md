@@ -33,6 +33,8 @@ site/                  the finished website (what Cloudflare serves)
 pipeline/update.py     downloads new data into the files in pipeline/
 pipeline/build_all.py  rebuilds site/ from those files
 pipeline/*.csv, *.json the data
+pipeline/matchday.js   the Match Centre landing page and head-to-head page
+               (+ matchday.css), slotted into template.html by build.py
 .github/workflows/update.yml  the daily schedule
 wrangler.jsonc         tells Cloudflare to serve the site/ folder
 ```
