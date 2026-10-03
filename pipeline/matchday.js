@@ -120,7 +120,7 @@ function renderMatchday(){const now=Date.now(),items=upcoming();
 }
 
 // ===== Two-team head-to-head =====
-state.pair=state.pair||[idx("New Zealand"),idx("Australia")];state.pvAll=false;
+{const n=upcoming()[0];state.pair=state.pair||(n?[n.hi,n.ai]:[idx("New Zealand"),idx("Australia")]);}state.pvAll=false;
 function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===state.era),Gall=meetings(M,a,b),G=Gall.filter(m=>m.y>=era.from),V=G.map(m=>view(m,a)),r=rec(V),A=tname(a),B=tname(b);
   $("union").textContent=`Head to head · ${Wm?"women's ":""}Tests`;$("teamName").textContent=`${A} v ${B}`;
   const opts=ALL.map((t,i)=>i).filter(i=>M.some(m=>m.h===i||m.a===i)).sort((x,y)=>tname(x).localeCompare(tname(y)));
@@ -183,6 +183,10 @@ $("pvSwap").addEventListener("click",()=>pvSet(state.pair[1],state.pair[0]));
 // Match Centre chip first in the nav; links like #h2h/england-v-france route without a reload
 {const b=document.createElement("button");b.className="chip";b.id="team-matchday";b.dataset.i="-5";b.setAttribute("aria-pressed","false");
  b.innerHTML=`<svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><circle cx="13" cy="9" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13 5v4.5l3 2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>Match Centre`;
+ $("picker").insertBefore(b,$("team-overview"));}
+// Head to head chip straight after it; opens on the pair last viewed (next fixture by default)
+{const b=document.createElement("button");b.className="chip";b.id="team-h2h";b.dataset.i="-6";b.setAttribute("aria-pressed","false");
+ b.innerHTML=`<svg class="ball" viewBox="0 0 26 18" aria-hidden="true"><path d="M3 6h14l-3-3M23 12H9l3 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Head to head`;
  $("picker").insertBefore(b,$("team-overview"));}
 addEventListener("hashchange",()=>{let h=decodeURIComponent(location.hash.slice(1)),g="m";if(h.startsWith("women/")){g="w";h=h.slice(6)}else if(h==="women"){g="w";h="overview"}
   const i=h?parseId(h):-5;if(g!==state.g){state.team=i;setGender(g)}else setTeam(i);scrollTo({top:0})});

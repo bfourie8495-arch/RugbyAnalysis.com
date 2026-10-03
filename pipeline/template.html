@@ -778,7 +778,7 @@ const WRWC=[[1991,"United States","England",19,6,"Cardiff"],[1994,"England","Uni
 const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%100]||"th");
 
 let state={team:-5,era:"all",opp:-1,scope:"all",h2hAll:false,g:"m"};
-const SPECIAL={overview:-1,fixtures:-2,trophies:-3,players:-4,matchday:-5};
+const SPECIAL={overview:-1,fixtures:-2,trophies:-3,players:-4,matchday:-5,h2h:-6};
 const idOf=i=>i===-2?"fixtures":i===-3?"trophies":i===-4?"players":i===-5?"matchday":i===-6?"h2h/"+ALL[state.pair[0]].id+"-v-"+ALL[state.pair[1]].id:i<0?"overview":ALL[i].id;
 const parseId=h=>{if(h in SPECIAL)return SPECIAL[h];const p=/^h2h\/(.+)-v-(.+)$/.exec(h);if(p){const a=ALL.findIndex(t=>t.id===p[1]),b=ALL.findIndex(t=>t.id===p[2]);if(a>=0&&b>=0&&a!==b){state.pair=[a,b];return -6}return -5}const i=ALL.findIndex(t=>t.id===h);return i<0?-5:i};
 try{let h=decodeURIComponent(location.hash.slice(1));let g=null;if(h.startsWith("women/")){g="w";h=h.slice(6)}else if(h==="women"){g="w";h="overview"}else if(h)g="m";
