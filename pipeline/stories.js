@@ -44,6 +44,12 @@ const STORY={
 "Ireland|Wales":"An old Celtic rivalry that often has a championship or Grand Slam on the line.",
 "France|Wales":"Wales and France have played since 1908 and have decided several championships between them."
 };
-const storyOf=(a,b)=>STORY[[a,b].sort().join("|")];
+// Women's Tests: same layout, keyed the same way
+const STORYW={
+"England|New Zealand":"The biggest rivalry in the women's game. New Zealand beat England in five World Cup finals (2002, 2006, 2010, 2017 and 2021, the last 34–31 at Eden Park), so every meeting between the Red Roses and the Black Ferns is measured against those nights.",
+"Canada|England":"England have beaten Canada in two World Cup finals: 21–9 in Paris in 2014 and 33–13 at Twickenham in 2025. Canada are the side that has pushed the Red Roses hardest outside New Zealand.",
+"Australia|New Zealand":"The trans-Tasman women's Tests are played for the Laurie O'Reilly Cup, named after the former Black Ferns coach who did much to build the women's game in New Zealand."
+};
+const storyOf=(a,b,g)=>(g==="w"?STORYW:STORY)[[a,b].sort().join("|")];
 // Wikipedia's squad lists use local terms; show the common name alongside them
 const POSN={"First five-eighth":"First five-eighth (fly-half)","Second five-eighth":"Second five-eighth (inside centre)","Half-back":"Half-back (scrum-half)","Second row":"Second row (lock)"};

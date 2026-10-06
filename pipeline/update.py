@@ -137,6 +137,7 @@ def update_tests(rank_pts):
     seen = set(jload('espn_seen.json', [])) | set(rost) | {r[1] for r in stats}
     have_stats = {r[1] for r in stats}
     fixtures, added = [], {'m': 0, 'w': 0}
+    rank_w = {n: v[1] for n, v in jload('rankw.json', {}).items()}  # written by update_rankings just before
     new_ath = set()
     start, end = TODAY - dt.timedelta(days=LOOKBACK), TODAY + dt.timedelta(days=AHEAD)
 
@@ -165,14 +166,15 @@ def update_tests(rank_pts):
             venue = comp.get('venue') or {}
             vcountry = VENUE_COUNTRY_FIX.get((venue.get('address') or {}).get('country'), (venue.get('address') or {}).get('country')) or hn
             if st.get('state') == 'pre':
-                if not women and hn in NAMES and an in NAMES and (hn in rank_pts or an in rank_pts):
-                    rh, ra = rank_pts.get(hn, 50), rank_pts.get(an, 50)
+                rp = rank_w if women else rank_pts
+                if hn in NAMES and an in NAMES and (hn in rp or an in rp):
+                    rh, ra = rp.get(hn, 50), rp.get(an, 50)
                     homeadv = 0 if comp.get('neutralSite') else 3
                     p = 1 / (1 + 10 ** (-(rh + homeadv - ra) / 10 * 0.6))
                     city = (venue.get('address') or {}).get('city') or ''
                     fixtures.append({'ko': e['date'][:16] + ':00Z' if comp.get('timeValid', True) else None, 'd': e['date'][:10], 'h': hn, 'a': an,
                                      'c': label, 'v': ', '.join(x for x in [venue.get('fullName'), city] if x) or 'Venue TBC',
-                                     'p': round(p, 2), 'tz': TZ.get(vcountry, 'UTC')})
+                                     'p': round(p, 2), 'tz': TZ.get(vcountry, 'UTC'), **({'g': 'w'} if women else {})})
                 continue
             if not st.get('completed') or eid in seen:
                 continue
@@ -251,10 +253,12 @@ def update_tests(rank_pts):
         # keep hand-written labels (e.g. "Bledisloe Cup · 1st Test") for fixtures already listed
         old = {(f.get('d') or (f.get('ko') or '')[:10], f['h'], f['a']): f for f in jload('fixtures.json', [])}
         for f in fixtures:
-            o = old.get((f['d'], f['h'], f['a']))
-            if o and o.get('c') and f['c'] in ('Test match', 'Nations Championship', 'Rugby Championship', 'Six Nations Championship'):
+            o = old.pop((f['d'], f['h'], f['a']), None)
+            if o and o.get('c') and f['c'] in ('Test match', 'Nations Championship', 'Rugby Championship', 'Six Nations Championship', "Women's Rugby World Cup"):
                 f['c'] = o['c']
-        fixtures.sort(key=lambda f: f['d'])
+        # fixtures added by hand ("manual": true, e.g. women's Tests the ESPN feed doesn't carry) stay until they are played
+        fixtures += [o for o in old.values() if o.get('manual') and (o.get('d') or o['ko'][:10]) >= TODAY.isoformat()]
+        fixtures.sort(key=lambda f: f.get('d') or f['ko'][:10])
         jsave('fixtures.json', fixtures)
     log(f"Tests: {added['m']} men's and {added['w']} women's results added, {len(new_ath)} new players, {len(fixtures)} upcoming fixtures")
 

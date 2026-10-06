@@ -4,11 +4,11 @@
 // rankings, trophies and fixtures.json), so it refreshes with the daily data run.
 const slugOf=i=>ALL[i].id;
 const fxTime=f=>f.ko?new Date(f.ko):new Date(f.d+"T12:00:00Z");
-function upcoming(){const now=Date.now();return FIX.map(f=>({...f,t:fxTime(f),tbc:!f.ko,hi:idx(f.h),ai:idx(f.a)})).filter(f=>f.hi>=0&&f.ai>=0&&f.t.getTime()+3*36e5>now).sort((a,b)=>a.t-b.t)}
+// Fixtures carry g:"w" for women's Tests (men's have no g); the Match Centre shows the side picked with the Men / Women toggle
+const GX=()=>WOMEN()?"w":"m";
+function upcoming(){const now=Date.now();return FIX.filter(f=>(f.g||"m")===GX()).map(f=>({...f,t:fxTime(f),tbc:!f.ko,hi:idx(f.h),ai:idx(f.a)})).filter(f=>f.hi>=0&&f.ai>=0&&f.t.getTime()+3*36e5>now).sort((a,b)=>a.t-b.t)}
 const h2hHref=(a,b)=>"#h2h/"+slugOf(a)+"-v-"+slugOf(b);
 const meetings=(Ms,a,b)=>Ms.filter(m=>(m.h===a&&m.a===b)||(m.h===b&&m.a===a));
-// Fixtures are men's Tests: run men's-data helpers (trophyState etc.) against men's data even in women's mode
-function withMen(fn){const s=[M,D,RANK];M=MM;D=RAW;RANK=RANKM;try{return fn()}finally{M=s[0];D=s[1];RANK=s[2]}}
 const lastN=(Ms,i,n)=>Ms.filter(m=>m.h===i||m.a===i).slice(-n).map(m=>view(m,i));
 const dots=(g,tipFor)=>`<span class="mdots">${g.map(x=>`<i class="${x.res}" data-tip="${esc(tipFor(x))}">${x.res}</i>`).join("")}</span>`;
 const yrsAgo=d=>(Date.parse(TODAY)-Date.parse(d))/YR;
@@ -18,15 +18,15 @@ const VK=[[/eden park/i,"Eden Park"],[/twickenham(?! stoop)|allianz stadium.*lon
 function vkey(s){for(const[re,k]of VK)if(re.test(s))return{k,lab:"at "+k};const c=s.split(/[,|]/).pop().trim();return{k:c.toLowerCase(),lab:"in "+c}}
 
 // World Rugby ranking exchange (rating gap capped at 10, +3 for the home side)
-function wrSwing(h,a,neutral){const H=slugOf(h),A=slugOf(a),rh=RANKM[H],ra=RANKM[A];if(!rh||!ra)return null;
+function wrSwing(h,a,neutral){const H=slugOf(h),A=slugOf(a),rh=RANK[H],ra=RANK[A];if(!rh||!ra)return null;
   const Dg=Math.max(-10,Math.min(10,rh.pts+(neutral?0:3)-ra.pts));
-  const pos=(id,adj)=>{const t=Object.entries(RANKM).map(([k,v])=>[k,v.pts+(adj[k]||0)]).sort((x,y)=>y[1]-x[1]);return t.findIndex(x=>x[0]===id)+1};
+  const pos=(id,adj)=>{const t=Object.entries(RANK).map(([k,v])=>[k,v.pts+(adj[k]||0)]).sort((x,y)=>y[1]-x[1]);return t.findIndex(x=>x[0]===id)+1};
   const hw=1-Dg/10,aw=1+Dg/10;
   return{rh,ra,hw:{g:hw,p:pos(H,{[H]:hw,[A]:-hw})},aw:{g:aw,p:pos(A,{[A]:aw,[H]:-aw})}}}
 
 // Team-level ESPN numbers over a side's last 10 Tests with match stats
 const TMET=[["tries","tries a game","t"],["metres","metres carried a game"],["cleanBreaks","line breaks a game"],["defendersBeaten","defenders beaten a game"],["missedTackles","missed tackles a game",1],["penaltiesConceded","penalties conceded a game",1],["turnoversConceded","turnovers conceded a game",1]];
-function teamAvg(i){const g=MM.filter(m=>(m.h===i||m.a===i)&&m.ms).slice(-10);if(g.length<5)return null;const o={n:g.length};
+function teamAvg(i){const g=M.filter(m=>(m.h===i||m.a===i)&&m.ms).slice(-10);if(g.length<5)return null;const o={n:g.length};
   TMET.forEach(([k])=>{const v=g.map(m=>m.ms[m.h===i?0:1][SI[k]]).filter(x=>x!=null);o[k]=v.length>=5?avg(v):null});return o}
 
 function insights(f,G){const hi=f.hi,ai=f.ai,H=tname(hi),A=tname(ai),out=[];const V=G.map(m=>view(m,hi));
@@ -42,7 +42,7 @@ function insights(f,G){const hi=f.hi,ai=f.ai,H=tname(hi),A=tname(ai),out=[];cons
     else{const y=yrsAgo(lw.date);if(y>=8)out.push({s:4+y/6,t:`<b>${A}</b> have not won ${vk.lab} against ${H} since ${lw.date.slice(0,4)}. ${H} have won ${vv.filter(x=>x.date>lw.date&&x.res==="L").length} of the ${vv.filter(x=>x.date>lw.date).length} meetings there since.`});
       else{const r=rec(VG.map(m=>view(m,hi)));out.push({s:1.5,t:`${vk.lab[0].toUpperCase()+vk.lab.slice(1)}, ${H} lead ${A} ${r.w}–${r.l}${r.d?` with ${r.d} drawn`:""}.`})}}}
   // form
-  const fh=lastN(MM,hi,5),fa=lastN(MM,ai,5),wh=fh.filter(x=>x.res==="W").length,wa=fa.filter(x=>x.res==="W").length;
+  const fh=lastN(M,hi,5),fa=lastN(M,ai,5),wh=fh.filter(x=>x.res==="W").length,wa=fa.filter(x=>x.res==="W").length;
   if(Math.abs(wh-wa)>=3)out.push({s:3+Math.abs(wh-wa)/2,t:`Form guide: <b>${wh>wa?H:A}</b> have won ${Math.max(wh,wa)} of their last 5 Tests, ${wh>wa?A:H} only ${Math.min(wh,wa)}.`});
   // ESPN team stats
   const th=teamAvg(hi),ta=teamAvg(ai);
@@ -53,32 +53,34 @@ function insights(f,G){const hi=f.hi,ai=f.ai,H=tname(hi),A=tname(ai),out=[];cons
 
 // What's at stake: trophies, ranking points, Nations Championship finals seeding, cap milestones
 function stakes(f){const hi=f.hi,ai=f.ai,out=[];
-  withMen(()=>TROPHIES.filter(T=>T.g==="m").forEach(T=>{
+  TROPHIES.filter(T=>T.g===GX()).forEach(T=>{
     if(T.kind==="bilateral"&&T.teams.includes(f.h)&&T.teams.includes(f.a)&&(!T.comp||new RegExp(T.comp).test(f.c))){const o=trophyState(T);
       out.push(`<b>${esc(T.name)}</b>: ${o.holder!=null&&o.holder>=0?`${tname(o.holder)} hold it.`:"currently vacant."} ${o.tx}`)}
-    if(T.kind==="lineal"){const o=trophyState(T);if(o.holder===hi||o.holder===ai)out.push(`<b>${esc(T.name)}</b> (rugby's unofficial world title) is on the line: ${tname(o.holder)} hold it and keep it with a win or a draw.`)}}));
+    if(T.kind==="lineal"){const o=trophyState(T);if(o.holder===hi||o.holder===ai)out.push(`<b>${esc(T.name)}</b> (rugby's unofficial ${WOMEN()?"women's ":""}world title) is on the line: ${tname(o.holder)} hold it and keep it with a win or a draw.`)}});
   const w=wrSwing(hi,ai,false);
   if(w)out.push(`<b>World Rugby rankings</b>: victory is worth +${w.hw.g.toFixed(2)} pts to ${f.h} (${w.hw.p===w.rh.pos?`stays ${ord(w.hw.p)}`:`moves to ${ord(w.hw.p)}`}) and +${w.aw.g.toFixed(2)} pts to ${f.a} (${w.aw.p===w.ra.pos?`stays ${ord(w.aw.p)}`:`moves to ${ord(w.aw.p)}`}), 1.5× for a win by more than 15.`);
-  if(/Nations Championship/.test(f.c)&&typeof PROJ!=="undefined"){const best=n=>{let b=null;Object.entries(PROJ).forEach(([k,L])=>L.forEach(([t,p])=>{if(t===n&&(!b||p>b.p))b={k,p}}));return b};
+  if(!WOMEN()&&/Nations Championship/.test(f.c)&&typeof PROJ!=="undefined"){const best=n=>{let b=null;Object.entries(PROJ).forEach(([k,L])=>L.forEach(([t,p])=>{if(t===n&&(!b||p>b.p))b={k,p}}));return b};
     const s=[f.h,f.a].map(n=>{const b=best(n);return b?`${n} most likely ${ord(+b.k.slice(1))} in the ${b.k[0]==="N"?"North":"South"} (${b.p}%)`:null}).filter(Boolean);
     if(s.length)out.push(`<b>Finals weekend seeding</b>: ${s.join("; ")}. Each finishing place plays its mirror at Twickenham.`)}
-  [hi,ai].forEach(i=>{(PLY.sq["m:"+ALL[i].name]||[]).forEach(r=>{const c=r[3]+1;if(c>=50&&c%50===0)out.push(`<b>Milestone</b>: ${esc(r[0])} would win a ${ord(c)} cap for ${tname(i)} if selected.`)})});
+  [hi,ai].forEach(i=>{(PLY.sq[GX()+":"+ALL[i].name]||[]).forEach(r=>{const c=r[3]+1;if(c>=50&&c%50===0)out.push(`<b>Milestone</b>: ${esc(r[0])} would win a ${ord(c)} cap for ${tname(i)} if selected.`)})});
   return out}
 
 // Players to watch: from each side's latest named squad, the standout numbers in the Tests we hold player stats for
-function watch(i){const sq=PLY.sq["m:"+ALL[i].name];if(!sq)return[];const rows=sq.filter(r=>r[5]>=0).map(r=>({r,p:PP[r[5]]})).filter(o=>o.p[14]>=5);
+function watch(i){const sq=PLY.sq[GX()+":"+ALL[i].name];if(!sq)return[];const rows=sq.filter(r=>r[5]>=0).map(r=>({r,p:PP[r[5]]})).filter(o=>o.p[14]>=5);
   const per=(o,k)=>o.p[15][PKI[k]]/o.p[14],used=new Set(),out=[];
   const take=(lab,f,txt)=>{const c=rows.filter(o=>!used.has(o.r[0])).map(o=>({o,v:f(o)})).filter(x=>x.v>0).sort((x,y)=>y.v-x.v)[0];if(c){used.add(c.o.r[0]);out.push({lab,o:c.o,txt:txt(c.v,c.o)})}};
   take("Try threat",o=>o.p[15][PKI.tries],(v,o)=>`${v} tries in ${o.p[14]} Tests`);
   take("Ball carrier",o=>per(o,"metres"),v=>`${Math.round(v)} m carried a Test`);
   take("Defence",o=>per(o,"tackles"),v=>`${v.toFixed(1)} tackles a Test`);
+  // thin player stats (common for women's sides): fall back to the most experienced names in the squad
+  if(!out.length)sq.slice().sort((x,y)=>y[3]-x[3]).slice(0,3).forEach((r,k)=>out.push({lab:k?"Experience":"Most capped",o:{r},txt:r[4]?esc(r[4]):"in the squad"}));
   return out}
-const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw xp" data-p="${x.o.r[5]}" tabindex="0" role="button"><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(POSN[x.o.r[1]]||x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
+const watchHTML=i=>{const w=watch(i);return w.length?w.map(x=>`<div class="pw${x.o.r[5]>=0?" xp":""}" data-p="${x.o.r[5]}"${x.o.r[5]>=0?' tabindex="0" role="button"':""}><span class="pwl">${x.lab}</span><span class="pwn">${esc(x.o.r[0])}${x.o.r[6]?' <span class="wc">C</span>':""}</span><span class="pwx">${esc(POSN[x.o.r[1]]||x.o.r[1])} · ${x.o.r[3]} caps · ${x.txt}</span></div>`).join(""):`<p class="hint">No squad listed yet.</p>`};
 
-function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>view(m,hi)),r=rec(V),L=V[V.length-1];
-  const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p],rk=i=>{const x=RANKM[slugOf(i)];return x?`World no. ${x.pos}`:"Unranked"};
-  const fm=i=>dots(lastN(MM,i,5),x=>`${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa} v ${tname(x.opp)}, ${fmtDate(x.date)}`);
-  const ins=insights(f,G),st=stakes(f),sto=storyOf(f.h,f.a);
+function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(M,hi,ai),V=G.map(m=>view(m,hi)),r=rec(V),L=V[V.length-1];
+  const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p],rk=i=>{const x=RANK[slugOf(i)];return x?`World no. ${x.pos}`:"Unranked"};
+  const fm=i=>dots(lastN(M,i,5),x=>`${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa} v ${tname(x.opp)}, ${fmtDate(x.date)}`);
+  const ins=insights(f,G),st=stakes(f),sto=storyOf(f.h,f.a,GX());
   const when=f.tbc?`${fD.format(new Date(f.d+"T12:00:00"))} · kick-off TBC`:`${fD.format(f.t)} · ${fT.format(f.t)} ${fZ(f.t)}`;
   const cd=!f.tbc&&f.t>now?`<span class="mdcd">in ${untilTxt(f.t-now)}</span>`:"";
   const side=(i,cls)=>`<button class="mdt ${cls}" data-i="${i}"><img src="${FLAGS[ALL[i].id]}" alt=""><span class="mdn">${tname(i)}</span><span class="mdr">${rk(i)}</span>${fm(i)}</button>`;
@@ -102,18 +104,18 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(MM,hi,ai),V=G.map(m=>vie
   <div class="mcft"><span class="hint">${esc(f.v)}</span><a class="mcgo" href="${h2hHref(hi,ai)}">Full head-to-head stats: ${f.h} v ${f.a} →</a></div>
 </article>`}
 
-function renderMatchday(){const now=Date.now(),items=upcoming();
-  $("union").textContent="Match Centre · men's Tests";$("teamName").textContent="Next up";
+function renderMatchday(){const now=Date.now(),items=upcoming(),Wm=WOMEN();
+  $("union").textContent=`Match Centre · ${Wm?"women":"men"}'s Tests`;$("teamName").textContent="Next up";
   const nxt=items.find(f=>!f.tbc&&f.t.getTime()>now);
   // featured = the next round: everything within 8 days of the first fixture (at least two)
   const feat=items.length?items.filter((f,k)=>k<2||f.t-items[0].t<8*864e5).slice(0,8):[],rest=items.slice(feat.length);
-  $("heroSub").textContent=feat.length?`Previews of the next ${feat.length===1?"Test":feat.length+" Tests"}: the model's pick, the head-to-head history, a stand-out number, what's at stake and the players to watch. Times are in your time zone (${TZ}).`:"No upcoming Tests in the fixture list yet.";
+  $("heroSub").textContent=feat.length?`Previews of the next ${feat.length===1?(Wm?"women's Test":"Test"):feat.length+(Wm?" women's Tests":" Tests")}: the model's pick, the head-to-head history, a stand-out number, what's at stake and the players to watch. Times are in your time zone (${TZ}).`:`No upcoming ${Wm?"women's ":""}Tests in the fixture list yet.`;
   $("rank").innerHTML=nxt?`<div><div class="lbl">Next kick-off</div><div class="holder" style="font-size:22px">${nxt.h} v ${nxt.a}</div><div class="pts">${fD.format(nxt.t)}, ${fT.format(nxt.t)} · in ${untilTxt(nxt.t-now)}</div></div>`:"";
-  $("mdWomen").hidden=!WOMEN();
-  $("mdCards").innerHTML=feat.map(f=>mdCard(f,now)).join("")||`<section class="panel"><p class="hint">No upcoming fixtures yet. The daily data run adds them as soon as they are announced.</p></section>`;
+  $("mdWomen").hidden=!Wm;
+  $("mdCards").innerHTML=feat.map(f=>mdCard(f,now)).join("")||`<section class="panel"><p class="hint">No upcoming ${Wm?"women's ":""}fixtures yet. The daily data run adds them as soon as they are announced.${Wm?` In the meantime, the team pages and head to head cover every women's Test since 1982.`:""}</p></section>`;
   $("mdLater").innerHTML=rest.slice(0,10).map(f=>{const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p];return `<a class="mdlr" href="${h2hHref(f.hi,f.ai)}"><span class="dt">${fD.format(f.tbc?new Date(f.d+"T12:00:00"):f.t)}</span><span class="tms">${fl(f.hi)} ${f.h} v ${f.a} ${fl(f.ai)}</span><span class="pk">Pick: <b>${pick[0]}</b> ${Math.round(pick[1]*100)}%</span><span class="go">Head to head →</span></a>`}).join("")||`<p class="hint">Nothing else scheduled yet.</p>`;
   $("mdLaterWrap").hidden=!rest.length;
-  $("mdSrc").textContent="Model picks come from World Rugby ranking points with home advantage and are estimates, not betting advice. Players to watch are drawn from each nation's latest named squad, using the Tests we hold player stats for. Ranking swings use World Rugby's points-exchange formula on the current table.";
+  $("mdSrc").textContent=`Model picks come from World Rugby ${Wm?"women's ":""}ranking points with home advantage and are estimates, not betting advice. Players to watch are drawn from each nation's latest named squad, using the Tests we hold player stats for${Wm?" (or the most capped players when we have too few)":""}. Ranking swings use World Rugby's points-exchange formula on the current table.`;
   bindTips($("mdCards"));
   $("mdCards").querySelectorAll("button.mdt").forEach(b=>b.addEventListener("click",()=>{setTeam(+b.dataset.i);scrollTo({top:0})}));
   bindPlayerRows($("mdCards"));
@@ -126,7 +128,7 @@ function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===
   const opts=ALL.map((t,i)=>i).filter(i=>M.some(m=>m.h===i||m.a===i)).sort((x,y)=>tname(x).localeCompare(tname(y)));
   $("pvA").innerHTML=opts.map(i=>`<option value="${i}"${i===a?" selected":""}>${tname(i)}</option>`).join("");$("pvB").innerHTML=opts.map(i=>`<option value="${i}"${i===b?" selected":""}>${tname(i)}</option>`).join("");
   $("heroSub").textContent=Gall.length?`${Gall.length} ${Wm?"women's ":""}Tests since ${Gall[0].y}${era.from?`, ${G.length} of them in the ${era.label.toLowerCase()} window`:""}. Pick a different pairing below, or change the era above.`:`No ${Wm?"women's ":""}Tests between ${A} and ${B} in the dataset.`;
-  const now=Date.now(),nx=Wm?null:upcoming().find(f=>(f.hi===a&&f.ai===b)||(f.hi===b&&f.ai===a));
+  const now=Date.now(),nx=upcoming().find(f=>(f.hi===a&&f.ai===b)||(f.hi===b&&f.ai===a));
   $("rank").innerHTML=nx?`<div><div class="lbl">Next meeting</div><div class="holder" style="font-size:20px">${nx.h} v ${nx.a}</div><div class="pts">${nx.tbc?fmtDate(nx.d):fD.format(nx.t)} · pick: ${nx.p>=.5?nx.h:nx.a} ${Math.round(Math.max(nx.p,1-nx.p)*100)}%</div></div>`:`<div><div class="lbl">Next meeting</div><div class="pts">None scheduled</div></div>`;
   $("pvEmpty").hidden=!!G.length;$("pvBody").hidden=!G.length;if(!G.length)return;
   const pf=V.reduce((s,x)=>s+x.pf,0),pa=V.reduce((s,x)=>s+x.pa,0),L=V[V.length-1],big=(res)=>V.filter(x=>x.res===res).sort((x,y)=>Math.abs(y.pf-y.pa)-Math.abs(x.pf-x.pa))[0];
