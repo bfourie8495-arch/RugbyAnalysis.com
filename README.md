@@ -16,6 +16,9 @@ minute or two. Nobody needs to touch anything.
 | New players' height, weight, date of birth | ESPN |
 | World Rugby rankings (men and women) | World Rugby |
 | Club results, fixtures and tables: URC, Premiership, Top 14, Super Rugby Pacific, Champions Cup, Challenge Cup, Currie Cup, NPC | ESPN |
+| Women's Tests outside World Cups (Six Nations, WXV, Pacific Four, Rugby Europe) and men's Pacific Nations Cup and Rugby Europe Championship: results, scorers, upcoming fixtures and model picks | Wikipedia |
+| Premiership Women's Rugby and Japan League One: results, fixtures and tables | Wikipedia |
+| Sevens: each leg's winner and runner-up, and series standings | Wikipedia |
 | Current squads and official caps (Mondays) | Wikipedia |
 
 Records, win rates, head-to-heads, trophy holders, form guides, leaderboards and
@@ -25,16 +28,19 @@ To add a fixture the feed misses (for example a women's Test), add a line to
 `pipeline/fixtures.json` with `"manual": true` (and `"g": "w"` for a women's
 Test); it stays in the Match Centre until its date has passed.
 
-Not covered by the automatic feeds (they stay as they are until updated by hand):
-Premiership Women's Rugby, Japan League One, the Sevens pages, women's Tests
-outside World Cups, and a few men's competitions ESPN does not carry (for
-example the Pacific Nations Cup).
+The Wikipedia reader (`pipeline/wiki_feed.py`) reads the standard match boxes on
+each competition's page. If a page isn't up yet, or has far fewer matches than we
+already hold, that competition is left as it is for the day.
+
+Not covered by the automatic feeds: yellow and red cards for the Wikipedia
+competitions, and sevens final scores (the winner and runner-up do update).
 
 ## Folder layout
 
 ```
 site/                  the finished website (what Cloudflare serves)
 pipeline/update.py     downloads new data into the files in pipeline/
+pipeline/wiki_feed.py  reads results and fixtures from Wikipedia pages
 pipeline/build_all.py  rebuilds site/ from those files
 pipeline/*.csv, *.json the data
 pipeline/matchday.js   the Match Centre landing page and head-to-head page
