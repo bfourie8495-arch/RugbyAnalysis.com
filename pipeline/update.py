@@ -257,7 +257,7 @@ def update_tests(rank_pts):
             if o and o.get('c') and f['c'] in ('Test match', 'Nations Championship', 'Rugby Championship', 'Six Nations Championship', "Women's Rugby World Cup"):
                 f['c'] = o['c']
         # fixtures added by hand ("manual": true, e.g. women's Tests the ESPN feed doesn't carry) stay until they are played
-        fixtures += [o for o in old.values() if o.get('manual') and (o.get('d') or o['ko'][:10]) >= TODAY.isoformat()]
+        fixtures += [o for o in old.values() if (o.get('manual') or o.get('src') == 'wiki') and (o.get('d') or o['ko'][:10]) >= TODAY.isoformat()]
         fixtures.sort(key=lambda f: f.get('d') or f['ko'][:10])
         jsave('fixtures.json', fixtures)
     log(f"Tests: {added['m']} men's and {added['w']} women's results added, {len(new_ath)} new players, {len(fixtures)} upcoming fixtures")
@@ -397,8 +397,251 @@ def update_wiki():
     log('Wikipedia squads refreshed for', len(W['wk']), 'teams')
 
 
+# ---------------------------------------------------------------- 5. Competitions ESPN does not carry (Wikipedia)
+import wiki_feed
+
+# Competition pages, by year; a page that does not exist yet is skipped
+WIKI_TESTS = {'m': ['{y} World Rugby Pacific Nations Cup', '{y} Rugby Europe Championship'],
+              'w': ["{y} Women's Six Nations Championship", '{y} WXV Global Series', '{y} WXV Global Series Challenger',
+                    '{y} Pacific Four Series', "{y} Rugby Europe Women's Championship", "{y} Women's Rugby World Cup"]}
+TZ_OFF = {'GMT': 0, 'UTC': 0, 'WET': 0, 'BST': 1, 'IST': 1, 'WEST': 1, 'CET': 1, 'CEST': 2, 'EET': 2, 'EEST': 3, 'SAST': 2, 'CAT': 2, 'EAT': 3,
+          'GST': 4, 'HKT': 8, 'SGT': 8, 'AWST': 8, 'JST': 9, 'KST': 9, 'AEST': 10, 'AEDT': 11, 'ACST': 9.5, 'NZST': 12, 'NZDT': 13, 'FJT': 12,
+          'TOT': 13, 'WST': 13, 'EST': -5, 'EDT': -4, 'CST': -6, 'CDT': -5, 'MST': -7, 'MDT': -6, 'PST': -8, 'PDT': -7, 'ART': -3, 'BRT': -3, 'UYT': -3}
+
+
+def _ko(m):
+    """Kick-off in UTC from a match box's local time and zone ('13:25 CET'); None when the zone is unknown."""
+    t = re.match(r'(\d{1,2}):(\d{2})\s*([A-Z]+)?([+\-]\d+)?', m['time'] or '')
+    if not t or m['nd'] or (t.group(3) not in TZ_OFF and not t.group(4)):
+        return None
+    off = TZ_OFF.get(t.group(3), 0) + (int(t.group(4)) if t.group(4) else 0)
+    k = dt.datetime.fromisoformat(m['date']) + dt.timedelta(hours=int(t.group(1)), minutes=int(t.group(2))) - dt.timedelta(hours=off)
+    return k.strftime('%Y-%m-%dT%H:%M:00Z')
+
+
+def _nation(title):
+    n = re.sub(r"\s+(women's\s+)?national\s+(rugby\s+union\s+)?(team|XV)$", '', title, flags=re.I).strip()
+    n = ALIAS.get(n, n)
+    return n if n in NAMES else None
+
+
+def update_wiki_tests():
+    """Results (with scorers) and upcoming fixtures for the Test competitions above."""
+    men = pd.read_csv(MEN_CSV, sep=';', dtype=str, keep_default_na=False)
+    wom = pd.read_csv(WOMEN_CSV, sep=';', dtype=str, keep_default_na=False)
+    rank = {'m': {l.split('|')[1]: float(l.split('|')[2]) for l in open('rank30.txt', encoding='utf-8') if l.strip()},
+            'w': {n: v[1] for n, v in jload('rankw.json', {}).items()}}
+    # where each nation plays its home Tests, to tell home games from neutral ones
+    home_city = {}
+    for df in (men, wom):
+        for r in df[(df.country != '') & (df.neutral == 'FALSE')].itertuples():
+            home_city.setdefault(r.city.lower(), r.country)
+    years = sorted({TODAY.year, (TODAY - dt.timedelta(days=LOOKBACK)).year})
+    fixtures, added, filled = [], {'m': 0, 'w': 0}, 0
+    for g, pages in WIKI_TESTS.items():
+        for y in years:
+            for page in pages:
+                page = page.format(y=y)
+                html = wiki_feed.fetch(S, page)
+                if not html:
+                    continue
+                ms = wiki_feed.matches(html)
+                log(f'Wikipedia: {page}: {len(ms)} matches, {sum(m["hs"] is not None for m in ms)} played')
+                for m in ms:
+                    h, a = _nation(m['home']), _nation(m['away'])
+                    if not h or not a:
+                        continue
+                    if m['hs'] is None:
+                        if TODAY.isoformat() <= m['date'] <= (TODAY + dt.timedelta(days=AHEAD)).isoformat():
+                            rp = rank[g]
+                            if h in rp or a in rp:
+                                rh, ra = rp.get(h, 50), rp.get(a, 50)
+                                p = 1 / (1 + 10 ** (-(rh + 3 - ra) / 10 * 0.6))
+                                fixtures.append({'ko': _ko(m), 'd': m['date'], 'h': h, 'a': a, 'c': page[5:] if page[:4].isdigit() else page,
+                                                 'v': ', '.join(x for x in [m['stadium'], m['city']] if x) or 'Venue TBC', 'p': round(p, 2),
+                                                 **({'g': 'w'} if g == 'w' else {}), 'src': 'wiki'})
+                        continue
+                    df = wom if g == 'w' else men
+                    d = m['date'].replace('-', '/')
+                    sc = lambda side, k: str(m[side][k])
+                    detail = dict(home_tries=sc('h', 'tries'), away_tries=sc('a', 'tries'), home_cons=sc('h', 'cons'), away_cons=sc('a', 'cons'),
+                                  home_cons_att=sc('h', 'cons_att'), away_cons_att=sc('a', 'cons_att'), home_pens=sc('h', 'pens'), away_pens=sc('a', 'pens'),
+                                  home_pens_att=sc('h', 'pens_att'), away_pens_att=sc('a', 'pens_att'), home_drops=sc('h', 'drops'), away_drops=sc('a', 'drops'),
+                                  home_try_scorers='; '.join(m['h']['scorers']), away_try_scorers='; '.join(m['a']['scorers']))
+                    same = (df.date == d) & (df.home_team == h) & (df.away_team == a)
+                    if same.any():
+                        # a result we already hold (often from ESPN, without scorers): fill in what is missing
+                        k = df.index[same][0]
+                        if not df.at[k, 'home_try_scorers'] and not df.at[k, 'away_try_scorers'] and (detail['home_try_scorers'] or detail['away_try_scorers']):
+                            for c, v in detail.items():
+                                if not df.at[k, c]:
+                                    df.at[k, c] = v
+                            filled += 1
+                        continue
+                    d0 = dt.date.fromisoformat(m['date'])
+                    near = df[df.date.isin([(d0 + dt.timedelta(days=i)).strftime('%Y/%m/%d') for i in (-1, 0, 1)])]
+                    if (((near.home_team == h) & (near.away_team == a)) | ((near.home_team == a) & (near.away_team == h))).any():
+                        continue
+                    country = home_city.get(m['city'].lower(), '')
+                    row = {c: '' for c in df.columns}
+                    row.update(date=d, home_team=h, away_team=a, home_score=str(m['hs']), away_score=str(m['as']), competition=page,
+                               stadium=m['stadium'], city=m['city'], country=country, neutral='TRUE' if country and country != h else 'FALSE',
+                               world_cup='TRUE' if 'World Cup' in page else 'FALSE', referee=m['referee'],
+                               attendance=str(m['attendance']) if m['attendance'] else '', **detail)
+                    df.loc[len(df)] = row
+                    added[g] += 1
+                    log('new Test (Wikipedia)', d, h, m['hs'], '-', m['as'], a)
+    for df, f in ((men, MEN_CSV), (wom, WOMEN_CSV)):
+        df.to_csv(f, sep=';', index=False)
+    # fixtures: ESPN's list stays first choice; Wikipedia fills the gaps
+    cur = [f for f in jload('fixtures.json', []) if f.get('src') != 'wiki']
+    have = {(f.get('d') or f['ko'][:10], frozenset((f['h'], f['a']))) for f in cur}
+    for f in fixtures:
+        d0 = dt.date.fromisoformat(f['d'])
+        if not any((str(d0 + dt.timedelta(days=i)), frozenset((f['h'], f['a']))) in have for i in (-1, 0, 1)):
+            cur.append(f)
+            have.add((f['d'], frozenset((f['h'], f['a']))))
+    cur.sort(key=lambda f: f.get('d') or f['ko'][:10])
+    jsave('fixtures.json', cur)
+    log(f"Wikipedia Tests: {added['m']} men's and {added['w']} women's results added, {filled} filled in, {len(fixtures)} upcoming")
+
+
+def _season(d=None):
+    d = d or TODAY
+    y = d.year if d.month >= 7 else d.year - 1
+    return f'{y}–{str(y + 1)[2:]}'
+
+
+def _club_rows(lg, season, ms):
+    rows = []
+    for m in ms:
+        if m['tbd']:
+            continue
+        played = m['hs'] is not None
+        sc = [[m['h'][k], m['a'][k]] for k in ('tries', 'cons', 'cons_att', 'pens', 'pens_att', 'drops')] if played else 0
+        r = [lg, season, m['date'], m['time'], m['home'], m['home_name'], m['away'], m['away_name'], m['hs'], m['as'],
+             m['bp'] if played else [0, 0], sc, 0, m['referee'], m['attendance'], m['stadium'],
+             ['; '.join(m['h']['scorers']), '; '.join(m['a']['scorers'])], m['stage']]
+        if m['nd']:
+            r.append(1)
+        rows.append(r)
+    return rows
+
+
+def update_pwr():
+    """Premiership Women's Rugby: the current season's results, fixtures and table, replaced wholesale from its page."""
+    se = _season()
+    html = wiki_feed.fetch(S, f"{se} Premiership Women's Rugby")
+    if not html:
+        log('PWR: no page for', se); return
+    ms = wiki_feed.matches(html)
+    P, cup = jload('pwr_raw.json', {'rows': [], 'tabs': {}}), jload('pwr_cup.json', [])
+    old = [r for r in P['rows'] if r[1] == se]
+    if len(ms) < max(10, len(old) // 2):
+        log(f'PWR: only {len(ms)} matches on the {se} page (held {len(old)}), keeping what we have'); return
+    keys = {(r[2], r[4], r[6]) for r in old}
+    cup = [c for c in cup if tuple(c[:3]) not in keys]
+    cup += [[m['date'], m['home'], m['away'], m['section']] for m in ms if not m['tbd'] and m['section'] not in ('Regular season', 'Play-offs')]
+    P['rows'] = [r for r in P['rows'] if r[1] != se] + _club_rows('PWR', se, ms)
+    T = wiki_feed.tables(html)
+    if T and len(T[0]) >= 6:
+        P['tabs'][se] = T[0]
+    jsave('pwr_raw.json', P)
+    jsave('pwr_cup.json', cup)
+    log(f'PWR {se}: {len(ms)} matches ({sum(m["hs"] is not None for m in ms)} played), table {"updated" if T else "not found"}')
+
+
+def update_jl1():
+    """Japan Rugby League One (Division 1), from its season page when it carries match boxes."""
+    se = _season()
+    html = wiki_feed.fetch(S, f'{se} Japan Rugby League One – Division 1')
+    ms = wiki_feed.matches(html) if html else []
+    X = jload('xcomp_raw.json', {'rows': [], 'tabs': {}})
+    old = [r for r in X['rows'] if r[0] == 'JL1' and r[1] == se]
+    if len(ms) < max(10, len(old) // 2):
+        log(f'League One {se}: {len(ms)} match boxes on Wikipedia (held {len(old)}), keeping what we have'); return
+    X['rows'] = [r for r in X['rows'] if not (r[0] == 'JL1' and r[1] == se)] + _club_rows('JL1', se, ms)
+    T = wiki_feed.tables(html)
+    if T and len(T[0]) >= 6:
+        X['tabs']['JL1' + se] = T[0]
+    jsave('xcomp_raw.json', X)
+    log(f'League One {se}: {len(ms)} matches ({sum(m["hs"] is not None for m in ms)} played)')
+
+
+def update_sevens():
+    """SVNS: each finished leg's champion and runner-up, and the series standings, for this and last season."""
+    D = jload('sevens_data.json', None)
+    if not D:
+        return
+    seasons = sorted({_season(), _season(TODAY - dt.timedelta(days=180))})
+    from bs4 import BeautifulSoup
+    new = 0
+    for se in seasons:
+        html = wiki_feed.fetch(S, f'{se} SVNS')
+        if not html:
+            continue
+        soup = BeautifulSoup(html, 'html.parser')
+        legs = None
+        for t in soup.select('table.wikitable'):
+            hdr = [wiki_feed._txt(c) for c in t.find('tr').find_all(['th', 'td'])]
+            if 'Leg' in hdr and "Men's Winner" in hdr:
+                legs = (hdr, t.find_all('tr')[1:])
+                break
+        if not legs:
+            continue
+        hdr, trs = legs
+        for tr in trs:
+            cells = tr.find_all(['th', 'td'])
+            if len(cells) != len(hdr):
+                continue
+            c = dict(zip(hdr, cells))
+            a = c['Leg'].find('a')
+            title = a.get('title') if a else ''
+            ym = re.search(r'([A-Z][a-z]{2})[a-z]*\s+(\d{4})\s*$', wiki_feed._txt(c['Dates']))
+            if not title or not ym:
+                continue
+            ym = f"{ym.group(2)}-{['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].index(ym.group(1)) + 1:02d}"
+            for g, col, head in (('m', "Men's Winner", "Men"), ('w', "Women's Winner", "Women")):
+                ch = wiki_feed._txt(c.get(col))
+                if not ch or ch.upper() in ('TBA', 'TBD'):
+                    continue
+                ev = next((e for e in D['events'] if e['g'] == g and e['title'] == title), None)
+                if ev and ev.get('ru'):
+                    continue
+                th = wiki_feed.fetch(S, title)
+                pl = wiki_feed.placings(th, head) if th else None
+                ru = pl[1] if pl and pl[0] == ch else ''
+                if ev:
+                    ev['ru'] = ev['ru'] or ru
+                else:
+                    D['events'].append({'g': g, 'season': se, 'title': title, 'host': wiki_feed._txt(c['Leg']), 'ym': ym, 'ch': ch, 'ru': ru, 's1': None, 's2': None})
+                    new += 1
+                    log('Sevens: new leg', g, title, ch, ru)
+        # series standings: the first two points tables are the men's and the women's
+        pts = [t for t in soup.select('table.wikitable') if wiki_feed._txt(t.find('tr')).startswith('Pos.')][:2]
+        for g, t in zip(('m', 'w'), pts):
+            hdr = [wiki_feed._txt(x) for x in t.find('tr').find_all(['th', 'td'])]
+            rows = [[wiki_feed._txt(x) for x in tr.find_all(['th', 'td'])] for tr in t.find_all('tr')[1:]]
+            rows = [r for r in rows if len(r) == len(hdr)]
+            if len(rows) < 6 or 'Points total' not in hdr:
+                continue
+            done = [i for i, h in enumerate(hdr[2:hdr.index('Points total')], 2) if any(r[i] not in ('', '–', '-') for r in rows)]
+            if not done:
+                continue
+            ent = {'season': se, 'codes': [r[1] for r in rows[:6]], 'pts': int(re.sub(r'\D', '', rows[0][hdr.index('Points total')]) or 0), 'rds': len(done)}
+            T = D['top'][g]
+            k = next((i for i, x in enumerate(T) if x['season'] == se), None)
+            if k is None:
+                T.append(ent)
+            else:
+                T[k] = ent
+    D['events'].sort(key=lambda e: (e['season'], e['ym']))
+    jsave('sevens_data.json', D)
+    log(f'Sevens: {new} new legs')
+
+
 if __name__ == '__main__':
-    steps = sys.argv[1:] or ['rankings', 'tests', 'clubs'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
+    steps = sys.argv[1:] or ['rankings', 'tests', 'clubs', 'wikitests', 'pwr', 'jl1', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
     pts = {}
     for step in steps:
         try:
@@ -410,6 +653,14 @@ if __name__ == '__main__':
                 update_clubs()
             elif step == 'wiki':
                 update_wiki()
+            elif step == 'wikitests':
+                update_wiki_tests()
+            elif step == 'pwr':
+                update_pwr()
+            elif step == 'jl1':
+                update_jl1()
+            elif step == 'sevens':
+                update_sevens()
         except Exception:
             log(f'step {step} failed:\n' + traceback.format_exc())
     print('Finished', f'{dt.datetime.utcnow():%Y-%m-%d %H:%M} UTC')
