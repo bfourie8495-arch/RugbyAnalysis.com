@@ -11,7 +11,7 @@ minute or two. Nobody needs to touch anything.
 | Updated daily | Source |
 |---|---|
 | Test results (men's; women's World Cup) | ESPN match centres |
-| Upcoming Test fixtures and model picks | ESPN, World Rugby rankings |
+| Upcoming Test fixtures and model picks (men's and women's) | ESPN, World Rugby rankings |
 | Team match stats, line-ups, player stats | ESPN |
 | New players' height, weight, date of birth | ESPN |
 | World Rugby rankings (men and women) | World Rugby |
@@ -20,6 +20,10 @@ minute or two. Nobody needs to touch anything.
 
 Records, win rates, head-to-heads, trophy holders, form guides, leaderboards and
 league tables are all recalculated from the data on every run.
+
+To add a fixture the feed misses (for example a women's Test), add a line to
+`pipeline/fixtures.json` with `"manual": true` (and `"g": "w"` for a women's
+Test); it stays in the Match Centre until its date has passed.
 
 Not covered by the automatic feeds (they stay as they are until updated by hand):
 Premiership Women's Rugby, Japan League One, the Sevens pages, women's Tests
