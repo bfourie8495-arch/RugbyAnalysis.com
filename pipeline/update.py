@@ -635,7 +635,7 @@ def update_sevens():
                 T.append(ent)
             else:
                 T[k] = ent
-    D['events'].sort(key=lambda e: (e['season'], e['ym']))
+    D['events'].sort(key=lambda e: (e['g'], e['ym']))
     jsave('sevens_data.json', D)
     log(f'Sevens: {new} new legs')
 
