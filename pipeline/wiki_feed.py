@@ -176,12 +176,52 @@ def matches(html):
             'attendance': int(att.group(1).replace(',', '')) if att else None,
             'referee': ref_t, 'tbd': tbd, 'cards': cards,
         })
+    out += _table_boxes(soup)
     # pages that note cards on most played matches do so on all of them: a match with nothing noted had none
     played = [m for m in out if m['hs'] is not None]
     if played and sum(m['cards'] is not None for m in played) * 2 > len(played):
         for m in played:
             if m['cards'] is None:
                 m['cards'] = [0, 0, 0, 0]
+    return out
+
+
+def _table_boxes(soup):
+    """The older single-table match box (Currie Cup and others): date | home | score | away | venue, then
+    time | home scorers | report | away scorers | referee."""
+    out = []
+    for t in soup.select('table.mw-collapsible'):
+        rows = t.find_all('tr', recursive=False) or (t.find('tbody').find_all('tr', recursive=False) if t.find('tbody') else [])
+        if not rows:
+            continue
+        c1 = rows[0].find_all('td', recursive=False)
+        if len(c1) < 5:
+            continue
+        date, nd = _date(_txt(c1[0]))
+        if not date:
+            continue
+        c2 = rows[1].find_all('td', recursive=False) if len(rows) > 1 else []
+        head, top = t.find_previous(['h2', 'h3', 'h4']), t.find_previous('h2')
+        hl, hd, hbp = _team(c1[1])
+        al, ad, abp = _team(c1[3])
+        sc = re.match(r'(\d+)\s*[–-]\s*(\d+)', _txt(c1[2]))
+        hs_, as_ = (_scoring(c2[1]), _scoring(c2[3])) if len(c2) >= 4 else (_scoring(None), _scoring(None))
+        tm = re.search(r'(\d{1,2}:\d{2})(?:\s*([A-Z]{2,5}[+\-\d:]*))?', _txt(c2[0])) if c2 else None
+        it = ' '.join(_txt(c) for c in c2[4:])
+        att = re.search(r'Attendance:\s*([\d,]+)', it)
+        ref = re.search(r'Referee:\s*([^()\n]+?)(?:\s*\(|$)', it)
+        loc_t = _txt(c1[4])
+        hc, ac = hs_['cards'], as_['cards']
+        out.append({
+            'stage': _txt(head) if head else '', 'section': _txt(top) if top else '',
+            'date': date, 'nd': nd, 'time': (tm.group(1) + (' ' + tm.group(2) if tm.group(2) else '')) if tm else '',
+            'home': hl, 'home_name': hd, 'away': al, 'away_name': ad,
+            'hs': int(sc.group(1)) if sc else None, 'as': int(sc.group(2)) if sc else None, 'bp': [hbp, abp],
+            'h': hs_, 'a': as_, 'stadium': loc_t.split(',')[0].strip(), 'city': loc_t.split(',', 1)[1].strip() if ',' in loc_t else '',
+            'attendance': int(att.group(1).replace(',', '')) if att else None, 'referee': ref.group(1).strip() if ref else '',
+            'tbd': not (c1[1].find('a') and c1[3].find('a')),
+            'cards': [(hc or [0, 0])[0], (ac or [0, 0])[0], (hc or [0, 0])[1], (ac or [0, 0])[1]] if hc or ac else None,
+        })
     return out
 
 
@@ -241,35 +281,62 @@ def _grid(table):
     return g
 
 
+def _bracket_final(t, champion, runner_up):
+    """(champion's score, runner-up's score) when this bracket's last round is their meeting."""
+    g = _grid(t)
+    cells, seen = [], set()
+    for (r, c), cell in sorted(g.items()):
+        if id(cell) in seen:
+            continue
+        seen.add(id(cell))
+        nxt = g.get((r, c + int(re.sub(r'\D', '', cell.get('colspan', '1')) or 1)))
+        sc = re.sub(r'\s+', '', nxt.get_text()) if nxt is not None else ''
+        if cell.find('a') and re.fullmatch(r'\d+', sc):
+            cells.append((c, _txt(cell), int(sc)))
+    if not cells:
+        return None
+    last = max(x[0] for x in cells)
+    fin = {x[1]: x[2] for x in cells if x[0] == last and x[1] in (champion, runner_up)}
+    return (fin[champion], fin[runner_up]) if len(fin) == 2 and fin[champion] > fin[runner_up] else None
+
+
 def final_score(html, gender_heading, champion, runner_up):
-    """Sevens tournament page: (champion's score, runner-up's score) in the Cup final, read from the knockout bracket."""
+    """Sevens tournament page: (champion's score, runner-up's score) in the Cup final, read from the knockout bracket
+    in the men's or women's section (the section holds several brackets; the Cup one ends with these two teams)."""
     soup = BeautifulSoup(html, 'html.parser')
     for ref in soup.select('sup.reference'):
         ref.decompose()
     for h2 in soup.find_all('h2'):
         if not re.match(gender_heading, _txt(h2), re.I):
             continue
-        h = h2.find_next(lambda x: x.name in ('h2', 'h3') and (x.name == 'h2' or re.match(r'(cup|championship|knockout)', _txt(x), re.I)))
-        if not h or h.name == 'h2':
-            return None
-        t = h.find_next('table')
-        if not t:
-            return None
-        g = _grid(t)
-        cells, seen = [], set()
-        for (r, c), cell in sorted(g.items()):
-            if id(cell) in seen:
+        nxt = h2.find_next('h2')
+        for t in h2.find_all_next('table'):
+            if nxt and t.find_previous('h2') is not h2:
+                break
+            if t.find_parent('table'):
                 continue
-            seen.add(id(cell))
-            nxt = g.get((r, c + int(re.sub(r'\D', '', cell.get('colspan', '1')) or 1)))
-            sc = re.sub(r'\s+', '', nxt.get_text()) if nxt is not None else ''
-            if cell.find('a') and re.fullmatch(r'\d+', sc):
-                cells.append((c, r, _txt(cell), int(sc)))
-        if not cells:
-            return None
-        last = max(x[0] for x in cells)
-        fin = {x[2]: x[3] for x in cells if x[0] == last and x[2] in (champion, runner_up)}
-        if len(fin) == 2 and fin[champion] > fin[runner_up]:
-            return fin[champion], fin[runner_up]
+            fs = _bracket_final(t, champion, runner_up)
+            if fs:
+                return fs
         return None
     return None
+
+
+def grid_results(html):
+    """Played matches from a 'Home \\ Away' results grid (League One prints its regular season this way, without dates)."""
+    out = []
+    for t in BeautifulSoup(html, 'html.parser').select('table.wikitable'):
+        trs = t.find_all('tr')
+        if not trs or not re.match(r'home\s*\\\s*away', _txt(trs[0]), re.I):
+            continue
+        cols = [a.get('title') if (a := c.find('a')) else None for c in trs[0].find_all(['th', 'td'])[1:]]
+        for tr in trs[1:]:
+            cells = tr.find_all(['th', 'td'])
+            a = cells[0].find('a') if cells else None
+            if not a:
+                continue
+            for away, c in zip(cols, cells[1:]):
+                sc = re.match(r'(\d+)\s*[–-]\s*(\d+)$', _txt(c))
+                if away and sc and away != a.get('title'):
+                    out.append({'home': a.get('title'), 'home_name': _txt(a), 'away': away, 'hs': int(sc.group(1)), 'as': int(sc.group(2))})
+    return out
