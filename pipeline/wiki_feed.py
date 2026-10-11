@@ -43,9 +43,35 @@ def _team(td):
     return (a.get('title', disp) if a else disp), disp, int(bp.group(1)) if bp else 0
 
 
+def _cards(el):
+    """(yellow, red) card icons inside an element; a second yellow ('Yellow-red card') counts as a red."""
+    y = r = 0
+    for im in el.find_all('img'):
+        k = (im.get('alt', '') + ' ' + im.get('src', '')).lower().replace('_', ' ')
+        if 'yellow-red' in k or 'red card' in k:
+            r += 1
+        elif 'yellow card' in k:
+            y += 1
+    return y, r
+
+
+def _lineups(ev):
+    """The two halves (home, away) of the team-sheet table printed under a match box, if there is one."""
+    x = ev
+    for _ in range(4):
+        x = x.find_next_sibling()
+        if x is None or 'vevent' in (x.get('class') or []) or 'mw-heading' in (x.get('class') or []) or x.name in ('h2', 'h3', 'h4'):
+            return None
+        if x.name == 'table':
+            halves = [td for td in x.find_all('td') if re.search(r'width:\s*50%', td.get('style', ''))]
+            if len(halves) >= 2:
+                return halves[:2]
+    return None
+
+
 def _scoring(td):
     """Try scorers and counts from one side's scoring cell."""
-    out = {'tries': 0, 'cons': 0, 'cons_att': 0, 'pens': 0, 'pens_att': 0, 'drops': 0, 'drops_att': 0, 'scorers': []}
+    out = {'tries': 0, 'cons': 0, 'cons_att': 0, 'pens': 0, 'pens_att': 0, 'drops': 0, 'drops_att': 0, 'scorers': [], 'cards': None}
     if not td:
         return out
     lines, cur = [], []
@@ -62,13 +88,20 @@ def _scoring(td):
         t = _txt(frag)
         if not t:
             continue
-        lab = re.match(r'(Try|Tries|Con|Cons|Pen|Pens|Drop|Drops)\s*:\s*', t)
+        lab = re.match(r'(Try|Tries|Con|Cons|Pen|Pens|Drop|Drops|Cards?)\s*:\s*', t)
         if lab:
             kind = lab.group(1)[:3].lower()
+            if kind == 'car':
+                out['cards'] = [0, 0]
             t = t[lab.end():]
             b = frag.find('b')
             if b:
                 b.decompose()
+        if kind == 'car':  # 'Cards:' lines list sin-bins and send-offs, not points
+            y, r = _cards(frag)
+            out['cards'][0] += y
+            out['cards'][1] += r
+            continue
         if not t or kind is None:
             continue
         a = frag.find('a')
@@ -120,6 +153,16 @@ def matches(html):
         att = re.search(r'Attendance:\s*([\d,]+)', it)
         ref = info.find(class_='attendee') if info else None
         ref_t = re.sub(r'\s*\(.*', '', _txt(ref)).strip() if ref else ''
+        # cards [home yellow, away yellow, home red, away red]: from the team sheets when printed, else the box's 'Cards:' lines
+        lu = _lineups(ev)
+        if lu:
+            (hy, hr), (ay, ar) = _cards(lu[0]), _cards(lu[1])
+            cards = [hy, ay, hr, ar]
+        elif hs_['cards'] or as_['cards']:
+            hc, ac = hs_['cards'] or [0, 0], as_['cards'] or [0, 0]
+            cards = [hc[0], ac[0], hc[1], ac[1]]
+        else:
+            cards = None
         stad_a = loc.find('a') if loc else None
         loc_t = _txt(loc)
         out.append({
@@ -131,8 +174,14 @@ def matches(html):
             'stadium': _txt(stad_a) if stad_a else loc_t.split(',')[0].strip(),
             'city': loc_t.split(',', 1)[1].strip() if ',' in loc_t else '',
             'attendance': int(att.group(1).replace(',', '')) if att else None,
-            'referee': ref_t, 'tbd': tbd,
+            'referee': ref_t, 'tbd': tbd, 'cards': cards,
         })
+    # pages that note cards on most played matches do so on all of them: a match with nothing noted had none
+    played = [m for m in out if m['hs'] is not None]
+    if played and sum(m['cards'] is not None for m in played) * 2 > len(played):
+        for m in played:
+            if m['cards'] is None:
+                m['cards'] = [0, 0, 0, 0]
     return out
 
 
@@ -172,4 +221,55 @@ def placings(html, gender_heading):
         t = h.find_next('table')
         names = [_txt(tr.find_all(['td', 'th'])[-1]) for tr in t.find_all('tr')[1:3]]
         return names if len(names) == 2 else None
+    return None
+
+
+def _grid(table):
+    """A table's visual grid, following rowspan and colspan: {(row, col): cell}."""
+    g = {}
+    for r, tr in enumerate(tr for tr in table.find_all('tr') if tr.find_parent('table') is table):
+        c = 0
+        for cell in tr.find_all(['td', 'th'], recursive=False):
+            while (r, c) in g:
+                c += 1
+            rs = int(re.sub(r'\D', '', cell.get('rowspan', '1')) or 1)
+            cs = int(re.sub(r'\D', '', cell.get('colspan', '1')) or 1)
+            for i in range(rs):
+                for j in range(cs):
+                    g[(r + i, c + j)] = cell
+            c += cs
+    return g
+
+
+def final_score(html, gender_heading, champion, runner_up):
+    """Sevens tournament page: (champion's score, runner-up's score) in the Cup final, read from the knockout bracket."""
+    soup = BeautifulSoup(html, 'html.parser')
+    for ref in soup.select('sup.reference'):
+        ref.decompose()
+    for h2 in soup.find_all('h2'):
+        if not re.match(gender_heading, _txt(h2), re.I):
+            continue
+        h = h2.find_next(lambda x: x.name in ('h2', 'h3') and (x.name == 'h2' or re.match(r'(cup|championship|knockout)', _txt(x), re.I)))
+        if not h or h.name == 'h2':
+            return None
+        t = h.find_next('table')
+        if not t:
+            return None
+        g = _grid(t)
+        cells, seen = [], set()
+        for (r, c), cell in sorted(g.items()):
+            if id(cell) in seen:
+                continue
+            seen.add(id(cell))
+            nxt = g.get((r, c + int(re.sub(r'\D', '', cell.get('colspan', '1')) or 1)))
+            sc = re.sub(r'\s+', '', nxt.get_text()) if nxt is not None else ''
+            if cell.find('a') and re.fullmatch(r'\d+', sc):
+                cells.append((c, r, _txt(cell), int(sc)))
+        if not cells:
+            return None
+        last = max(x[0] for x in cells)
+        fin = {x[2]: x[3] for x in cells if x[0] == last and x[2] in (champion, runner_up)}
+        if len(fin) == 2 and fin[champion] > fin[runner_up]:
+            return fin[champion], fin[runner_up]
+        return None
     return None
