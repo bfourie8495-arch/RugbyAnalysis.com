@@ -1,22 +1,9 @@
-200 292044 https://site.web.api.espn.com/apis/site/v2/sports/rugby/270557/scoreboard?dates=202610&limit=1000
-URC Oct events 26 done 16
-200 170005 https://site.web.api.espn.com/apis/site/v2/sports/rugby/270557/summary?event=604040
-LG 17567 200 Nations Championship 36 2026-11-21
-LG 289234 200 International Test Match 19 2026-11-14
-LG 180659 200 Six Nations 15 2026-03-14
-LG 244293 200 The Rugby Championship 0 
-LG 289237 200 Women's Rugby World Cup 0 
-LG 267979 200 Gallagher Prem 93 2026-12-28
-LG 270559 200 French Top 14 194 2026-12-26
-LG 242041 200 Super Rugby Pacific 83 2026-06-20
-LG 271937 200 European Rugby Champions Cup 63 2026-12-13
-LG 272073 200 European Rugby Challenge Cup 51 2026-12-13
-LG 270555 200 Currie Cup 0 
-LG 270563 200 Mitre 10 Cup 76 2026-10-18
-400 74 https://sports.core.api.espn.com/v2/sports/rugby/athletes/266583
-200 27808 https://api.world.rugby/rugby/v3/rankings/mru
-200 17230 https://api.world.rugby/rugby/v3/rankings/wru
-200 355954 https://league-one.jp/schedule/
-200 49480 https://league-one.jp/en/
-200 58107 https://league-one.jp/standings/
-200 32444 https://league-one.jp/match/31037
+200 355966 https://league-one.jp/schedule/?season=2025 209
+404 3877 https://league-one.jp/schedule/2025/ 0
+200 513959 https://league-one.jp/schedule/?year=2025 226
+200 338812 https://league-one.jp/en/schedule/ 209
+athlete 301177
+200 https://sports.core.api.espn.com/v2/sports/rugby/athletes/301177 {"$ref":"http://sports.core.api.espn.com/v2/sports/rugby/athletes/301177?lang=en&region=us","id":"301177","uid":"s:300~a:301177","type":"rugby","guid":"389b38b4-1513-319c-a4a5-86dde425a35a","alternateIds":{"opta":"36677"},"firstName":"Jacob","lastNam
+200 https://sports.core.api.espn.com/v2/sports/rugby/leagues/270557/athletes/301177 {"$ref":"http://sports.core.api.espn.com/v2/sports/rugby/leagues/270557/athletes/301177?lang=en&region=us","id":"301177","uid":"s:300~a:301177","guid":"389b38b4-1513-319c-a4a5-86dde425a35a","type":"rugby","alternateIds":{"opta":"36677"},"firstName":"
+400 https://site.web.api.espn.com/apis/common/v3/sports/rugby/athletes/301177 {"code":400,"message":"http://sports.core.api.espn.pvt/v2/sports/rugby/leagues/all/season: 400"}
+500 https://site.web.api.espn.com/apis/common/v3/sports/rugby/270557/athletes/301177 {"code":0,"detail":"general error: unknown error"}
