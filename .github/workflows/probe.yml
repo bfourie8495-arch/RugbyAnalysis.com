@@ -1,0 +1,20 @@
+name: Probe sources (temporary)
+on:
+  push:
+    branches: [claude/auto-update-all-competitions-f92x88]
+    paths: [pipeline/probe.py]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: cd pipeline && python probe.py
+      - run: |
+          git config user.name rugbyanalysis-bot; git config user.email actions@users.noreply.github.com
+          git add pipeline/_probe && git commit -m "Probe output" && git push || true
