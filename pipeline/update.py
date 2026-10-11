@@ -23,6 +23,8 @@ CORE = 'https://sports.core.api.espn.com/v2/sports/rugby/'
 TODAY = dt.date.today()
 LOOKBACK = int(os.environ.get('LOOKBACK_DAYS', '21'))
 AHEAD = int(os.environ.get('AHEAD_DAYS', '150'))
+# club seasons are read further back, so a round missed while a feed was down is still picked up (held matches are not re-read)
+CLUB_LOOKBACK = int(os.environ.get('CLUB_LOOKBACK_DAYS', '120'))
 LOG = []
 
 
@@ -39,9 +41,11 @@ REFUSED = set()
 
 
 def get(url, tries=3):
-    if url.startswith(SITE):
-        return _get(url, tries) or _get(SITE_ALT + url[len(SITE):], 1)
-    return _get(url, tries)
+    j = _get(url, tries)
+    web = SITE.split('/')[2]
+    if j is None and url.startswith(SITE) and (web in REFUSED or FAILS.get(web, 0) >= 5):
+        return _get(SITE_ALT + url[len(SITE):], 1)
+    return j
 
 
 def _get(url, tries=3):
@@ -355,7 +359,7 @@ def season_of(lg, d):
 def update_clubs():
     E = jload('club_espn.json', [])
     idx = {r[0]: i for i, r in enumerate(E)}
-    start, end = TODAY - dt.timedelta(days=LOOKBACK), TODAY + dt.timedelta(days=AHEAD)
+    start, end = TODAY - dt.timedelta(days=max(LOOKBACK, CLUB_LOOKBACK)), TODAY + dt.timedelta(days=AHEAD)
     n_new = 0
     for lg, lid in CLUB_LEAGUES.items():
         for e in scoreboard(lid, start, end):

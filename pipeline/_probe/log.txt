@@ -1,9 +1,0 @@
-200 355966 https://league-one.jp/schedule/?season=2025 209
-404 3877 https://league-one.jp/schedule/2025/ 0
-200 513959 https://league-one.jp/schedule/?year=2025 226
-200 338812 https://league-one.jp/en/schedule/ 209
-athlete 301177
-200 https://sports.core.api.espn.com/v2/sports/rugby/athletes/301177 {"$ref":"http://sports.core.api.espn.com/v2/sports/rugby/athletes/301177?lang=en&region=us","id":"301177","uid":"s:300~a:301177","type":"rugby","guid":"389b38b4-1513-319c-a4a5-86dde425a35a","alternateIds":{"opta":"36677"},"firstName":"Jacob","lastNam
-200 https://sports.core.api.espn.com/v2/sports/rugby/leagues/270557/athletes/301177 {"$ref":"http://sports.core.api.espn.com/v2/sports/rugby/leagues/270557/athletes/301177?lang=en&region=us","id":"301177","uid":"s:300~a:301177","guid":"389b38b4-1513-319c-a4a5-86dde425a35a","type":"rugby","alternateIds":{"opta":"36677"},"firstName":"
-400 https://site.web.api.espn.com/apis/common/v3/sports/rugby/athletes/301177 {"code":400,"message":"http://sports.core.api.espn.pvt/v2/sports/rugby/leagues/all/season: 400"}
-500 https://site.web.api.espn.com/apis/common/v3/sports/rugby/270557/athletes/301177 {"code":0,"detail":"general error: unknown error"}
