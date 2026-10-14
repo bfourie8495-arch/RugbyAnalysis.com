@@ -14,11 +14,14 @@ minute or two. Nobody needs to touch anything.
 | Upcoming Test fixtures and model picks (men's and women's) | ESPN, World Rugby rankings |
 | Team match stats, line-ups, player stats | ESPN |
 | New players' height, weight, date of birth | ESPN |
-| World Rugby rankings (men and women) | World Rugby |
-| Club results, fixtures and tables: URC, Premiership, Top 14, Super Rugby Pacific, Champions Cup, Challenge Cup, Currie Cup, NPC | ESPN |
+| World Rugby rankings (men and women) | World Rugby (Wikipedia's copy if World Rugby is down) |
+| Club results, fixtures and tables: URC, Premiership, Top 14, Super Rugby Pacific, Champions Cup, Challenge Cup, NPC | ESPN |
+| Currie Cup: results, scorers, cards and fixtures | Wikipedia |
 | Women's Tests outside World Cups (Six Nations, WXV, Pacific Four, Rugby Europe) and men's Pacific Nations Cup and Rugby Europe Championship: results, scorers, upcoming fixtures and model picks | Wikipedia |
-| Premiership Women's Rugby and Japan League One: results, fixtures and tables | Wikipedia |
-| Sevens: each leg's winner and runner-up, and series standings | Wikipedia |
+| Premiership Women's Rugby: results, fixtures and tables | Wikipedia |
+| Japan League One: fixtures, kick-offs, venues and results | League One's official site (league-one.jp), with scorers, cards and the table from Wikipedia |
+| Yellow and red cards for the Wikipedia competitions | Wikipedia (team sheets or the match box's "Cards" line) |
+| Sevens: each leg's winner, runner-up and final score, and series standings | Wikipedia |
 | Current squads and official caps (Mondays) | Wikipedia |
 
 Records, win rates, head-to-heads, trophy holders, form guides, leaderboards and
@@ -32,8 +35,13 @@ The Wikipedia reader (`pipeline/wiki_feed.py`) reads the standard match boxes on
 each competition's page. If a page isn't up yet, or has far fewer matches than we
 already hold, that competition is left as it is for the day.
 
-Not covered by the automatic feeds: yellow and red cards for the Wikipedia
-competitions, and sevens final scores (the winner and runner-up do update).
+ESPN is read from `site.web.api.espn.com`, because `site.api.espn.com` refuses
+GitHub's servers. If a source refuses or stops answering, the run carries on with
+the data it already has and shows a yellow warning on the run's page in the
+Actions tab.
+
+Cards are only filled in where Wikipedia records them; a page that notes cards
+for most of its matches is taken to list all of them.
 
 ## Folder layout
 

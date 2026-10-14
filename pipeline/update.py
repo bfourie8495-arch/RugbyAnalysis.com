@@ -10,16 +10,21 @@ import json, os, re, sys, time, datetime as dt, unicodedata, traceback
 from zoneinfo import ZoneInfo
 import requests
 import pandas as pd
+import wiki_feed
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(HERE)
 S = requests.Session()
 S.headers['User-Agent'] = 'RugbyAnalysis.com data refresh (https://rugbyanalysis.com)'
-SITE = 'https://site.api.espn.com/apis/site/v2/sports/rugby/'
+# ESPN answers GitHub's servers on site.web.api.espn.com; site.api.espn.com refuses them (403), so it is only the fallback
+SITE = 'https://site.web.api.espn.com/apis/site/v2/sports/rugby/'
+SITE_ALT = 'https://site.api.espn.com/apis/site/v2/sports/rugby/'
 CORE = 'https://sports.core.api.espn.com/v2/sports/rugby/'
 TODAY = dt.date.today()
 LOOKBACK = int(os.environ.get('LOOKBACK_DAYS', '21'))
 AHEAD = int(os.environ.get('AHEAD_DAYS', '150'))
+# club seasons are read further back, so a round missed while a feed was down is still picked up (held matches are not re-read)
+CLUB_LOOKBACK = int(os.environ.get('CLUB_LOOKBACK_DAYS', '120'))
 LOG = []
 
 
@@ -32,9 +37,20 @@ def log(*a):
 FAILS = {}
 
 
+REFUSED = set()
+
+
 def get(url, tries=3):
+    j = _get(url, tries)
+    web = SITE.split('/')[2]
+    if j is None and url.startswith(SITE) and (web in REFUSED or FAILS.get(web, 0) >= 5):
+        return _get(SITE_ALT + url[len(SITE):], 1)
+    return j
+
+
+def _get(url, tries=3):
     host = url.split('/')[2]
-    if FAILS.get(host, 0) >= 5:   # host looks down: skip quickly, keep the existing data
+    if FAILS.get(host, 0) >= 5 or host in REFUSED:   # host looks down or refuses us: skip quickly, keep the existing data
         return None
     for k in range(tries):
         try:
@@ -44,6 +60,12 @@ def get(url, tries=3):
                 return r.json()
             if r.status_code in (400, 404):
                 return None
+            if r.status_code in (401, 403):
+                log(f'::warning::{host} refused the request ({r.status_code}); skipping it for the rest of this run')
+                REFUSED.add(host)
+                return None
+            if k == tries - 1:
+                log('fetch failed', url, r.status_code)
         except Exception as e:
             if k == tries - 1:
                 log('fetch failed', url, e)
@@ -264,12 +286,44 @@ def update_tests(rank_pts):
 
 
 # ---------------------------------------------------------------- 2. Rankings
+RANK_URLS = ['https://api.world.rugby/rugby/v3/rankings/{}', 'https://api.wr-rugby.com/rugby/v1/rankings/{}']
+RANK_WIKI = {'mru': 'World Rugby Rankings', 'wru': "World Rugby Women's World Rankings"}
+
+
+def wiki_rankings(code):
+    """The current rankings table from Wikipedia, in the same shape as World Rugby's own feed (a fallback)."""
+    from bs4 import BeautifulSoup
+    html = wiki_feed.fetch(S, RANK_WIKI[code])
+    if not html:
+        return None
+    for t in BeautifulSoup(html, 'html.parser').select('table.wikitable'):
+        hdr = [wiki_feed._txt(c) for c in t.find('tr').find_all(['th', 'td'])]
+        if not {'Rank', 'Team', 'Points'} <= set(hdr):
+            continue
+        ent = []
+        for tr in t.find_all('tr')[1:]:
+            c = [wiki_feed._txt(x) for x in tr.find_all(['th', 'td'])]
+            if len(c) == len(hdr) and c[hdr.index('Rank')].isdigit():
+                pts = re.findall(r'\d+\.\d+', c[hdr.index('Points')])
+                if pts:
+                    ent.append({'pos': int(c[hdr.index('Rank')]), 'team': {'name': c[hdr.index('Team')]}, 'pts': float(pts[-1])})
+        if len(ent) >= 10:
+            return {'entries': ent, 'effective': {'label': 'from Wikipedia'}}
+    return None
+
+
 def update_rankings():
     pts = {}
     for code, kind in (('mru', 'm'), ('wru', 'w')):
-        j = get(f'https://api.wr-rugby.com/rugby/v1/rankings/{code}')
+        j = None
+        for u in RANK_URLS:
+            j = get(u.format(code))
+            if j and j.get('entries'):
+                break
         if not j or not j.get('entries'):
-            log('rankings', code, 'unavailable, keeping previous')
+            j = wiki_rankings(code)
+        if not j or not j.get('entries'):
+            log('::warning::rankings', code, 'unavailable, keeping previous')
             continue
         rows = []
         for e in j['entries']:
@@ -305,7 +359,7 @@ def season_of(lg, d):
 def update_clubs():
     E = jload('club_espn.json', [])
     idx = {r[0]: i for i, r in enumerate(E)}
-    start, end = TODAY - dt.timedelta(days=LOOKBACK), TODAY + dt.timedelta(days=AHEAD)
+    start, end = TODAY - dt.timedelta(days=max(LOOKBACK, CLUB_LOOKBACK)), TODAY + dt.timedelta(days=AHEAD)
     n_new = 0
     for lg, lid in CLUB_LEAGUES.items():
         for e in scoreboard(lid, start, end):
@@ -398,7 +452,6 @@ def update_wiki():
 
 
 # ---------------------------------------------------------------- 5. Competitions ESPN does not carry (Wikipedia)
-import wiki_feed
 
 # Competition pages, by year; a page that does not exist yet is skipped
 WIKI_TESTS = {'m': ['{y} World Rugby Pacific Nations Cup', '{y} Rugby Europe Championship'],
@@ -468,11 +521,19 @@ def update_wiki_tests():
                                   home_cons_att=sc('h', 'cons_att'), away_cons_att=sc('a', 'cons_att'), home_pens=sc('h', 'pens'), away_pens=sc('a', 'pens'),
                                   home_pens_att=sc('h', 'pens_att'), away_pens_att=sc('a', 'pens_att'), home_drops=sc('h', 'drops'), away_drops=sc('a', 'drops'),
                                   home_try_scorers='; '.join(m['h']['scorers']), away_try_scorers='; '.join(m['a']['scorers']))
+                    if m['cards']:
+                        detail.update(home_yellow=str(m['cards'][0]), away_yellow=str(m['cards'][1]), home_red=str(m['cards'][2]), away_red=str(m['cards'][3]))
                     same = (df.date == d) & (df.home_team == h) & (df.away_team == a)
                     if same.any():
-                        # a result we already hold (often from ESPN, without scorers): fill in what is missing
                         k = df.index[same][0]
-                        if not df.at[k, 'home_try_scorers'] and not df.at[k, 'away_try_scorers'] and (detail['home_try_scorers'] or detail['away_try_scorers']):
+                        if df.at[k, 'competition'] == page:
+                            # a result this page gave us before: refresh it, as the page may have been corrected or filled in since
+                            if any(df.at[k, c] != v for c, v in detail.items()):
+                                for c, v in detail.items():
+                                    df.at[k, c] = v
+                                filled += 1
+                        elif any(not df.at[k, c] and v for c, v in detail.items()):
+                            # a result we already hold from ESPN: fill in what is missing (scorers, cards)
                             for c, v in detail.items():
                                 if not df.at[k, c]:
                                     df.at[k, c] = v
@@ -512,7 +573,7 @@ def _season(d=None):
     return f'{y}–{str(y + 1)[2:]}'
 
 
-def _club_rows(lg, season, ms):
+def _club_rows(lg, season, ms, with_city=False):
     rows = []
     for m in ms:
         if m['tbd']:
@@ -520,7 +581,8 @@ def _club_rows(lg, season, ms):
         played = m['hs'] is not None
         sc = [[m['h'][k], m['a'][k]] for k in ('tries', 'cons', 'cons_att', 'pens', 'pens_att', 'drops')] if played else 0
         r = [lg, season, m['date'], m['time'], m['home'], m['home_name'], m['away'], m['away_name'], m['hs'], m['as'],
-             m['bp'] if played else [0, 0], sc, 0, m['referee'], m['attendance'], m['stadium'],
+             m['bp'] if played else [0, 0], sc, (m['cards'] or 0) if played else 0, m['referee'], m['attendance'],
+             ', '.join(x for x in (m['stadium'], m['city']) if x) if with_city else m['stadium'],
              ['; '.join(m['h']['scorers']), '; '.join(m['a']['scorers'])], m['stage']]
         if m['nd']:
             r.append(1)
@@ -551,21 +613,112 @@ def update_pwr():
     log(f'PWR {se}: {len(ms)} matches ({sum(m["hs"] is not None for m in ms)} played), table {"updated" if T else "not found"}')
 
 
+# League One's official site, English edition: team names as it prints them -> the names the club pages know
+L1_SITE = 'https://league-one.jp/en/schedule/?year={}'
+L1_NAMES = {'kobelcokobesteelers': 'Kobelco Kobe Steelers', 'toyotaverblitz': 'Toyota Verblitz', 'saitamawildknights': 'Saitama Wild Knights',
+            'urayasudrocks': 'Urayasu D-Rocks', 'tochigihondaheat': 'Tochigi Honda Heat', 'miehondaheat': 'Mie Honda Heat',
+            'toshibabravelupusmusashi': 'Toshiba Brave Lupus Musashi', 'toshibabravelupustokyo': 'Toshiba Brave Lupus Tokyo',
+            'tokyosungoliath': 'Tokyo Sungoliath', 'blackramstokyo': 'Black Rams Tokyo', 'mitsubishisagamiharadynaboars': 'Mitsubishi Sagamihara DynaBoars',
+            'yokohamacanoneagles': 'Yokohama Canon Eagles', 'kubotaspears': 'Kubota Spears', 'kubotaspearsfunabashitokyobay': 'Kubota Spears',
+            'shizuokabluerevs': 'Shizuoka Blue Revs', 'hanazonokintetsuliners': 'Hanazono Kintetsu Liners', 'greenwarriorstokatsu': 'Green Rockets Tokatsu',
+            'greenrocketstokatsu': 'Green Rockets Tokatsu', 'toyotaindustriescorporationshuttlesaichi': 'Toyota Industries Corporation Shuttles Aichi',
+            'toyotaindustriesshuttlesaichi': 'Toyota Industries Corporation Shuttles Aichi', 'shimizukotobluesharks': 'Shimizu Koto Blue Sharks',
+            'redhurricanesosaka': 'NTT DoCoMo Red Hurricanes Osaka'}
+L1_STAGE = {'QF': 'Quarter-final', 'SF': 'Semi-final', 'F': 'Final', 'TM': 'Third place match'}
+
+
+def _l1_key(n):
+    return re.sub(r'[^a-z]', '', unicodedata.normalize('NFKD', n).encode('ascii', 'ignore').decode().lower())
+
+
+def jl1_official(se):
+    """Division 1 fixtures and results for a season from the league's own site: dates, kick-offs, venues and scores."""
+    from bs4 import BeautifulSoup
+    y0 = int(se[:4])
+    try:
+        r = S.get(L1_SITE.format(y0), timeout=60)
+        if r.status_code != 200:
+            log('League One site answered', r.status_code); return []
+    except Exception as e:
+        log('League One site unreachable', e); return []
+    rows, unknown = [], set()
+    for b in BeautifulSoup(r.text, 'html.parser').select('div.c-schedule'):
+        title = wiki_feed._txt(b.select_one('.ttl'))
+        code = re.search(r'\((\d{4})(D1(\d\d)\d\d|PO([A-Z]+)\d+)\)', title)
+        if not code:
+            continue   # Division 2 and 3, and promotion/relegation games
+        teams = b.select('ul.game > li')
+        names = [wiki_feed._txt(li.select_one('p.name.only-pc') or li.select_one('p.name')) for li in teams]
+        if len(names) != 2:
+            continue
+        hn, an = (L1_NAMES.get(_l1_key(n)) for n in names)
+        if not hn or not an:
+            unknown.update(n for n, x in zip(names, (hn, an)) if not x); continue
+        sc = [re.sub(r'\D', '', (li.select_one('p.score') or li).get_text()) for li in teams]
+        played = all(sc)
+        dm = re.search(r'(\d{2})\.(\d{2})', wiki_feed._txt(b.select_one('.date')))
+        tm = re.search(r'\d{1,2}:\d{2}', wiki_feed._txt(b.select_one('.time')))
+        date = f'{code.group(1)}-{dm.group(2)}-{dm.group(1)}' if dm else ''   # the English site prints day.month; the code carries the year
+        stage = f'Round {int(code.group(3))}' if code.group(3) else L1_STAGE.get(code.group(4), 'Play-offs')
+        venue = re.sub(r'\s*\(.*', '', wiki_feed._txt(b.select_one('.place'))).title()
+        r = ['JL1', se, date, (tm.group(0) + ' JST') if tm else '', hn, hn, an, an, int(sc[0]) if played else None, int(sc[1]) if played else None,
+             [0, 0], 0, 0, '', None, venue, ['', ''], stage]
+        if not date:
+            r.append(1)
+        rows.append(r)
+    if unknown:
+        log('League One site: team names not recognised (add to L1_NAMES):', sorted(unknown))
+    return rows
+
+
 def update_jl1():
-    """Japan Rugby League One (Division 1), from its season page when it carries match boxes."""
+    """Japan Rugby League One (Division 1): the official site's fixtures and results, enriched with scorers and cards from the
+    Wikipedia season page's match boxes; the Wikipedia page alone (match boxes plus its results grid) if the site is down."""
+    from clubs_extra import ALIAS as CLUB
     se = _season()
     html = wiki_feed.fetch(S, f'{se} Japan Rugby League One – Division 1')
-    ms = wiki_feed.matches(html) if html else []
+    wiki = _club_rows('JL1', se, wiki_feed.matches(html)) if html else []
+    grid = {(CLUB.get(g['home']), CLUB.get(g['away'])): g for g in (wiki_feed.grid_results(html) if html else [])}
+    rows = jl1_official(se)
+    if rows:
+        boxes = {(CLUB.get(w[4]), CLUB.get(w[6])): w for w in wiki if w[8] is not None}
+        for i, r in enumerate(rows):
+            k = (CLUB.get(r[4]), CLUB.get(r[6]))
+            w = boxes.get(k)
+            if w and r[2] and abs((dt.date.fromisoformat(w[2]) - dt.date.fromisoformat(r[2])).days) <= 1:
+                rows[i] = w[:17] + [r[17]]      # the match box has the scorers, cards and referee
+            elif r[8] is None and k in grid and r[2] and r[2] < TODAY.isoformat():
+                r[8], r[9] = grid[k]['hs'], grid[k]['as']
+    else:
+        seen = {(CLUB.get(w[4]), CLUB.get(w[6])) for w in wiki}
+        rows = wiki + [['JL1', se, '', '', g['home'], g['home_name'], g['away'], g['away'], g['hs'], g['as'], [0, 0], 0, 0, '', None, '', ['', ''],
+                        'Regular season', 1] for k, g in grid.items() if k not in seen]
     X = jload('xcomp_raw.json', {'rows': [], 'tabs': {}})
     old = [r for r in X['rows'] if r[0] == 'JL1' and r[1] == se]
-    if len(ms) < max(10, len(old) // 2):
-        log(f'League One {se}: {len(ms)} match boxes on Wikipedia (held {len(old)}), keeping what we have'); return
-    X['rows'] = [r for r in X['rows'] if not (r[0] == 'JL1' and r[1] == se)] + _club_rows('JL1', se, ms)
-    T = wiki_feed.tables(html)
+    if len(rows) < max(10, len(old) // 2):
+        log(f'League One {se}: only {len(rows)} matches found (held {len(old)}), keeping what we have'); return
+    X['rows'] = [r for r in X['rows'] if not (r[0] == 'JL1' and r[1] == se)] + rows
+    T = wiki_feed.tables(html) if html else []
     if T and len(T[0]) >= 6:
         X['tabs']['JL1' + se] = T[0]
     jsave('xcomp_raw.json', X)
-    log(f'League One {se}: {len(ms)} matches ({sum(m["hs"] is not None for m in ms)} played)')
+    log(f'League One {se}: {len(rows)} matches ({sum(r[8] is not None for r in rows)} played)')
+
+
+def update_cc():
+    """Currie Cup Premier Division: ESPN stopped carrying it, so the season comes from its Wikipedia page."""
+    se = str(TODAY.year)
+    html = wiki_feed.fetch(S, f'{se} Currie Cup Premier Division')
+    if not html:
+        log('Currie Cup: no page for', se); return
+    rows = _club_rows('CC', se, wiki_feed.matches(html), with_city=True)
+    X = jload('xcomp_raw.json', {'rows': [], 'tabs': {}})
+    old = [r for r in X['rows'] if r[0] == 'CC' and r[1] == se]
+    if len(rows) < max(10, len(old) // 2):
+        log(f'Currie Cup {se}: only {len(rows)} matches on Wikipedia (held {len(old)}), keeping what we have'); return
+    X['rows'] = [r for r in X['rows'] if not (r[0] == 'CC' and r[1] == se)] + rows
+    jsave('xcomp_raw.json', X)
+    log(f'Currie Cup {se}: {len(rows)} matches ({sum(r[8] is not None for r in rows)} played)')
 
 
 def update_sevens():
@@ -575,7 +728,8 @@ def update_sevens():
         return
     seasons = sorted({_season(), _season(TODAY - dt.timedelta(days=180))})
     from bs4 import BeautifulSoup
-    new = 0
+    new = scores = 0
+    pages = {}
     for se in seasons:
         html = wiki_feed.fetch(S, f'{se} SVNS')
         if not html:
@@ -606,15 +760,22 @@ def update_sevens():
                 if not ch or ch.upper() in ('TBA', 'TBD'):
                     continue
                 ev = next((e for e in D['events'] if e['g'] == g and e['title'] == title), None)
-                if ev and ev.get('ru'):
+                if ev and ev.get('ru') and ev.get('s1') is not None:
                     continue
-                th = wiki_feed.fetch(S, title)
+                th = pages.get(title) or wiki_feed.fetch(S, title)
+                pages[title] = th
                 pl = wiki_feed.placings(th, head) if th else None
-                ru = pl[1] if pl and pl[0] == ch else ''
+                ru = (ev or {}).get('ru') or (pl[1] if pl and pl[0] == ch else '')
+                fs = wiki_feed.final_score(th, head, ch, ru) if th and ru else None   # the Cup final, from the knockout bracket
+                s1, s2 = fs if fs else (None, None)
                 if ev:
-                    ev['ru'] = ev['ru'] or ru
+                    ev['ru'] = ru
+                    if s1 is not None and ev.get('s1') is None:
+                        ev['s1'], ev['s2'] = s1, s2
+                        scores += 1
+                        log('Sevens: final score', g, title, ch, s1, '-', s2, ru)
                 else:
-                    D['events'].append({'g': g, 'season': se, 'title': title, 'host': wiki_feed._txt(c['Leg']), 'ym': ym, 'ch': ch, 'ru': ru, 's1': None, 's2': None})
+                    D['events'].append({'g': g, 'season': se, 'title': title, 'host': wiki_feed._txt(c['Leg']), 'ym': ym, 'ch': ch, 'ru': ru, 's1': s1, 's2': s2})
                     new += 1
                     log('Sevens: new leg', g, title, ch, ru)
         # series standings: the first two points tables are the men's and the women's
@@ -637,11 +798,11 @@ def update_sevens():
                 T[k] = ent
     D['events'].sort(key=lambda e: (e['g'], e['ym']))
     jsave('sevens_data.json', D)
-    log(f'Sevens: {new} new legs')
+    log(f'Sevens: {new} new legs, {scores} final scores filled in')
 
 
 if __name__ == '__main__':
-    steps = sys.argv[1:] or ['rankings', 'tests', 'clubs', 'wikitests', 'pwr', 'jl1', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
+    steps = sys.argv[1:] or ['rankings', 'tests', 'clubs', 'wikitests', 'pwr', 'jl1', 'cc', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
     pts = {}
     for step in steps:
         try:
@@ -659,6 +820,8 @@ if __name__ == '__main__':
                 update_pwr()
             elif step == 'jl1':
                 update_jl1()
+            elif step == 'cc':
+                update_cc()
             elif step == 'sevens':
                 update_sevens()
         except Exception:

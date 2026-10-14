@@ -43,9 +43,35 @@ def _team(td):
     return (a.get('title', disp) if a else disp), disp, int(bp.group(1)) if bp else 0
 
 
+def _cards(el):
+    """(yellow, red) card icons inside an element; a second yellow ('Yellow-red card') counts as a red."""
+    y = r = 0
+    for im in el.find_all('img'):
+        k = (im.get('alt', '') + ' ' + im.get('src', '')).lower().replace('_', ' ')
+        if 'yellow-red' in k or 'red card' in k:
+            r += 1
+        elif 'yellow card' in k:
+            y += 1
+    return y, r
+
+
+def _lineups(ev):
+    """The two halves (home, away) of the team-sheet table printed under a match box, if there is one."""
+    x = ev
+    for _ in range(4):
+        x = x.find_next_sibling()
+        if x is None or 'vevent' in (x.get('class') or []) or 'mw-heading' in (x.get('class') or []) or x.name in ('h2', 'h3', 'h4'):
+            return None
+        if x.name == 'table':
+            halves = [td for td in x.find_all('td') if re.search(r'width:\s*50%', td.get('style', ''))]
+            if len(halves) >= 2:
+                return halves[:2]
+    return None
+
+
 def _scoring(td):
     """Try scorers and counts from one side's scoring cell."""
-    out = {'tries': 0, 'cons': 0, 'cons_att': 0, 'pens': 0, 'pens_att': 0, 'drops': 0, 'drops_att': 0, 'scorers': []}
+    out = {'tries': 0, 'cons': 0, 'cons_att': 0, 'pens': 0, 'pens_att': 0, 'drops': 0, 'drops_att': 0, 'scorers': [], 'cards': None}
     if not td:
         return out
     lines, cur = [], []
@@ -62,13 +88,20 @@ def _scoring(td):
         t = _txt(frag)
         if not t:
             continue
-        lab = re.match(r'(Try|Tries|Con|Cons|Pen|Pens|Drop|Drops)\s*:\s*', t)
+        lab = re.match(r'(Try|Tries|Con|Cons|Pen|Pens|Drop|Drops|Cards?)\s*:\s*', t)
         if lab:
             kind = lab.group(1)[:3].lower()
+            if kind == 'car':
+                out['cards'] = [0, 0]
             t = t[lab.end():]
             b = frag.find('b')
             if b:
                 b.decompose()
+        if kind == 'car':  # 'Cards:' lines list sin-bins and send-offs, not points
+            y, r = _cards(frag)
+            out['cards'][0] += y
+            out['cards'][1] += r
+            continue
         if not t or kind is None:
             continue
         a = frag.find('a')
@@ -120,6 +153,16 @@ def matches(html):
         att = re.search(r'Attendance:\s*([\d,]+)', it)
         ref = info.find(class_='attendee') if info else None
         ref_t = re.sub(r'\s*\(.*', '', _txt(ref)).strip() if ref else ''
+        # cards [home yellow, away yellow, home red, away red]: from the team sheets when printed, else the box's 'Cards:' lines
+        lu = _lineups(ev)
+        if lu:
+            (hy, hr), (ay, ar) = _cards(lu[0]), _cards(lu[1])
+            cards = [hy, ay, hr, ar]
+        elif hs_['cards'] or as_['cards']:
+            hc, ac = hs_['cards'] or [0, 0], as_['cards'] or [0, 0]
+            cards = [hc[0], ac[0], hc[1], ac[1]]
+        else:
+            cards = None
         stad_a = loc.find('a') if loc else None
         loc_t = _txt(loc)
         out.append({
@@ -131,7 +174,53 @@ def matches(html):
             'stadium': _txt(stad_a) if stad_a else loc_t.split(',')[0].strip(),
             'city': loc_t.split(',', 1)[1].strip() if ',' in loc_t else '',
             'attendance': int(att.group(1).replace(',', '')) if att else None,
-            'referee': ref_t, 'tbd': tbd,
+            'referee': ref_t, 'tbd': tbd, 'cards': cards,
+        })
+    out += _table_boxes(soup)
+    # pages that note cards on most played matches do so on all of them: a match with nothing noted had none
+    played = [m for m in out if m['hs'] is not None]
+    if played and sum(m['cards'] is not None for m in played) * 2 > len(played):
+        for m in played:
+            if m['cards'] is None:
+                m['cards'] = [0, 0, 0, 0]
+    return out
+
+
+def _table_boxes(soup):
+    """The older single-table match box (Currie Cup and others): date | home | score | away | venue, then
+    time | home scorers | report | away scorers | referee."""
+    out = []
+    for t in soup.select('table.mw-collapsible'):
+        rows = t.find_all('tr', recursive=False) or (t.find('tbody').find_all('tr', recursive=False) if t.find('tbody') else [])
+        if not rows:
+            continue
+        c1 = rows[0].find_all('td', recursive=False)
+        if len(c1) < 5:
+            continue
+        date, nd = _date(_txt(c1[0]))
+        if not date:
+            continue
+        c2 = rows[1].find_all('td', recursive=False) if len(rows) > 1 else []
+        head, top = t.find_previous(['h2', 'h3', 'h4']), t.find_previous('h2')
+        hl, hd, hbp = _team(c1[1])
+        al, ad, abp = _team(c1[3])
+        sc = re.match(r'(\d+)\s*[–-]\s*(\d+)', _txt(c1[2]))
+        hs_, as_ = (_scoring(c2[1]), _scoring(c2[3])) if len(c2) >= 4 else (_scoring(None), _scoring(None))
+        tm = re.search(r'(\d{1,2}:\d{2})(?:\s*([A-Z]{2,5}[+\-\d:]*))?', _txt(c2[0])) if c2 else None
+        it = ' '.join(_txt(c) for c in c2[4:])
+        att = re.search(r'Attendance:\s*([\d,]+)', it)
+        ref = re.search(r'Referee:\s*([^()\n]+?)(?:\s*\(|$)', it)
+        loc_t = _txt(c1[4])
+        hc, ac = hs_['cards'], as_['cards']
+        out.append({
+            'stage': _txt(head) if head else '', 'section': _txt(top) if top else '',
+            'date': date, 'nd': nd, 'time': (tm.group(1) + (' ' + tm.group(2) if tm.group(2) else '')) if tm else '',
+            'home': hl, 'home_name': hd, 'away': al, 'away_name': ad,
+            'hs': int(sc.group(1)) if sc else None, 'as': int(sc.group(2)) if sc else None, 'bp': [hbp, abp],
+            'h': hs_, 'a': as_, 'stadium': loc_t.split(',')[0].strip(), 'city': loc_t.split(',', 1)[1].strip() if ',' in loc_t else '',
+            'attendance': int(att.group(1).replace(',', '')) if att else None, 'referee': ref.group(1).strip() if ref else '',
+            'tbd': not (c1[1].find('a') and c1[3].find('a')),
+            'cards': [(hc or [0, 0])[0], (ac or [0, 0])[0], (hc or [0, 0])[1], (ac or [0, 0])[1]] if hc or ac else None,
         })
     return out
 
@@ -173,3 +262,81 @@ def placings(html, gender_heading):
         names = [_txt(tr.find_all(['td', 'th'])[-1]) for tr in t.find_all('tr')[1:3]]
         return names if len(names) == 2 else None
     return None
+
+
+def _grid(table):
+    """A table's visual grid, following rowspan and colspan: {(row, col): cell}."""
+    g = {}
+    for r, tr in enumerate(tr for tr in table.find_all('tr') if tr.find_parent('table') is table):
+        c = 0
+        for cell in tr.find_all(['td', 'th'], recursive=False):
+            while (r, c) in g:
+                c += 1
+            rs = int(re.sub(r'\D', '', cell.get('rowspan', '1')) or 1)
+            cs = int(re.sub(r'\D', '', cell.get('colspan', '1')) or 1)
+            for i in range(rs):
+                for j in range(cs):
+                    g[(r + i, c + j)] = cell
+            c += cs
+    return g
+
+
+def _bracket_final(t, champion, runner_up):
+    """(champion's score, runner-up's score) when this bracket's last round is their meeting."""
+    g = _grid(t)
+    cells, seen = [], set()
+    for (r, c), cell in sorted(g.items()):
+        if id(cell) in seen:
+            continue
+        seen.add(id(cell))
+        nxt = g.get((r, c + int(re.sub(r'\D', '', cell.get('colspan', '1')) or 1)))
+        sc = re.sub(r'\s+', '', nxt.get_text()) if nxt is not None else ''
+        if cell.find('a') and re.fullmatch(r'\d+', sc):
+            cells.append((c, _txt(cell), int(sc)))
+    if not cells:
+        return None
+    last = max(x[0] for x in cells)
+    fin = {x[1]: x[2] for x in cells if x[0] == last and x[1] in (champion, runner_up)}
+    return (fin[champion], fin[runner_up]) if len(fin) == 2 and fin[champion] > fin[runner_up] else None
+
+
+def final_score(html, gender_heading, champion, runner_up):
+    """Sevens tournament page: (champion's score, runner-up's score) in the Cup final, read from the knockout bracket
+    in the men's or women's section (the section holds several brackets; the Cup one ends with these two teams)."""
+    soup = BeautifulSoup(html, 'html.parser')
+    for ref in soup.select('sup.reference'):
+        ref.decompose()
+    for h2 in soup.find_all('h2'):
+        if not re.match(gender_heading, _txt(h2), re.I):
+            continue
+        nxt = h2.find_next('h2')
+        for t in h2.find_all_next('table'):
+            if nxt and t.find_previous('h2') is not h2:
+                break
+            if t.find_parent('table'):
+                continue
+            fs = _bracket_final(t, champion, runner_up)
+            if fs:
+                return fs
+        return None
+    return None
+
+
+def grid_results(html):
+    """Played matches from a 'Home \\ Away' results grid (League One prints its regular season this way, without dates)."""
+    out = []
+    for t in BeautifulSoup(html, 'html.parser').select('table.wikitable'):
+        trs = t.find_all('tr')
+        if not trs or not re.match(r'home\s*\\\s*away', _txt(trs[0]), re.I):
+            continue
+        cols = [a.get('title') if (a := c.find('a')) else None for c in trs[0].find_all(['th', 'td'])[1:]]
+        for tr in trs[1:]:
+            cells = tr.find_all(['th', 'td'])
+            a = cells[0].find('a') if cells else None
+            if not a:
+                continue
+            for away, c in zip(cols, cells[1:]):
+                sc = re.match(r'(\d+)\s*[–-]\s*(\d+)$', _txt(c))
+                if away and sc and away != a.get('title'):
+                    out.append({'home': a.get('title'), 'home_name': _txt(a), 'away': away, 'hs': int(sc.group(1)), 'as': int(sc.group(2))})
+    return out
