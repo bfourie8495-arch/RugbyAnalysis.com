@@ -6068,24 +6068,24 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/02/14;Ireland;Italy;20;13;2026 Six Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;3;1;1;1;1;1;1;2;1;2;0;0;1;1;0;0;Hollie Davidson;51700;"Osborne; Conan; Baloucoune";Nicotera
 2026/02/14;Scotland;England;31;20;2026 Six Nations Championship;Murrayfield Stadium;Edinburgh;Scotland;FALSE;FALSE;4;2;4;2;4;2;1;2;1;2;0;0;0;0;0;1;Nika Amashukeli;67144;"Jones (2); Ritchie; White";"Arundell; Earl"
 2026/02/15;Wales;France;12;54;2026 Six Nations Championship;Millennium Stadium;Cardiff;Wales;FALSE;FALSE;2;8;1;7;1;8;0;0;0;0;0;0;0;0;0;0;James Doleman;57744;"Carré; Grady";"Gailleton; Bielle-Biarrey; Brau-Boirie; Jalibert; Marchand; Attissogbe (2); Ollivon"
-2026/02/15;Romania;Belgium;23;6;2025–26 Rugby Europe International Championships;Stadionul Arcul de Triumf;Bucharest;Romania;FALSE;FALSE;;;;;;;;;;;;;;;;;Saba Abulashvili;;;
+2026/02/15;Romania;Belgium;23;6;2025–26 Rugby Europe International Championships;Stadionul Arcul de Triumf;Bucharest;Romania;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Saba Abulashvili;;;
 2026/02/21;England;Ireland;21;42;2026 Six Nations Championship;Twickenham Stadium;London;England;FALSE;FALSE;3;5;3;4;3;5;0;3;0;4;0;0;2;1;0;0;Andrea Piardi;81953;"Dingwall; Lawrence; Underhill";"Gibson-Park; Baloucoune; O'Brien; Sheehan; Osborne"
 2026/02/21;Wales;Scotland;23;26;2026 Six Nations Championship;Millennium Stadium;Cardiff;Wales;FALSE;FALSE;2;4;2;3;2;4;3;0;3;0;0;0;1;0;0;0;Matthew Carley;70649;"Carré; Adams";"Steyn; Russell; Graham; Turner"
 2026/02/22;France;Italy;33;8;2026 Six Nations Championship;Stade Pierre-Mauroy;Villeneuve-d'Ascq;France;FALSE;FALSE;5;1;4;0;5;0;0;1;0;1;0;0;0;1;0;0;Andrew Brace;48544;"Bielle-Biarrey; Meafou; Ramos; Dréan; Gailleton";Capuozzo
 2026/03/06;Ireland;Wales;27;17;2026 Six Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;4;2;2;2;4;2;1;1;1;1;0;0;0;1;0;0;Karl Dickson;51700;"Stockdale; Crowley; Conan; Osborne";"Carré; Botham"
 2026/03/07;Scotland;France;50;40;2026 Six Nations Championship;Murrayfield Stadium;Edinburgh;Scotland;FALSE;FALSE;7;6;6;5;7;6;1;0;1;0;0;0;1;2;0;0;Angus Gardner;67144;"Graham (2); Steyn (2); Schoeman; White; Jordan";"Bielle-Biarrey; Attissogbe; Dupont; Ramos (2); Jegou"
 2026/03/07;Italy;England;23;18;2026 Six Nations Championship;Stadio Olimpico;Rome;Italy;FALSE;FALSE;2;2;2;1;2;2;3;2;3;2;0;0;1;2;0;0;Luc Ramos;68985;"Menoncello; Marin";"Freeman; Roebuck"
-2026/03/07;Belgium;Netherlands;38;15;2025–26 Rugby Europe International Championships;Sportcomplex Sint-Gillis;Dendermonde;Belgium;FALSE;FALSE;;;;;;;;;;;;;;;;;Diogo Inacio;700;;
-2026/03/07;Switzerland;Germany;35;25;2025–26 Rugby Europe International Championships;Stade Municipal;Yverdon-les-Bains;Switzerland;FALSE;FALSE;;;;;;;;;;;;;;;;;Sion Carwin;1500;;
-2026/03/08;Portugal;Spain;26;7;2025–26 Rugby Europe International Championships;Estádio do Restelo;Lisbon;Portugal;FALSE;FALSE;;;;;;;;;;;;;;;;;Keane Davison;4700;;
-2026/03/08;Georgia;Romania;53;30;2025–26 Rugby Europe International Championships;Avchala Stadium;Tbilisi;Georgia;FALSE;FALSE;;;;;;;;;;;;;;;;;Alberto Favaro;3000;;
+2026/03/07;Belgium;Netherlands;38;15;2025–26 Rugby Europe International Championships;Sportcomplex Sint-Gillis;Dendermonde;Belgium;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Diogo Inacio;700;;
+2026/03/07;Switzerland;Germany;35;25;2025–26 Rugby Europe International Championships;Stade Municipal;Yverdon-les-Bains;Switzerland;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Sion Carwin;1500;;
+2026/03/08;Portugal;Spain;26;7;2025–26 Rugby Europe International Championships;Estádio do Restelo;Lisbon;Portugal;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Keane Davison;4700;;
+2026/03/08;Georgia;Romania;53;30;2025–26 Rugby Europe International Championships;Avchala Stadium;Tbilisi;Georgia;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Alberto Favaro;3000;;
 2026/03/14;Ireland;Scotland;43;21;2026 Six Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;6;3;5;3;6;3;1;0;1;0;0;0;0;0;0;0;Luke Pearce;51700;"Osborne; Sheehan; Baloucoune; Murray; O'Brien (2)";"Graham; Russell; Darge"
 2026/03/14;Wales;Italy;31;17;2026 Six Nations Championship;Millennium Stadium;Cardiff;Wales;FALSE;FALSE;4;3;4;1;4;3;0;0;0;0;1;0;0;0;0;0;Christophe Ridley;69775;"Wainwright (2); Lake; Edwards";"Di Bartolomeo; Allan; P. Garbisi"
 2026/03/14;France;England;48;46;2026 Six Nations Championship;Stade de France;Saint-Denis;France;FALSE;FALSE;6;7;5;4;5;7;2;1;2;1;0;0;1;1;0;0;Nika Amashukeli;78728;"Bielle-Biarrey (4); Penalty try; Attissogbe";"Roebuck; Murley; Chessum (2); Coles; M. Smith; Freeman"
-2026/03/15;Germany;Netherlands;7;76;2025–26 Rugby Europe International Championships;Estadio Nacional Complutense;Madrid;Spain;TRUE;FALSE;;;;;;;;;;;;;;;;;Saba Makharadze;1600;;
-2026/03/15;Switzerland;Belgium;16;39;2025–26 Rugby Europe International Championships;Estadio Nacional Complutense;Madrid;Spain;TRUE;FALSE;;;;;;;;;;;;;;;;;Eki Fanlo;1600;;
-2026/03/15;Romania;Spain;23;29;2025–26 Rugby Europe International Championships;Butarque Stadium;Leganés;Romania;FALSE;FALSE;;;;;;;;;;;;;;;;;Filippo Russo;6000;;
-2026/03/15;Georgia;Portugal;17;19;2025–26 Rugby Europe International Championships;Butarque Stadium;Leganés;Romania;TRUE;FALSE;;;;;;;;;;;;;;;;;Jérémy Rozier;6000;;
+2026/03/15;Germany;Netherlands;7;76;2025–26 Rugby Europe International Championships;Estadio Nacional Complutense;Madrid;Spain;TRUE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Saba Makharadze;1600;;
+2026/03/15;Switzerland;Belgium;16;39;2025–26 Rugby Europe International Championships;Estadio Nacional Complutense;Madrid;Spain;TRUE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Eki Fanlo;1600;;
+2026/03/15;Romania;Spain;23;29;2025–26 Rugby Europe International Championships;Butarque Stadium;Leganés;Romania;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Filippo Russo;6000;;
+2026/03/15;Georgia;Portugal;17;19;2025–26 Rugby Europe International Championships;Butarque Stadium;Leganés;Romania;TRUE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Jérémy Rozier;6000;;
 2026/03/21;Gibraltar;Sweden;13;37;2026 men's rugby union internationals;Europa Point Stadium;Gibraltar;Gibraltar;FALSE;FALSE;;;;;;;;;;;;;;;;;Harry Parsons;;;
 2026/03/21;Greece;Kosovo;22;12;2026 men's rugby union internationals;Municipal stadium;Haidari;Greece;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2026/04/03;Czech Republic;Mexico;54;27;2026 men's rugby union internationals;Markéta Stadium;Prague;Czech Republic;FALSE;FALSE;8;4;7;2;8;4;0;1;0;1;0;0;;;;;Nicolae Fratila;;"Surga; Havel; Sehnal (2); Sklensky; Komarek (2); Skop";"Gaballero (2); Nichols; Martinez"
@@ -6147,7 +6147,7 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/09/05;Japan;Canada;57;12;2026 men's rugby union internationals;Denka Big Swan Stadium;Niigata;Japan;FALSE;FALSE;9;2;6;1;9;2;0;0;0;0;0;0;0;0;0;0;Morgan White;18045;"Okabe; Harada (2); Gunter; Hirose; Shimokawa; Hockings; Inaba; Costley";"McMullin; LeSage"
 2026/09/12;South Africa;New Zealand;43;28;2026 Greatest Rivalry Tour;M&T Bank Stadium;Baltimore;United States;TRUE;FALSE;6;4;5;4;6;4;1;0;2;0;0;0;0;0;0;0;Karl Dickson;68173;"de Allende; van den Berg; Marx; P. du Toit; Arendse; Hanekom";"Taylor; Jordan; Blackadder; B. Barrett"
 2026/09/12;Fiji;Canada;45;29;2026 World Rugby Pacific Nations Cup;Hanazono Rugby Stadium;Higashiōsaka;Japan;TRUE;FALSE;7;4;5;3;7;4;0;1;0;1;0;0;1;0;1;0;Katsuki Furuse;;"Salawa; Lomani; Armstrong-Ravula; Ravai; Ikanivere; Murray (2)";"Flesch (2); Parry; Tremblay"
-2026/09/12;Japan;United States;63;14;2026 World Rugby Pacific Nations Cup;Hanazono Rugby Stadium;Higashiōsaka;Japan;FALSE;FALSE;9;2;9;2;9;2;0;0;0;0;0;0;1;1;0;0;Jordan Way;13559;"; Stolberg; Riley (2); Harada; ; Cornelsen; Ha'angana; Greene";"Klein; Lopeti"
+2026/09/12;Japan;United States;63;14;2026 World Rugby Pacific Nations Cup;Hanazono Rugby Stadium;Higashiōsaka;Japan;FALSE;FALSE;9;2;9;2;9;2;0;0;0;0;0;0;1;1;0;0;Jordan Way;13559;"Hirose; Stolberg; Riley (2); Harada; Otsuka; Cornelsen; Ha'angana; Greene";"Klein; Lopeti"
 2026/09/19;Fiji;Japan;15;20;2026 World Rugby Pacific Nations Cup;Chichibunomiya Rugby Stadium;Tokyo;Japan;TRUE;FALSE;2;3;1;1;2;2;1;1;1;2;0;0;1;0;0;0;Jordan Way;17421;"Vakatawa; Ikanivere";"Harada; Gunter; Tua"
 2026/09/19;Canada;United States;19;16;2026 World Rugby Pacific Nations Cup;Chichibunomiya Rugby Stadium;Tokyo;Japan;TRUE;FALSE;3;1;2;1;3;1;0;3;0;4;0;0;0;0;0;0;Katsuki Furuse;;"LeSage; Flesch; Kilgour";Pifeleti
 2026/09/19;Poland;Czech Republic;33;19;2026 men's rugby union internationals;Municipal Stadium;Nowy Sącz;Poland;FALSE;FALSE;;;;;;;;;;;;;;;;;Mieszko Lech;;;
@@ -6165,3 +6165,4 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/02/14;Germany;Portugal;12;68;2026 Rugby Europe Championship;Paul Greifzu Stadium;Dessau-Roßlau;Germany;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Alberto Favaro;3400;;
 2026/02/21;Belgium;Germany;18;3;2026 Rugby Europe Championship;Stade Charles Tondreau;Mons;Belgium;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Shota Tevzadze;3000;;
 2026/02/22;Portugal;Romania;44;7;2026 Rugby Europe Championship;Estádio Nacional;Oeiras;Portugal;FALSE;FALSE;0;0;0;0;0;0;0;0;0;0;0;0;;;;;Kevin Bralley;3000;;
+2026/10/10;New Zealand;Australia;50;19;2026 men's rugby union internationals;Eden Park;Auckland;New Zealand;FALSE;FALSE;7;3;;;;;;;;;;;0;0;0;0;;;;
