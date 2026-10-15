@@ -88,6 +88,11 @@ JS = """
 """
 
 
+# (wrong, right) pairs. The third item in a TMET entry marks "lower is better"; tries carried a stray "t",
+# so "more tries" was described as "an edge for" the other side.
+FIXES = [('["tries","tries a game","t"]', '["tries","tries a game"]')]
+
+
 def fmt_date(d):
     return d.strftime('%-d %b')
 
@@ -196,6 +201,9 @@ def build(today=None):
         page = page.replace('</header>', '</header>' + wrap(f'<div class="wrap">{intro(today) + section}</div>'), 1)
     page = re.sub(r'(<footer\b[^>]*>.*?</footer>)', lambda m: m.group(1) + wrap(foot), page, count=1, flags=re.S)
     page = page.replace('</body>', wrap(f'<script>{JS}</script>') + '</body>', 1)
+    # small fixes to the Match Centre script (pipeline/matchday.js) applied to the built page
+    for bad, good in FIXES:
+        page = page.replace(bad, good)
     open(path, 'w', encoding='utf-8').write(page)
     print(f'stories: {len(items)} shown ({", ".join(i["id"] for i in items)})')
 
