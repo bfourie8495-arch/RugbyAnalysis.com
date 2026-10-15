@@ -2173,7 +2173,7 @@ function wrSwing(h,a,neutral){const H=slugOf(h),A=slugOf(a),rh=RANK[H],ra=RANK[A
   return{rh,ra,hw:{g:hw,p:pos(H,{[H]:hw,[A]:-hw})},aw:{g:aw,p:pos(A,{[A]:aw,[H]:-aw})}}}
 
 // Team-level ESPN numbers over a side's last 10 Tests with match stats
-const TMET=[["tries","tries a game","t"],["metres","metres carried a game"],["cleanBreaks","line breaks a game"],["defendersBeaten","defenders beaten a game"],["missedTackles","missed tackles a game",1],["penaltiesConceded","penalties conceded a game",1],["turnoversConceded","turnovers conceded a game",1]];
+const TMET=[["tries","tries a game"],["metres","metres carried a game"],["cleanBreaks","line breaks a game"],["defendersBeaten","defenders beaten a game"],["missedTackles","missed tackles a game",1],["penaltiesConceded","penalties conceded a game",1],["turnoversConceded","turnovers conceded a game",1]];
 function teamAvg(i){const g=M.filter(m=>(m.h===i||m.a===i)&&m.ms).slice(-10);if(g.length<5)return null;const o={n:g.length};
   TMET.forEach(([k])=>{const v=g.map(m=>m.ms[m.h===i?0:1][SI[k]]).filter(x=>x!=null);o[k]=v.length>=5?avg(v):null});return o}
 
