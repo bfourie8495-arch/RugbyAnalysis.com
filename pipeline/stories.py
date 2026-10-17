@@ -90,7 +90,10 @@ JS = """
 
 # (wrong, right) pairs. The third item in a TMET entry marks "lower is better"; tries carried a stray "t",
 # so "more tries" was described as "an edge for" the other side.
-FIXES = [('["tries","tries a game","t"]', '["tries","tries a game"]')]
+FIXES = [('["tries","tries a game","t"]', '["tries","tries a game"]'),
+         # venue record: say who actually leads (was "Japan lead Fiji 1–2")
+         ('t:`${vk.lab[0].toUpperCase()+vk.lab.slice(1)}, ${H} lead ${A} ${r.w}–${r.l}${r.d?` with ${r.d} drawn`:""}.`',
+          't:`${vk.lab[0].toUpperCase()+vk.lab.slice(1)}, ${r.w>r.l?`${H} lead ${A} ${r.w}–${r.l}`:r.w<r.l?`${A} lead ${H} ${r.l}–${r.w}`:`${H} and ${A} are level at ${r.w}–${r.l}`}${r.d?` with ${r.d} drawn`:""}.`')]
 
 
 def fmt_date(d):
@@ -153,6 +156,97 @@ def intro(today):
         '</details></section>')
 
 
+TF_CSS = """
+.tf{padding-block:24px 0;min-width:0;max-width:100%;width:100%;box-sizing:border-box}
+.tf-box{border:1px solid var(--line);border-radius:16px;background:var(--card);padding:16px 20px 18px}
+.tf-hd{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.tf-hd h2{margin:0;font-size:20px;letter-spacing:-.01em}
+.tf-sel{display:flex;align-items:center;gap:8px;min-width:0}
+.tf-sel label{font-size:13px;color:var(--ink2)}
+.tf-sel select{font:600 14px/1.2 var(--body);padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;max-width:100%}
+.tf-hint,.tf-empty{margin:10px 0 0;color:var(--ink2);font-size:14px}
+.tf-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:12px;margin-top:14px}
+.tf-fx{border-top:3px solid #C9A24B;padding-top:10px;min-width:0}
+.tf-fx time{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tf-fx h3{margin:0 0 4px;font-size:16px}
+.tf-fx h3 b{color:var(--ink)}
+.tf-fx p{margin:0;font-size:13px;color:var(--ink2);line-height:1.45}
+.tf-fx .pk{margin-top:6px;font-size:13px;color:var(--ink)}
+.tf-fx .tr{margin-top:8px;font-size:13px;color:var(--ink)}.tf-fact{margin-top:4px!important;font-size:12.5px!important;font-style:italic}
+.tf-more{margin:12px 0 0;font-size:14px}.tf-more a{color:inherit;font-weight:600}
+"""
+
+TF_JS = """
+(function(){
+var FX=__FX__,KEY="ra.team",box=document.getElementById("tfBox");if(!box)return;
+var sel=document.getElementById("tfSel"),out=document.getElementById("tfOut");
+var teams=[];FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(teams.indexOf(t)<0)teams.push(t)})});teams.sort();
+sel.innerHTML='<option value="">Choose a team</option>'+teams.map(function(t){return '<option>'+t+'</option>'}).join("");
+var TZ="";try{TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+var fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function trophy(f){if(!f.tr)return"";return '<p class="tr"><b>Trophy on the line:</b> '+esc(f.tr.n)+(f.tr.y?' (since '+f.tr.y+')':'')+'</p>'+(f.tr.f?'<p class="tf-fact">'+esc(f.tr.f)+'</p>':'')}
+function show(t){
+  if(!t){out.innerHTML='<p class="tf-hint">Pick a team to see its next Tests, with kick-off in your time zone and our model\\'s pick.</p>';return}
+  var now=Date.now();
+  var items=FX.filter(function(f){return f.h===t||f.a===t}).map(function(f){var tbc=!f.ko;return {f:f,tbc:tbc,t:tbc?new Date(f.d+"T12:00:00Z"):new Date(f.ko)}})
+    .filter(function(x){return x.t.getTime()+3*36e5>now}).sort(function(a,b){return a.t-b.t}).slice(0,3);
+  if(!items.length){out.innerHTML='<p class="tf-empty">No confirmed Tests for '+esc(t)+' in our fixture list yet. It updates daily.</p>';return}
+  out.innerHTML='<div class="tf-list">'+items.map(function(x){var f=x.f,home=f.h===t,opp=home?f.a:f.h,pt=home?f.p:1-f.p;
+    var when=x.tbc?fD.format(new Date(f.d+"T12:00:00"))+" · time TBC":fD.format(x.t)+" · "+fT.format(x.t);
+    return '<article class="tf-fx"><time>'+esc(when)+'</time><h3>'+(home?'<b>'+esc(t)+'</b> v '+esc(opp):esc(opp)+' v <b>'+esc(t)+'</b>')+'</h3>'+
+      '<p>'+esc(f.c||"Test match")+(f.v?' · '+esc(f.v):'')+'</p><p class="pk">Model pick: <b>'+esc(pt>=.5?t:opp)+'</b> '+Math.round(Math.max(pt,1-pt)*100)+'%'+' · '+esc(t)+(home?' at home':' away')+'</p>'+trophy(f)+'</article>'}).join("")+
+    '</div><p class="tf-more"><a href="#fixtures">All fixtures &rarr;</a></p>'}
+sel.addEventListener("change",function(){show(sel.value);try{localStorage.setItem(KEY,sel.value)}catch(e){}});
+var saved="";try{saved=localStorage.getItem(KEY)||""}catch(e){}
+if(saved&&teams.indexOf(saved)>=0)sel.value=saved;else saved="";
+show(saved);
+})();
+"""
+
+
+# short, sourced stories for individual trophies (shown under the fixture when that trophy is on the line)
+TROPHY_FACTS = {
+    'Bledisloe Cup': ('A 1932 newspaper report put the cup at 28 inches (71 cm) tall without its oak plinth, 25 inches wide and 290 oz. '
+                      'Lord Bledisloe called the design the work of a New Zealand artist, but designer Nelson Isaac was born in Victoria, Australia.'),
+}
+
+
+def trophy_for(h, a):
+    """The bilateral trophy, if any, two nations play for outside the Six Nations (from pipeline/trophies.json)."""
+    try:
+        tr = json.load(open(os.path.join(HERE, 'trophies.json'), encoding='utf-8'))
+    except (FileNotFoundError, ValueError):
+        return None
+    for t in tr:
+        if t.get('kind') == 'bilateral' and t.get('g') == 'm' and not t.get('comp') and {h, a} == set(t.get('teams', [])):
+            out = {'n': t['name'], 'y': t.get('founded')}
+            if t['name'] in TROPHY_FACTS:
+                out['f'] = TROPHY_FACTS[t['name']]
+            return out
+    return None
+
+
+def teamfix(today):
+    """"Your team's next Tests" picker for the home view, from the same fixtures.json the daily refresh writes."""
+    try:
+        fx = json.load(open(os.path.join(HERE, 'fixtures.json'), encoding='utf-8'))
+    except (FileNotFoundError, ValueError):
+        return '', ''
+    keep = [{k: f[k] for k in ('ko', 'd', 'h', 'a', 'c', 'v', 'p') if k in f} for f in fx
+            if f.get('g') != 'w' and (f.get('ko') or f.get('d') or '')[:10] >= (today - dt.timedelta(days=1)).isoformat()]
+    for k in keep:
+        t = trophy_for(k['h'], k['a'])
+        if t:
+            k['tr'] = t
+    if not keep:
+        return '', ''
+    block = ('<section class="tf" id="tf" aria-labelledby="tfH"><div class="tf-box" id="tfBox"><div class="tf-hd"><h2 id="tfH">Your team\'s next Tests</h2>'
+             '<div class="tf-sel"><label for="tfSel">Team</label><select id="tfSel"></select></div></div><div id="tfOut"></div></div></section>')
+    js = TF_JS.replace('__FX__', json.dumps(keep, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/'))
+    return block, js
+
+
 def build(today=None):
     today = today or dt.date.today()
     cfg = json.load(open(os.path.join(HERE, 'stories.json'), encoding='utf-8'))
@@ -191,16 +285,17 @@ def build(today=None):
     # remove anything a previous run inserted, so the build can run again safely
     page = re.sub(r'<!--sx:start-->.*?<!--sx:end-->', '', page, flags=re.S)
     wrap = lambda s: f'<!--sx:start-->{s}<!--sx:end-->'
-    page = page.replace('</head>', wrap(f'<style>{CSS}</style>') + '</head>', 1)
+    page = page.replace('</head>', wrap(f'<style>{CSS}{TF_CSS}</style>') + '</head>', 1)
     page = page.replace('</nav>', '</nav>' + wrap(bar), 1)
-    block = wrap(intro(today) + section)
+    tf_html, tf_js = teamfix(today)
+    block = wrap(tf_html + intro(today) + section)
     # top of the Match Centre (the home view), above the match-day preview cards
     if '<div id="mdCards">' in page:
         page = page.replace('<div id="mdCards">', block + '<div id="mdCards">', 1)
     else:  # fallback if the page layout changes: straight after the hero, inside a page-width wrapper
-        page = page.replace('</header>', '</header>' + wrap(f'<div class="wrap">{intro(today) + section}</div>'), 1)
+        page = page.replace('</header>', '</header>' + wrap(f'<div class="wrap">{tf_html + intro(today) + section}</div>'), 1)
     page = re.sub(r'(<footer\b[^>]*>.*?</footer>)', lambda m: m.group(1) + wrap(foot), page, count=1, flags=re.S)
-    page = page.replace('</body>', wrap(f'<script>{JS}</script>') + '</body>', 1)
+    page = page.replace('</body>', wrap(f'<script>{JS}</script>' + (f'<script>{tf_js}</script>' if tf_js else '')) + '</body>', 1)
     # small fixes to the Match Centre script (pipeline/matchday.js) applied to the built page
     for bad, good in FIXES:
         page = page.replace(bad, good)
