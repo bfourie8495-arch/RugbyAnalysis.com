@@ -1,5 +1,4 @@
-"""One-off probe of the Highlightly Rugby API (free tier). Uses ~4 of the 100 daily requests.
-Key is read from the HIGHLIGHTLY_API_KEY environment variable and is never printed."""
+"""Probe 2 of the Highlightly Rugby API (free tier): find specific Tests by team name. ~5 requests."""
 import json, os, sys, urllib.request, urllib.parse, urllib.error
 
 KEY = os.environ.get("HIGHLIGHTLY_API_KEY", "").strip()
@@ -13,18 +12,21 @@ def get(path, **params):
                                                "x-rapidapi-host": "rugby.highlightly.net"})
     try:
         with urllib.request.urlopen(req, timeout=30) as r:
-            hdrs = {k: v for k, v in r.headers.items() if "limit" in k.lower() or "remaining" in k.lower()}
-            return r.status, hdrs, json.load(r)
+            return r.status, json.load(r)
     except urllib.error.HTTPError as e:
-        return e.code, {}, {"error": e.read().decode()[:300]}
+        return e.code, {"error": e.read().decode()[:300]}
 
-for d in sys.argv[1:] or ["2026-10-17", "2026-10-24", "2026-11-06"]:
-    code, hdrs, body = get("/matches", date=d, limit=100)
-    print(f"\n=== date {d}: HTTP {code} rate headers {hdrs}")
+def show(title, **params):
+    code, body = get("/matches", limit=20, **params)
+    print(f"\n### {title} {params}: HTTP {code} total={body.get('pagination', {}).get('totalCount')}")
     if code != 200:
-        print(body); continue
-    print("plan:", body.get("plan"), "| total:", body.get("pagination", {}).get("totalCount"))
+        print(body); return
     for m in body.get("data", []):
-        lg = m["league"]["name"]
-        print(f"- {lg} ({m['league']['season']}): {m['homeTeam']['name']} v {m['awayTeam']['name']}"
-              f" | {m['state'].get('description')} | {m['state'].get('score')} | {m['date']}")
+        print(f"- {m['date']} | {m['league']['name']} {m['league']['season']} | "
+              f"{m['homeTeam']['name']} v {m['awayTeam']['name']} | {m['state'].get('description')} | {m['state'].get('score')}")
+
+show("Japan v Fiji", homeTeamName="Japan", awayTeamName="Fiji")
+show("Fiji v Japan", homeTeamName="Fiji", awayTeamName="Japan")
+show("Australia v New Zealand", homeTeamName="Australia", awayTeamName="New Zealand")
+show("New Zealand v Australia", homeTeamName="New Zealand", awayTeamName="Australia")
+show("Date 16 Oct", date="2026-10-16", countryName="World")
