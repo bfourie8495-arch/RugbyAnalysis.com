@@ -173,34 +173,78 @@ TF_CSS = """
 .tf-fx p{margin:0;font-size:13px;color:var(--ink2);line-height:1.45}
 .tf-fx .pk{margin-top:6px;font-size:13px;color:var(--ink)}
 .tf-fx .tr{margin-top:8px;font-size:13px;color:var(--ink)}.tf-fact{margin-top:4px!important;font-size:12.5px!important;font-style:italic}
+.tf-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tf-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:600 13px/1 var(--body);cursor:pointer}
+.tf-chip:hover{border-color:var(--ink2)}.tf-chip img{height:14px;width:auto;border-radius:2px;vertical-align:-2px}
+.tf-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:18px 24px;margin-top:14px}
+.tf-sub{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tf-stack{display:grid;gap:12px}.tf-stack .tf-fx h3 img,.tf-fx h3 img{height:15px;width:auto;border-radius:2px;vertical-align:-2px}
+.tf-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:0 20px;align-items:start;min-width:0}
+.tf-two>*{min-width:0}.tf-two .panel{margin:24px 0 0;height:auto}
+.rr{padding-block:24px 0}.rr-row{display:grid;grid-template-columns:52px 1fr auto 1fr;gap:2px 10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.rr-row:first-child{border-top:0}.rr-row time{color:var(--muted);font-size:12px}
+.rr-t{background:none;border:0;padding:0;font:inherit;color:var(--ink2);cursor:pointer;min-width:0}.rr-t.w{color:var(--ink);font-weight:650}
+.rr-h{text-align:right}.rr-a{text-align:left}.rr-t:hover{text-decoration:underline}
+.rr-t img{height:13px;width:auto;border-radius:2px;vertical-align:-2px}
+.rr-s{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink2)}.rr-s b.w{color:var(--ink)}
+.rr-c{grid-column:2/-1;font-size:12px;color:var(--muted)}
 .tf-more{margin:12px 0 0;font-size:14px}.tf-more a{color:inherit;font-weight:600}
 """
 
 TF_JS = """
 (function(){
-var FX=__FX__,KEY="ra.team",box=document.getElementById("tfBox");if(!box)return;
-var sel=document.getElementById("tfSel"),out=document.getElementById("tfOut");
-var teams=[];FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(teams.indexOf(t)<0)teams.push(t)})});teams.sort();
-sel.innerHTML='<option value="">Choose a team</option>'+teams.map(function(t){return '<option>'+t+'</option>'}).join("");
-var TZ="";try{TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
-var fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
+var FX=__FX__,KEY="ra.teams",MAXT=4,box=document.getElementById("tfBox");if(!box)return;
+function ld(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var sel=document.getElementById("tfSel"),chips=document.getElementById("tfChips"),out=document.getElementById("tfOut");
+var N=(typeof ALL!=="undefined")?ALL:null,nt=(typeof NT!=="undefined")?NT:(N?N.length:0);
+var names=[];if(N){for(var i=0;i<nt;i++)names.push(N[i].name)}else{FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(names.indexOf(t)<0)names.push(t)})})}
+FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(names.indexOf(t)<0)names.push(t)})});
+names.sort();
+sel.innerHTML='<option value="">Add a team</option>'+names.map(function(t){return '<option>'+t+'</option>'}).join("");
+function idx(n){return N?N.findIndex(function(t){return t.name===n}):-1}
+function flg(n){try{var i=idx(n);return i>=0&&typeof fl==="function"?fl(i):""}catch(e){return ""}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-function trophy(f){if(!f.tr)return"";return '<p class="tr"><b>Trophy on the line:</b> '+esc(f.tr.n)+(f.tr.y?' (since '+f.tr.y+')':'')+'</p>'+(f.tr.f?'<p class="tf-fact">'+esc(f.tr.f)+'</p>':'')}
-function show(t){
-  if(!t){out.innerHTML='<p class="tf-hint">Pick a team to see its next Tests, with kick-off in your time zone and our model\\'s pick.</p>';return}
+var fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fS=new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
+function cmp(c){return /rugby union internationals/.test(c||"")?"Test match":(c||"Test match")}
+var teams=[];try{teams=JSON.parse(ld(KEY)||"[]")}catch(e){teams=[]}
+if(!teams.length){var old=ld("ra.team");if(old)teams=[old]}
+teams=teams.filter(function(t){return names.indexOf(t)>=0}).slice(0,MAXT);
+function trophy(f){if(!f.tr)return "";return '<p class="tr"><b>Trophy on the line:</b> '+esc(f.tr.n)+(f.tr.y?' (since '+f.tr.y+')':'')+'</p>'+(f.tr.f?'<p class="tf-fact">'+esc(f.tr.f)+'</p>':'')}
+function lastRes(t){if(typeof M==="undefined"||!N)return null;for(var k=M.length-1;k>=0;k--){var m=M[k];if(N[m.h].name===t||N[m.a].name===t)return m}return null}
+function resCard(m,t){var h=N[m.h].name,a=N[m.a].name,mine=h===t?m.hs-m.as:m.as-m.hs,tag=mine>0?"Won":mine<0?"Lost":"Drew";
+  return '<article class="tf-fx"><time>'+esc(t)+' · '+tag+' · '+fS.format(new Date(m.date+"T12:00:00"))+'</time><h3>'+flg(h)+' '+esc(h)+' <b>'+m.hs+'–'+m.as+'</b> '+esc(a)+' '+flg(a)+'</h3><p>'+esc(cmp(m.comp))+'</p></article>'}
+function render(){
+  chips.innerHTML=teams.map(function(t){return '<button type="button" class="tf-chip" data-t="'+esc(t)+'" aria-label="Remove '+esc(t)+'">'+flg(t)+' '+esc(t)+' <span aria-hidden="true">&times;</span></button>'}).join("");
+  if(!teams.length){out.innerHTML='<p class="tf-hint">Add up to '+MAXT+' teams to see what they play next and how they last got on. Your picks stay on this device.</p>';return}
   var now=Date.now();
-  var items=FX.filter(function(f){return f.h===t||f.a===t}).map(function(f){var tbc=!f.ko;return {f:f,tbc:tbc,t:tbc?new Date(f.d+"T12:00:00Z"):new Date(f.ko)}})
-    .filter(function(x){return x.t.getTime()+3*36e5>now}).sort(function(a,b){return a.t-b.t}).slice(0,3);
-  if(!items.length){out.innerHTML='<p class="tf-empty">No confirmed Tests for '+esc(t)+' in our fixture list yet. It updates daily.</p>';return}
-  out.innerHTML='<div class="tf-list">'+items.map(function(x){var f=x.f,home=f.h===t,opp=home?f.a:f.h,pt=home?f.p:1-f.p;
+  var items=FX.filter(function(f){return teams.indexOf(f.h)>=0||teams.indexOf(f.a)>=0}).map(function(f){var tbc=!f.ko;return {f:f,tbc:tbc,t:tbc?new Date(f.d+"T12:00:00Z"):new Date(f.ko)}})
+    .filter(function(x){return x.t.getTime()+3*36e5>now}).sort(function(a,b){return a.t-b.t}).slice(0,4);
+  var up=items.length?items.map(function(x){var f=x.f,pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p];
     var when=x.tbc?fD.format(new Date(f.d+"T12:00:00"))+" · time TBC":fD.format(x.t)+" · "+fT.format(x.t);
-    return '<article class="tf-fx"><time>'+esc(when)+'</time><h3>'+(home?'<b>'+esc(t)+'</b> v '+esc(opp):esc(opp)+' v <b>'+esc(t)+'</b>')+'</h3>'+
-      '<p>'+esc(f.c||"Test match")+(f.v?' · '+esc(f.v):'')+'</p><p class="pk">Model pick: <b>'+esc(pt>=.5?t:opp)+'</b> '+Math.round(Math.max(pt,1-pt)*100)+'%'+' · '+esc(t)+(home?' at home':' away')+'</p>'+trophy(f)+'</article>'}).join("")+
-    '</div><p class="tf-more"><a href="#fixtures">All fixtures &rarr;</a></p>'}
-sel.addEventListener("change",function(){show(sel.value);try{localStorage.setItem(KEY,sel.value)}catch(e){}});
-var saved="";try{saved=localStorage.getItem(KEY)||""}catch(e){}
-if(saved&&teams.indexOf(saved)>=0)sel.value=saved;else saved="";
-show(saved);
+    return '<article class="tf-fx"><time>'+esc(when)+'</time><h3>'+flg(f.h)+' '+esc(f.h)+' v '+esc(f.a)+' '+flg(f.a)+'</h3><p>'+esc(f.c||"Test match")+(f.v?' · '+esc(f.v):'')+'</p><p class="pk">Model pick: <b>'+esc(pick[0])+'</b> '+Math.round(pick[1]*100)+'%</p>'+trophy(f)+'</article>'}).join(""):'<p class="tf-empty">No confirmed Tests for your teams in our fixture list yet. It updates daily.</p>';
+  var seen={},last=teams.map(function(t){var m=lastRes(t);if(!m)return "";var key=m.date+m.h+m.a;if(seen[key])return "";seen[key]=1;return resCard(m,t)}).join("");
+  out.innerHTML='<div class="tf-cols"><div><h3 class="tf-sub">Next up</h3><div class="tf-stack">'+up+'</div></div><div><h3 class="tf-sub">Last time out</h3><div class="tf-stack">'+(last||'<p class="tf-empty">No results found.</p>')+'</div></div></div><p class="tf-more"><a href="#fixtures">All fixtures &rarr;</a></p>'}
+function save(){sv(KEY,JSON.stringify(teams));render()}
+sel.addEventListener("change",function(){var v=sel.value;sel.value="";if(!v||teams.indexOf(v)>=0)return;if(teams.length>=MAXT)teams.shift();teams.push(v);save()});
+chips.addEventListener("click",function(e){var b=e.target.closest("button[data-t]");if(!b)return;teams=teams.filter(function(t){return t!==b.getAttribute("data-t")});save()});
+render();
+
+/* Recent results strip */
+try{var ro=document.getElementById("rrOut");
+if(ro&&typeof M!=="undefined"&&N){var today=new Date().toISOString().slice(0,10),all=[];
+  for(var k=M.length-1;k>=0&&all.length<40;k--){var m=M[k];if(m.date>today)continue;if(m.h>=nt||m.a>=nt)continue;all.push(m)}
+  all.sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:0});
+  var cut=new Date(Date.now()-10*864e5).toISOString().slice(0,10),pick=all.filter(function(m){return m.date>=cut}).slice(0,8);
+  if(pick.length<4)pick=all.slice(0,6);
+  ro.innerHTML=pick.map(function(m){var h=N[m.h].name,a=N[m.a].name,hw=m.hs>m.as,aw=m.as>m.hs;
+    return '<div class="rr-row"><time>'+fS.format(new Date(m.date+"T12:00:00"))+'</time><button type="button" class="rr-t rr-h'+(hw?' w':'')+'" data-i="'+m.h+'">'+esc(h)+' '+flg(h)+'</button><span class="rr-s"><b class="'+(hw?'w':'')+'">'+m.hs+'</b>&ndash;<b class="'+(aw?'w':'')+'">'+m.as+'</b></span><button type="button" class="rr-t rr-a'+(aw?' w':'')+'" data-i="'+m.a+'">'+flg(a)+' '+esc(a)+'</button><span class="rr-c">'+esc(cmp(m.comp))+(m.venue&&m.venue[1]?' · '+esc(m.venue[1]):'')+'</span></div>'}).join("")||'<p class="tf-empty">No recent results yet.</p>';
+  ro.addEventListener("click",function(e){var b=e.target.closest("button[data-i]");if(!b||typeof setTeam!=="function")return;setTeam(+b.getAttribute("data-i"));scrollTo({top:0})})}}catch(e){}
+
+/* Home order: your teams, results + coming up, videos, previews, then the beginner guide */
+try{var md=document.getElementById("matchday"),g=function(i){return document.getElementById(i)},nx=g("nx"),later=g("mdLaterWrap"),rr=g("rr"),sx=g("sx"),cards=g("mdCards"),src=g("mdSrc");
+if(md&&nx&&rr&&later){var wrap=document.createElement("div");wrap.className="tf-two";md.insertBefore(wrap,nx);wrap.appendChild(rr);wrap.appendChild(later);if(src)md.insertBefore(src,nx);if(sx)md.insertBefore(sx,nx);if(cards)md.insertBefore(cards,nx)}
+var det=nx&&nx.querySelector("details");if(det){if(ld("ra.seen"))det.open=false;sv("ra.seen","1")}}catch(e){}
 })();
 """
 
@@ -241,8 +285,9 @@ def teamfix(today):
             k['tr'] = t
     if not keep:
         return '', ''
-    block = ('<section class="tf" id="tf" aria-labelledby="tfH"><div class="tf-box" id="tfBox"><div class="tf-hd"><h2 id="tfH">Your team\'s next Tests</h2>'
-             '<div class="tf-sel"><label for="tfSel">Team</label><select id="tfSel"></select></div></div><div id="tfOut"></div></div></section>')
+    block = ('<section class="tf" id="tf" aria-labelledby="tfH"><div class="tf-box" id="tfBox"><div class="tf-hd"><h2 id="tfH">For you</h2>'
+             '<div class="tf-sel"><label for="tfSel">Team</label><select id="tfSel"></select></div></div><div class="tf-chips" id="tfChips"></div><div id="tfOut"></div></div></section>'
+             '<section class="tf rr" id="rr" aria-labelledby="rrH"><div class="tf-box"><div class="tf-hd"><h2 id="rrH">Recent results</h2></div><div id="rrOut"></div></div></section>')
     js = TF_JS.replace('__FX__', json.dumps(keep, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/'))
     return block, js
 
