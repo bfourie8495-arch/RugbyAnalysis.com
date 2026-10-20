@@ -1,10 +1,10 @@
 1|South Africa|93.09
-2|New Zealand|91.81
+2|New Zealand|92.27
 3|Ireland|88.08
 4|France|87.43
 5|England|85.68
-6|Australia|84.89
-7|Scotland|84.78
+6|Scotland|84.78
+7|Australia|84.43
 8|Argentina|82.24
 9|Japan|77.28
 10|Fiji|76.81
