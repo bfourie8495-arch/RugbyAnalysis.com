@@ -175,7 +175,7 @@ TF_CSS = """
 .tf-fx .tr{margin-top:8px;font-size:13px;color:var(--ink)}.tf-fact{margin-top:4px!important;font-size:12.5px!important;font-style:italic}
 .tf-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .tf-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:600 13px/1 var(--body);cursor:pointer}
-.tf-chip:hover{border-color:var(--ink2)}.tf-chip img{height:14px;width:auto;border-radius:2px;vertical-align:-2px}
+.tf-chip{padding:0;gap:0;overflow:hidden;cursor:default}.tf-open,.tf-x{font:inherit;background:none;border:0;color:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.tf-open{padding:7px 6px 7px 11px}.tf-x{padding:7px 11px 7px 4px;color:var(--ink2);font-size:16px;line-height:1}.tf-open:hover,.tf-x:hover{text-decoration:underline}.tf-chip:hover{border-color:var(--ink2)}.tf-chip img{height:14px;width:auto;border-radius:2px;vertical-align:-2px}
 .tf-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:18px 24px;margin-top:14px}
 .tf-sub{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .tf-stack{display:grid;gap:12px}.tf-stack .tf-fx h3 img,.tf-fx h3 img{height:15px;width:auto;border-radius:2px;vertical-align:-2px}
@@ -198,11 +198,12 @@ function ld(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 var sel=document.getElementById("tfSel"),chips=document.getElementById("tfChips"),out=document.getElementById("tfOut");
 var N=(typeof ALL!=="undefined")?ALL:null,nt=(typeof NT!=="undefined")?NT:(N?N.length:0);
-var names=[];if(N){for(var i=0;i<nt;i++)names.push(N[i].name)}else{FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(names.indexOf(t)<0)names.push(t)})})}
-FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(names.indexOf(t)<0)names.push(t)})});
-names.sort();
-sel.innerHTML='<option value="">Add a team</option>'+names.map(function(t){return '<option>'+t+'</option>'}).join("");
 function idx(n){return N?N.findIndex(function(t){return t.name===n}):-1}
+var top=[],names=[];if(N){for(var i=0;i<nt;i++)top.push(N[i].name)}
+FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(top.indexOf(t)<0&&!(N&&idx(t)>=nt))top.push(t)})});
+top.sort();var rest=[];if(N){for(var j=nt;j<N.length;j++)rest.push(N[j].name)}rest.sort();names=top.concat(rest);
+function opt(t){return '<option>'+t+'</option>'}
+sel.innerHTML='<option value="">Add a team</option><optgroup label="Top teams">'+top.map(opt).join("")+'</optgroup>'+(rest.length?'<optgroup label="More nations">'+rest.map(opt).join("")+'</optgroup>':'');
 function flg(n){try{var i=idx(n);return i>=0&&typeof fl==="function"?fl(i):""}catch(e){return ""}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fS=new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
@@ -215,8 +216,8 @@ function lastRes(t){if(typeof M==="undefined"||!N)return null;for(var k=M.length
 function resCard(m,t){var h=N[m.h].name,a=N[m.a].name,mine=h===t?m.hs-m.as:m.as-m.hs,tag=mine>0?"Won":mine<0?"Lost":"Drew";
   return '<article class="tf-fx"><time>'+esc(t)+' · '+tag+' · '+fS.format(new Date(m.date+"T12:00:00"))+'</time><h3>'+flg(h)+' '+esc(h)+' <b>'+m.hs+'–'+m.as+'</b> '+esc(a)+' '+flg(a)+'</h3><p>'+esc(cmp(m.comp))+'</p></article>'}
 function render(){
-  chips.innerHTML=teams.map(function(t){return '<button type="button" class="tf-chip" data-t="'+esc(t)+'" aria-label="Remove '+esc(t)+'">'+flg(t)+' '+esc(t)+' <span aria-hidden="true">&times;</span></button>'}).join("");
-  if(!teams.length){out.innerHTML='<p class="tf-hint">Add up to '+MAXT+' teams to see what they play next and how they last got on. Your picks stay on this device.</p>';return}
+  chips.innerHTML=teams.map(function(t){return '<span class="tf-chip"><button type="button" class="tf-open" data-o="'+esc(t)+'" aria-label="Open the '+esc(t)+' page">'+flg(t)+' '+esc(t)+'</button><button type="button" class="tf-x" data-t="'+esc(t)+'" aria-label="Remove '+esc(t)+'">&times;</button></span>'}).join("");
+  if(!teams.length){out.innerHTML='<p class="tf-hint">Add up to '+MAXT+' teams to see what they play next and how they last got on. Tap a team to open its full page. Your picks stay on this device.</p>';return}
   var now=Date.now();
   var items=FX.filter(function(f){return teams.indexOf(f.h)>=0||teams.indexOf(f.a)>=0}).map(function(f){var tbc=!f.ko;return {f:f,tbc:tbc,t:tbc?new Date(f.d+"T12:00:00Z"):new Date(f.ko)}})
     .filter(function(x){return x.t.getTime()+3*36e5>now}).sort(function(a,b){return a.t-b.t}).slice(0,4);
@@ -227,7 +228,8 @@ function render(){
   out.innerHTML='<div class="tf-cols"><div><h3 class="tf-sub">Next up</h3><div class="tf-stack">'+up+'</div></div><div><h3 class="tf-sub">Last time out</h3><div class="tf-stack">'+(last||'<p class="tf-empty">No results found.</p>')+'</div></div></div><p class="tf-more"><a href="#fixtures">All fixtures &rarr;</a></p>'}
 function save(){sv(KEY,JSON.stringify(teams));render()}
 sel.addEventListener("change",function(){var v=sel.value;sel.value="";if(!v||teams.indexOf(v)>=0)return;if(teams.length>=MAXT)teams.shift();teams.push(v);save()});
-chips.addEventListener("click",function(e){var b=e.target.closest("button[data-t]");if(!b)return;teams=teams.filter(function(t){return t!==b.getAttribute("data-t")});save()});
+chips.addEventListener("click",function(e){var o=e.target.closest("button[data-o]");if(o){var i=idx(o.getAttribute("data-o"));if(i>=0&&typeof setTeam==="function"){setTeam(i);scrollTo({top:0})}return}
+  var b=e.target.closest("button[data-t]");if(!b)return;teams=teams.filter(function(t){return t!==b.getAttribute("data-t")});save()});
 render();
 
 /* Recent results strip */
