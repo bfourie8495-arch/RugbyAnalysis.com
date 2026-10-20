@@ -1,0 +1,14 @@
+{
+  "source": "World Rugby, 'HSBC SVNS Series and World Championship 2027 schedule confirmed' (published 28 Jul 2026). Men's and women's dates are implied to be the same; the article does not state it.",
+  "events": [
+    {"name": "Dubai", "start": "2026-11-28", "end": "2026-11-29", "venue": "The Sevens Stadium"},
+    {"name": "Cape Town", "start": "2026-12-05", "end": "2026-12-06", "venue": "Cape Town Stadium"},
+    {"name": "Singapore", "start": "2027-01-30", "end": "2027-01-31", "venue": "The Kallang"},
+    {"name": "Perth", "start": "2027-02-06", "end": "2027-02-07", "venue": "HBF Park"},
+    {"name": "Vancouver", "start": "2027-03-06", "end": "2027-03-07", "venue": "BC Place"},
+    {"name": "New York", "start": "2027-03-13", "end": "2027-03-14", "venue": "Sports Illustrated Stadium"},
+    {"name": "World Championship, Hong Kong", "start": "2027-04-09", "end": "2027-04-11", "venue": "Kai Tak Sports Park"},
+    {"name": "World Championship, Valladolid", "start": "2027-05-21", "end": "2027-05-23", "venue": "Estadio José Zorrilla"},
+    {"name": "World Championship, Bordeaux", "start": "2027-05-28", "end": "2027-05-30", "venue": "Stade Atlantique"}
+  ]
+}
