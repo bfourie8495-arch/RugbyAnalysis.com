@@ -2403,11 +2403,16 @@ function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 var sel=document.getElementById("tfSel"),chips=document.getElementById("tfChips"),out=document.getElementById("tfOut");
 var N=(typeof ALL!=="undefined")?ALL:null,nt=(typeof NT!=="undefined")?NT:(N?N.length:0);
 function idx(n){return N?N.findIndex(function(t){return t.name===n}):-1}
-var top=[],names=[];if(N){for(var i=0;i<nt;i++)top.push(N[i].name)}
-FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(top.indexOf(t)<0&&!(N&&idx(t)>=nt))top.push(t)})});
-top.sort();var rest=[];if(N){for(var j=nt;j<N.length;j++)rest.push(N[j].name)}rest.sort();names=top.concat(rest);
+function isW(){try{return state.g==="w"}catch(e){return false}}
+function isTop(i){return isW()?(typeof TOPW!=="undefined"&&TOPW.has(i)):i<nt}
+var names=[];
 function opt(t){return '<option>'+t+'</option>'}
-sel.innerHTML='<option value="">Add a team</option><optgroup label="Top teams">'+top.map(opt).join("")+'</optgroup>'+(rest.length?'<optgroup label="More nations">'+rest.map(opt).join("")+'</optgroup>':'');
+function buildSel(){var top=[],rest=[];
+if(N){for(var i=0;i<N.length;i++){(isTop(i)?top:rest).push(N[i].name)}}
+if(!isW()){FX.forEach(function(f){[f.h,f.a].forEach(function(t){if(top.indexOf(t)<0&&!(N&&idx(t)>=nt))top.push(t)})})}
+top.sort();rest.sort();names=top.concat(rest);
+sel.innerHTML='<option value="">Add a team</option><optgroup label="Top teams">'+top.map(opt).join("")+'</optgroup>'+(rest.length?'<optgroup label="More nations">'+rest.map(opt).join("")+'</optgroup>':'')}
+buildSel();
 function flg(n){try{var i=idx(n);return i>=0&&typeof fl==="function"?fl(i):""}catch(e){return ""}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fS=new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
@@ -2423,11 +2428,11 @@ function render(){
   chips.innerHTML=teams.map(function(t){return '<span class="tf-chip"><button type="button" class="tf-open" data-o="'+esc(t)+'" aria-label="Open the '+esc(t)+' page">'+flg(t)+' '+esc(t)+'</button><button type="button" class="tf-x" data-t="'+esc(t)+'" aria-label="Remove '+esc(t)+'">&times;</button></span>'}).join("");
   if(!teams.length){out.innerHTML='<p class="tf-hint">Add up to '+MAXT+' teams to see what they play next and how they last got on. Tap a team to open its full page. Your picks stay on this device.</p>';return}
   var now=Date.now();
-  var items=FX.filter(function(f){return teams.indexOf(f.h)>=0||teams.indexOf(f.a)>=0}).map(function(f){var tbc=!f.ko;return {f:f,tbc:tbc,t:tbc?new Date(f.d+"T12:00:00Z"):new Date(f.ko)}})
+  var items=isW()?[]:FX.filter(function(f){return teams.indexOf(f.h)>=0||teams.indexOf(f.a)>=0}).map(function(f){var tbc=!f.ko;return {f:f,tbc:tbc,t:tbc?new Date(f.d+"T12:00:00Z"):new Date(f.ko)}})
     .filter(function(x){return x.t.getTime()+3*36e5>now}).sort(function(a,b){return a.t-b.t}).slice(0,4);
   var up=items.length?items.map(function(x){var f=x.f,pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p];
     var when=x.tbc?fD.format(new Date(f.d+"T12:00:00"))+" · time TBC":fD.format(x.t)+" · "+fT.format(x.t);
-    return '<article class="tf-fx"><time>'+esc(when)+'</time><h3>'+flg(f.h)+' '+esc(f.h)+' v '+esc(f.a)+' '+flg(f.a)+'</h3><p>'+esc(f.c||"Test match")+(f.v?' · '+esc(f.v):'')+'</p><p class="pk">Model pick: <b>'+esc(pick[0])+'</b> '+Math.round(pick[1]*100)+'%</p>'+trophy(f)+'</article>'}).join(""):'<p class="tf-empty">No confirmed Tests for your teams in our fixture list yet. It updates daily.</p>';
+    return '<article class="tf-fx"><time>'+esc(when)+'</time><h3>'+flg(f.h)+' '+esc(f.h)+' v '+esc(f.a)+' '+flg(f.a)+'</h3><p>'+esc(f.c||"Test match")+(f.v?' · '+esc(f.v):'')+'</p><p class="pk">Model pick: <b>'+esc(pick[0])+'</b> '+Math.round(pick[1]*100)+'%</p>'+trophy(f)+'</article>'}).join(""):(isW()?'<p class="tf-empty">We do not have a women Test fixture list yet.</p>':'<p class="tf-empty">No confirmed Tests for your teams in our fixture list yet. It updates daily.</p>');
   var seen={},last=teams.map(function(t){var m=lastRes(t);if(!m)return "";var key=m.date+m.h+m.a;if(seen[key])return "";seen[key]=1;return resCard(m,t)}).join("");
   out.innerHTML='<div class="tf-cols"><div><h3 class="tf-sub">Next up</h3><div class="tf-stack">'+up+'</div></div><div><h3 class="tf-sub">Last time out</h3><div class="tf-stack">'+(last||'<p class="tf-empty">No results found.</p>')+'</div></div></div><p class="tf-more"><a href="#fixtures">All fixtures &rarr;</a></p>'}
 function save(){sv(KEY,JSON.stringify(teams));render()}
@@ -2437,15 +2442,19 @@ chips.addEventListener("click",function(e){var o=e.target.closest("button[data-o
 render();
 
 /* Recent results strip */
-try{var ro=document.getElementById("rrOut");
-if(ro&&typeof M!=="undefined"&&N){var today=new Date().toISOString().slice(0,10),all=[];
-  for(var k=M.length-1;k>=0&&all.length<40;k--){var m=M[k];if(m.date>today)continue;if(m.h>=nt||m.a>=nt)continue;all.push(m)}
+var ro=document.getElementById("rrOut");
+function buildRecent(){try{if(!(ro&&typeof M!=="undefined"&&N))return;
+var today=new Date().toISOString().slice(0,10),all=[];
+  for(var k=M.length-1;k>=0&&all.length<40;k--){var m=M[k];if(m.date>today)continue;if(!isTop(m.h)||!isTop(m.a))continue;all.push(m)}
   all.sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:0});
   var cut=new Date(Date.now()-10*864e5).toISOString().slice(0,10),pick=all.filter(function(m){return m.date>=cut}).slice(0,8);
   if(pick.length<4)pick=all.slice(0,6);
   ro.innerHTML=pick.map(function(m){var h=N[m.h].name,a=N[m.a].name,hw=m.hs>m.as,aw=m.as>m.hs;
     return '<div class="rr-row"><time>'+fS.format(new Date(m.date+"T12:00:00"))+'</time><button type="button" class="rr-t rr-h'+(hw?' w':'')+'" data-i="'+m.h+'">'+esc(h)+' '+flg(h)+'</button><span class="rr-s"><b class="'+(hw?'w':'')+'">'+m.hs+'</b>&ndash;<b class="'+(aw?'w':'')+'">'+m.as+'</b></span><button type="button" class="rr-t rr-a'+(aw?' w':'')+'" data-i="'+m.a+'">'+flg(a)+' '+esc(a)+'</button><span class="rr-c">'+esc(cmp(m.comp))+(m.venue&&m.venue[1]?' · '+esc(m.venue[1]):'')+'</span></div>'}).join("")||'<p class="tf-empty">No recent results yet.</p>';
-  ro.addEventListener("click",function(e){var b=e.target.closest("button[data-i]");if(!b||typeof setTeam!=="function")return;setTeam(+b.getAttribute("data-i"));scrollTo({top:0})})}}catch(e){}
+}catch(e){}}
+buildRecent();
+try{if(ro)ro.addEventListener("click",function(e){var b=e.target.closest("button[data-i]");if(!b||typeof setTeam!=="function")return;setTeam(+b.getAttribute("data-i"));scrollTo({top:0})})}catch(e){}
+try{if(typeof setGender==="function"){var _sg=setGender;setGender=function(){var r=_sg.apply(this,arguments);try{buildSel();render();buildRecent()}catch(e){}return r}}}catch(e){}
 
 /* Home order: your teams, results + coming up, videos, previews, then the beginner guide */
 try{var md=document.getElementById("matchday"),g=function(i){return document.getElementById(i)},nx=g("nx"),later=g("mdLaterWrap"),rr=g("rr"),sx=g("sx"),cards=g("mdCards"),src=g("mdSrc");
