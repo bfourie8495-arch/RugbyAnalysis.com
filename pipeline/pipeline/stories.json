@@ -1,0 +1,66 @@
+{
+ "instagram": "https://www.instagram.com/rugby_analysis_stats/",
+ "facebook": "https://www.facebook.com/profile.php?id=61595081338465",
+ "items": [
+  {
+   "id": "triespens",
+   "date": "2026-10-27",
+   "title": "Tries up, penalties down",
+   "line": "Top-ten Tests in 2026 average 8.1 tries and just 1.5 penalty goals."
+  },
+  {
+   "id": "favourite",
+   "date": "2026-10-25",
+   "title": "How often does the favourite win?",
+   "line": "76% of the time since 2000. When it is too close to call, only 59%."
+  },
+  {
+   "id": "jf_trend",
+   "date": "2026-10-22",
+   "title": "Japan v Fiji: the trend",
+   "line": "Fiji won 11 of the first 12 meetings since 2003. Japan have won 2 of the last 5."
+  },
+  {
+   "id": "home_advantage",
+   "date": "2026-10-13",
+   "title": "Is home advantage real?",
+   "line": "New Zealand win 73% of their away Tests since 2000. England and France win about 70% at home."
+  },
+  {
+   "id": "scoring_explosion",
+   "date": "2026-10-21",
+   "title": "Rugby's scoring explosion",
+   "line": "Top-ten Tests averaged 19 points in the 1960s. In the 2020s it's 50."
+  },
+  {
+   "id": "heatmap_h2h",
+   "date": "2026-10-19",
+   "title": "Who beats who?",
+   "line": "Scotland have played New Zealand 33 times and never won. Wales v France is dead level."
+  },
+  {
+   "id": "race_pack_weights",
+   "date": "2026-10-20",
+   "title": "Who has the biggest pack?",
+   "line": "Twenty years of starting eights by weight, with the top three trading places."
+  },
+  {
+   "id": "race_six_nations",
+   "date": "2026-10-18",
+   "title": "Six Nations title race",
+   "line": "143 years in 60 seconds. England and Wales are level on 39 titles each."
+  },
+  {
+   "id": "race_test_wins",
+   "date": "2026-10-15",
+   "title": "Most Test wins of all time",
+   "line": "England led for decades. New Zealand moved ahead for good in 2012."
+  },
+  {
+   "id": "rankings_race",
+   "date": "2026-10-13",
+   "title": "Who rules world rugby?",
+   "line": "Thirty years of the top ten, rebuilt from every Test result since 1990."
+  }
+ ]
+}
