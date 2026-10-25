@@ -874,6 +874,14 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2017/03/17;Scotland;Italy;14;12;2017 Women's Six Nations Championship;;;;FALSE;FALSE;2;2;2;1;2;1;0;0;0;0;0;0;;;;;Ian Tempest;;Rollie (2);Bettoni (2)
 2017/03/17;Ireland;England;7;34;2017 Women's Six Nations Championship;;;;FALSE;FALSE;1;5;1;3;1;3;0;1;0;1;0;0;;;;;Alhambra Nievas;;Lyons;"Wilson-Hardy; Keates; Cokayne; Scarratt; Thompson"
 2017/03/18;France;Wales;39;19;2017 Women's Six Nations Championship;;;;FALSE;FALSE;5;3;4;2;4;2;2;0;2;0;0;0;;;;;Joy Neville;;"Forlani; Ladagnous; Boujard; Arricastre; Trémoulière";"Powell-Hughes; A. Evans (2)"
+2017/03/28;United States;Canada;5;39;2017 women's rugby union internationals;Chula Vista Elite Athlete Training Center;Chula Vista;United States;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/04/01;United States;Canada;10;37;2017 women's rugby union internationals;Chula Vista Elite Athlete Training Center;Chula Vista;United States;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/06/09;New Zealand;Canada;28;16;2017 Women's International Rugby Series;Westpac Stadium;Wellington;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/06/09;England;Australia;53;10;2017 Women's International Rugby Series;Porirua Park;Porirua (Wellington);New Zealand;TRUE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/06/13;New Zealand;Australia;44;17;2017 Women's International Rugby Series / 2017 Laurie O'Reilly Cup;Rugby League Park;Christchurch;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/06/13;England;Canada;27;20;2017 Women's International Rugby Series;Rugby League Park;Christchurch;New Zealand;TRUE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/06/17;New Zealand;England;21;29;2017 Women's International Rugby Series;Rotorua International Stadium;Rotorua;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/06/17;Canada;Australia;45;5;2017 Women's International Rugby Series;Smallbone Park;Rotorua;New Zealand;TRUE;FALSE;;;;;;;;;;;;;;;;;;;;
 2017/07/08;Japan;Hong Kong;58;0;2017 Asia Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;0;0;0;0;;;;
 2017/07/15;Hong Kong;Japan;19;60;2017 Asia Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;0;0;0;0;;;;
 2017/08/09;New Zealand;Wales;44;12;2017 Women's Rugby World Cup;;;;FALSE;TRUE;;;;;;;;;;;;;;;;;;;;
@@ -906,6 +914,10 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2017/08/26;Ireland;Wales;17;27;2017 Women's Rugby World Cup;;;;FALSE;TRUE;;;;;;;;;;;;;;;;;;;;
 2017/08/26;Australia;Canada;12;43;2017 Women's Rugby World Cup;;;;FALSE;TRUE;;;;;;;;;;;;;;;;;;;;
 2017/08/26;France;United States;31;23;2017 Women's Rugby World Cup;;;;FALSE;TRUE;;;;;;;;;;;;;;;;;;;;
+2017/11/17;England;Canada;79;5;2017 Autumn Internationals;Barnet Copthall (Allianz Park);London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/11/19;Italy;France;21;41;2017 Autumn Internationals;;Biella;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/11/21;England;Canada;49;12;2017 Autumn Internationals;Twickenham Stoop;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2017/11/25;England;Canada;69;19;2017 Autumn Internationals;Twickenham Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/02/02;Wales;Scotland;18;17;2018 Women's Six Nations Championship;;;;FALSE;FALSE;3;3;0;1;0;1;1;0;1;0;0;0;;;;;Sean Gallagher;;"Kavanagh-Williams; Bluck; Lake";"Rollie (2); Konkel"
 2018/02/03;France;Ireland;24;0;2018 Women's Six Nations Championship;;;;FALSE;FALSE;4;0;2;0;2;0;0;0;0;0;0;0;;;;;Ian Tempest;;"Banet; Le Pesq (2); Tremouliere";
 2018/02/04;Italy;England;7;42;2018 Women's Six Nations Championship;;;;FALSE;FALSE;1;7;1;2;1;2;0;1;0;1;0;0;;;;;Tim Baker;;Ruzza;"Bern; Hunter (3); Cleall; Dow; Kildunne"
@@ -928,14 +940,26 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2018/06/02;Singapore;India;30;5;2018 Asia Rugby Women's Championship Div 1;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/06/05;India;Philippines;5;19;2018 Asia Rugby Women's Championship Div 1;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/06/08;Singapore;Philippines;19;10;2018 Asia Rugby Women's Championship Div 1;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/08/18;Australia;New Zealand;11;31;2018 Laurie O'Reilly Cup;Stadium Australia (ANZ Stadium);Sydney;Australia;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/08/25;New Zealand;Australia;45;17;2018 Laurie O'Reilly Cup;Eden Park;Auckland;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/10/13;Finland;Switzerland;5;20;2018–19 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/03;United States;New Zealand;6;67;2018 Autumn Internationals;Soldier Field;Chicago;United States;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/04;Italy;Scotland;38;0;2018 Autumn Internationals;;Calvisano;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/09;France;New Zealand;0;14;2018 Autumn Internationals (New Zealand tour of France);Stade Mayol;Toulon;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/09;England;United States;57;5;2018 Autumn Internationals (Quilter Internationals);Allianz Park;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/16;Papua New Guinea;Samoa;45;56;2018 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/16;Fiji;Tonga;53;8;2018 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/17;Switzerland;Czech Republic;5;10;2018–19 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/17;France;New Zealand;30;27;2018 Autumn Internationals (New Zealand tour of France);Stade des Alpes;Grenoble;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/18;England;Canada;27;19;2018 Autumn Internationals (Quilter Internationals);Castle Park;Doncaster;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/18;Ireland;United States;10;19;2018 Autumn Internationals;Donnybrook Stadium;Dublin;Ireland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/20;Samoa;Tonga;68;7;2018 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/20;Fiji;Papua New Guinea;96;0;2018 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/24;Tonga;Papua New Guinea;62;26;2018 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2018/11/24;Fiji;Samoa;43;12;2018 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/24;England;Ireland;37;15;2018 Autumn Internationals (Quilter Internationals);Twickenham Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/25;Italy;South Africa;35;10;2018 Autumn Internationals;;Prato;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2018/11/27;Scotland;Canada;25;28;2018 Autumn Internationals;Scotstoun Stadium;Glasgow;Scotland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/02/01;Ireland;England;7;51;2019 Women's Six Nations Championship;;;;FALSE;FALSE;1;8;0;4;0;4;0;1;0;1;0;0;;;;;Aimee Barrett-Theron;;Penalty try;"Breach; McKenna; Bern; Davies; Daley-McLean; Harrison; E. Scott; B. Cleall"
 2019/02/01;Scotland;Italy;7;28;2019 Women's Six Nations Championship;;;;FALSE;FALSE;1;4;1;4;1;4;0;0;0;0;0;0;;;;;Nikki O'Donnell;;Bonar;"Arrighetti; Franco; Rigoni; Giordano"
 2019/02/02;France;Wales;52;3;2019 Women's Six Nations Championship;;;;FALSE;FALSE;9;0;2;0;2;0;1;1;1;1;0;0;;;;;Sean Gallagher;;"Thomas (3); N'Diaye; Murie (2); R. Ménager (2); Constanty";
@@ -974,17 +998,26 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2019/08/03;China;Kazakhstan;0;15;2019 Asia Rugby Women's Championship Div 1;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/08/09;Madagascar;Kenya;5;35;2019 Rugby Africa Women's Cup;;;;FALSE;FALSE;1;6;0;1;0;1;0;1;0;1;0;0;;;;;Saudah Adiru;;Veronique Rasoanekena;"Celestine Masinde (2); Irene Otieno; Philadelphia Olando; Diana Ochieng; Christabel Lindo"
 2019/08/09;South Africa;Uganda;89;7;2019 Rugby Africa Women's Cup;;;;FALSE;FALSE;15;1;7;1;7;1;0;0;0;0;0;0;;;;;Precious Pazani;;"Rights Mkhari (3); Sinazo Mcatshulwa (2); Zintle Mpupha (2); Babalwa Latsha; Ayanda Malinga; Yonela Ngxingolo; Eloise Webb (3); Snenhlanhla Shozi (2)";Samiya Ajikoru
+2019/08/10;Australia;New Zealand;10;47;2019 Laurie O'Reilly Cup;Optus Stadium;Perth;Australia;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/08/13;Kenya;Uganda;37;5;2019 Rugby Africa Women's Cup;;;;FALSE;FALSE;6;1;2;0;2;0;1;0;1;0;0;0;;;;;Ashleigh Murray-Pretorius;;"Janet Okello (3); Grace Okulu (2); Sheilla Chajira";Samiya Ajikoru
 2019/08/13;Madagascar;South Africa;0;73;2019 Rugby Africa Women's Cup;;;;FALSE;FALSE;0;13;0;4;0;4;0;0;0;0;0;0;;;;;Saudah Adiru;;;"Eloise Webb; Rights Mkhari (3); Snenhlanhla Shozi (2); Aseza Hele (2); Ayanda Malinga (2); Zintle Mpupha; Aphiwe Ngwevu (2)"
 2019/08/17;Madagascar;Uganda;15;15;2019 Rugby Africa Women's Cup;;;;FALSE;FALSE;2;2;1;1;1;1;1;1;1;1;0;0;;;;;Ashleigh Murray-Pretorius;;"Monica Rasoloniaina; Patricia Ravololonirina";"Juliet Nandawula; Rosenburg Kanyunyuzi"
 2019/08/17;South Africa;Kenya;39;0;2019 Rugby Africa Women's Cup;;;;FALSE;FALSE;7;0;2;0;2;0;0;0;0;0;0;0;;;;;Precious Pazani;;"Zintle Mpupha; Lindelwa Gwala; Tayla Kinsey; Snenhlanhla Shozi; Aseza Hele; Mathrin Simmers; Rights Mkhari";
+2019/08/17;New Zealand;Australia;37;8;2019 Laurie O'Reilly Cup;Eden Park;Auckland;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/09/30;South Africa;Scotland;5;47;2019 Scotland tour of South Africa;City Park;Cape Town;South Africa;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/10/05;South Africa;Scotland;15;38;2019 Scotland tour of South Africa;City Park;Cape Town;South Africa;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/10/12;Finland;Czech Republic;5;5;2019–20 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/11/02;Sweden;Finland;19;7;2019–20 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/11/09;Czech Republic;Switzerland;15;5;2019–20 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/11/09;France;England;10;20;2019 Autumn International;Stade Marcel-Michelin;Clermont-Ferrand;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/11/16;Czech Republic;Sweden;17;5;2019–20 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/11/16;England;France;17;15;2019 Autumn International;Sandy Park;Exeter;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/11/18;Samoa;Papua New Guinea;65;12;2019 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/11/20;United States;Canada;0;19;2019 Can-Am Series;Chula Vista Elite Athlete Training Center;Chula Vista;United States;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/11/22;Samoa;Fiji;7;26;2019 Oceania Rugby Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2019/11/23;Switzerland;Finland;32;0;2019–20 Rugby Europe Women's Trophy;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/11/23;England;Italy;60;3;2019 Autumn International;Goldington Road;Bedford;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2019/11/24;United States;Canada;27;52;2019 Can-Am Series;Chula Vista Elite Athlete Training Center;Chula Vista;United States;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2020/02/02;France;England;13;19;2020 Women's Six Nations Championship;;;;FALSE;FALSE;1;3;1;2;1;3;2;0;2;0;0;0;0;0;0;0;Aimee Barrett-Theron;;Sansus;"Dow; Fleetwood; Scarratt"
 2020/02/02;Ireland;Scotland;18;14;2020 Women's Six Nations Championship;;;;FALSE;FALSE;3;2;0;2;0;2;1;0;1;0;0;0;1;0;0;0;Aurélie Groizeleau;;"Moloney; Naoupu; Parsons";"Thomson; Wassell"
 2020/02/02;Wales;Italy;15;19;2020 Women's Six Nations Championship;;;;FALSE;FALSE;2;3;1;2;2;3;1;0;1;0;0;0;0;0;0;0;Sara Cox;;"H. Jones; K. Jones";"Bettoni; Magatti; Stefan"
@@ -999,6 +1032,8 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2020/10/24;Ireland;Italy;21;7;2020 Women's Six Nations Championship;;;;FALSE;FALSE;3;1;2;1;2;1;0;0;0;0;0;0;0;0;0;0;Hollie Davidson;;"Peat; Molloy; Penalty try";Bettoni
 2020/10/25;Scotland;France;13;13;2020 Women's Six Nations Championship;;;;FALSE;FALSE;1;2;1;0;1;0;2;1;2;1;0;0;0;0;0;0;Sara Cox;;Shankland;"N'Diaye; Sochat"
 2020/11/01;Italy;England;0;54;2020 Women's Six Nations Championship;;;;FALSE;FALSE;0;8;0;7;0;8;0;0;0;0;0;0;0;0;0;0;Aurélie Groizeleau;;;"Kildunne; P. Cleall; Scarratt; Ward; Bern; Breach; Riley; Packer"
+2020/11/14;France;England;10;33;2020 Autumn International;Stade des Alpes;Grenoble;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2020/11/21;England;France;25;23;2020 Autumn International;Twickenham Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/03/20;Spain;Russia;56;7;2020 Rugby Europe Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/03/27;Spain;Netherlands;87;0;2020 Rugby Europe Women's Championship;;;;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/04/03;England;Scotland;52;10;2021 Women's Six Nations Championship;;;;FALSE;FALSE;8;1;5;1;6;1;0;1;0;1;0;0;2;2;0;1;Aurélie Groizeleau;4674;"Packer; Riley; Davies; B. Cleall; Breach; Rowland; P. Cleall; Penalty try";Smith
@@ -1010,18 +1045,30 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2021/04/24;Scotland;Wales;27;20;2021 Women's Six Nations Championship;;;;FALSE;FALSE;4;2;2;2;4;2;1;2;1;3;0;0;0;0;0;0;Clara Munarini;;"Gaffney; Kennedy; Belisle; Gallagher";"Neumann; C. Lewis"
 2021/04/24;Ireland;Italy;25;5;2021 Women's Six Nations Championship;;;;FALSE;FALSE;;;;;;;;;;;;;1;0;0;0;Sara Cox;;;
 2021/04/24;England;France;10;6;2021 Women's Six Nations Championship;;;;FALSE;FALSE;1;0;1;0;1;0;1;2;3;4;0;0;0;0;0;0;Hollie Davidson;;P. Cleall;
+2021/04/30;France;England;15;17;"Test match (abandoned 63rd min, floodlight failure; result stands)";Stadium Lille Metropole;Villeneuve-d'Ascq;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/06/09;Burkina Faso;Cameroon;0;37;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;0;7;0;1;0;1;0;0;0;0;0;0;;;;;Bineta Sene;;;"Etindo Raissa Ngoh; Yondno Gertrude Prombove; Manuella Ngounou; Suzie Mbeya; Léa Eboule; Marie Felice Belle Nana; Marie Paule Nganssa Djomo"
 2021/06/12;Cameroon;Burkina Faso;35;3;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;6;0;1;0;1;0;1;1;1;1;0;0;;;;;Bineta Sene;400;"Ngassa Fandio; Nkouane Teclaire Endalle; Suzie Mbeya; Ntchateu Oriane Tankeu; Etindo Raissa Ngoh; Mimosette Mouto";
 2021/07/03;Kenya;Madagascar;15;27;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;3;4;0;2;0;2;0;1;0;1;0;0;;;;;Noreen Liyosi;;"Dorcas Sinaida; Staycy Atieno; Michelle Akinyi";"Sophie Razafiarisoa; Veronique Rasoanekena (3)"
 2021/07/11;Madagascar;Kenya;10;0;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;2;0;0;0;0;0;0;0;0;0;0;0;;;;;Duncan Kioko;;"Zoanah Fanantenana; Veronique Rasoanekena";
 2021/07/14;Uganda;Zimbabwe;41;0;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;7;0;3;0;3;0;0;0;0;0;0;0;;;;;Beril Akinyi;;"Samiya Ajikoru; Emilly Lekuru (3); Grace Auma; Peace Lekuru; Asha Nakityo";
 2021/07/18;Zimbabwe;Uganda;3;34;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;0;4;0;4;0;4;1;2;1;2;0;0;;;;;Rosenburg Kanyunyuzi;;;"Peace Lekuru (2); Emily Lekuru; Faith Namugga"
+2021/09/13;Italy;Scotland;38;13;2021 Rugby World Cup Europe qualifier;Stadio Sergio Lanfranchi;Parma;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/09/19;Italy;Ireland;15;7;2021 Rugby World Cup Europe qualifier;Stadio Sergio Lanfranchi;Parma;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/09/25;Ireland;Scotland;18;20;2021 Rugby World Cup Europe qualifier;Stadio Sergio Lanfranchi;Parma;Italy;TRUE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/10/09;Tunisia;Senegal;14;3;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;1;0;0;0;0;0;3;1;3;1;0;0;;;;;Beril Akinyi;;Amal Dardouri;
 2021/10/13;Senegal;Ivory Coast;45;5;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;7;1;2;0;2;0;2;0;2;0;0;0;;;;;Aymen Jriji;;"Marieme Coumba Barry; Absa Cherif; Amy Nyafouna; Fatou Diame; Fatoumata Bah; Dieynaba Camara (2)";Andréa Dirabou Kouassi
 2021/10/17;Tunisia;Ivory Coast;61;0;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;10;0;4;0;4;0;1;0;1;0;0;0;;;;;Saudah Adiru;;"Ranim Madouri (5); Rihab Hammouda (2); Hajer Saoudi; Abir Dhaheri; Sana Chaarana";
+2021/10/31;England;New Zealand;43;12;2021 Autumn International;Sandy Park;Exeter;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/11/01;United States;Canada;9;15;2021 Pacific Four Series;;;;FALSE;FALSE;0;2;0;1;0;1;3;1;4;1;0;0;0;0;0;0;Julianne Zussman;;;"Gonzalez; Paquin"
 2021/11/05;United States;Canada;13;26;2021 Pacific Four Series;;;;FALSE;FALSE;1;4;1;3;1;4;2;0;2;0;0;0;0;0;0;1;Kat Roche;;Zackary;"de Goede; Holtkamp; Ellis; Paquin"
+2021/11/06;France;South Africa;46;3;2021 Autumn International;Stade de la Rabine;Vannes;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/11/07;England;New Zealand;56;15;2021 Autumn International;Franklin's Gardens;Northampton;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/11/12;Ireland;United States;20;10;2021 Autumn International;RDS Arena;Dublin;Ireland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2021/11/13;Namibia;Zambia;5;75;2021 Rugby Africa Women's Series;;;;FALSE;FALSE;1;13;0;5;0;5;0;0;0;0;0;0;;;;;Bineta Sene;;Alicia Gertze;"Jane Malisa (2); Natasha Musonda (3); Dorothy Kasonka (2); Lillian Mukosha; Queen Nachinga; Elizabeth Chibomba; Rennie Willma Suzie; Loveness Nambela; Juliet Mw"
+2021/11/13;France;New Zealand;38;13;2021 Autumn International;Stade du Hameau;Pau;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/11/14;England;Canada;51;12;2021 Autumn International;Twickenham Stoop;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/11/20;France;New Zealand;29;7;2021 Autumn International;Stade Pierre-Fabre;Castres;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2021/11/21;England;United States;89;0;2021 Autumn International;Sixways Stadium;Worcester;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2022/02/19;Netherlands;Spain;0;69;2022 Rugby Europe Women's Championship;;;;FALSE;FALSE;0;11;0;7;0;11;0;0;0;0;0;0;;;;;Doriane DOMENJO;300;;"Clara PIQUERO (2); Patricia GARCIA; Elisabet SEGARRA; Lea DUCHER; Anna PUIG (2); Zahia PEREZ; Julia CASTRO; Monica CASTELO; Olivia FRESNEDA"
 2022/02/26;Spain;Russia;27;0;2022 Rugby Europe Women's Championship;;;;FALSE;FALSE;4;0;2;0;4;0;1;0;1;0;0;0;;;;;Kathie RITCHIE;1250;"Lea DUCHER; Patricia GARCIA; Anna PUIG; Zahia PEREZ";
 2022/03/26;Scotland;England;5;57;2022 Women's Six Nations Championship;;;;FALSE;FALSE;1;9;0;6;0;9;0;0;0;0;0;0;0;0;0;0;Joy Neville;3988;Rollie;"M. Packer (3); P. Cleall; Cowell; Dow; Infante; Aitchison; Powell"
@@ -1054,6 +1101,13 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2022/07/13;Fiji;Tonga;34;7;2022 Oceania Rugby Women's Championship;;;;FALSE;FALSE;6;1;2;1;2;1;0;0;0;0;0;0;;;;;Larissa Woolerton;;"Naikore (3); Arei; Delaiwau; Tawake";Hufanga
 2022/07/18;Tonga;Papua New Guinea;108;7;2022 Oceania Rugby Women's Championship;;;;FALSE;FALSE;18;1;9;1;9;1;0;0;0;0;0;0;;;;;Avi'i Fa'alupega;;"Hufanga (4); ‘Akau’ola (3); Ma’ake (2); Mahoni (2); Manumu’a (2); Faukafa; Hifo; Hopoi; Pita; Tova";Paloa
 2022/07/18;Fiji;Samoa;31;24;2022 Oceania Rugby Women's Championship;;;;FALSE;FALSE;5;2;3;1;3;1;0;4;0;4;0;0;;;;;Larissa Woolerton;;"Delaiwau; Laqeretabua; Mirini; Ravato; Vonosere";"Curry; Fiafia"
+2022/07/24;Canada;Italy;34;24;2021 Rugby World Cup warm-up;Starlight Stadium;Langford;Canada;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2022/08/20;New Zealand;Australia;52;5;2022 Laurie O'Reilly Cup;Orangetheory Stadium;Christchurch;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2022/08/27;Australia;New Zealand;14;22;2022 Laurie O'Reilly Cup;Adelaide Oval;Adelaide;Australia;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2022/08/27;Scotland;United States;17;21;2021 Rugby World Cup warm-up;DAM Health Stadium;Edinburgh;Scotland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2022/09/03;England;United States;52;14;2021 Rugby World Cup warm-up;Sandy Park;Exeter;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2022/09/03;France;Italy;21;0;2021 Rugby World Cup warm-up;Stade des Arboras;Nice;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2022/09/09;Italy;France;26;19;2021 Rugby World Cup warm-up;Stadio Lamarmora-Pozzo (Stadio del Rugby);Biella;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2022/10/08;Australia;New Zealand;17;41;2021 Women's Rugby World Cup;;;;FALSE;TRUE;3;7;1;3;3;5;0;0;0;0;0;0;2;0;0;0;Aimee Barrett-Theron;34235;"Terita (2); Wong";"Ngan-Woo; Woodman (3); Tangen-Wainohu; Tui (2)"
 2022/10/08;South Africa;France;5;40;2021 Women's Rugby World Cup;;;;FALSE;TRUE;1;6;0;5;0;6;0;0;0;0;0;0;1;0;0;0;Maggie Cogger-Orr;34235;Mabenge;"Sansus (2); Vernier; Boulard; Drouin; Grisez"
 2022/10/08;Fiji;England;19;84;2021 Women's Rugby World Cup;;;;FALSE;TRUE;3;14;2;7;3;14;0;0;0;0;0;0;1;0;0;0;Aurélie Groizeleau;34235;"Nakoci; Donu; Cavuru";"MacDonald (4); Cokayne (2); Ward; Rowland; Aldcroft; Thompson (2); Dow; Infante; Powell"
@@ -1104,6 +1158,7 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2023/03/18;Czech Republic;Finland;0;3;2022–23 Rugby Europe Women's Trophy;;;;FALSE;FALSE;0;0;0;0;0;0;0;1;0;1;0;0;;;;;Nino Eloshvili;350;;
 2023/03/25;Wales;Ireland;31;5;2023 Women's Six Nations Championship;;;;FALSE;FALSE;5;1;3;0;5;0;0;0;0;0;0;0;0;0;0;0;Amber McLachlan;4962;"Callender; Bevan; Harries; H. Jones; Tuipulotu";Fryday
 2023/03/25;England;Scotland;58;7;2023 Women's Six Nations Championship;;;;FALSE;FALSE;10;1;4;1;10;1;0;0;0;0;0;0;0;0;0;0;Aimee Barrett-Theron;10053;"MacDonald (2); Cokayne (2); Heard; P. Cleall; Kabeya; M. Packer (3)";Rollie
+2023/03/25;South Africa;Canada;7;66;International (Madrid four-team series);Estadio Nacional Complutense;Madrid;Spain;TRUE;FALSE;;;;;;;;;;;;;;;;;;;;
 2023/03/26;Italy;France;12;22;2023 Women's Six Nations Championship;;;;FALSE;FALSE;2;3;1;2;2;3;0;1;0;2;0;0;0;0;0;0;Maggie Cogger-Orr;1982;"Franco; D'Incà";"Vernier; Arbez; Boujard"
 2023/04/01;Ireland;France;3;53;2023 Women's Six Nations Championship;;;;FALSE;FALSE;0;9;0;4;0;7;1;0;1;0;0;0;0;0;0;1;Hollie Davidson;5214;;"Forlani; Boujard; Bourdon (2); Vernier (2); Sochat; Banet; Escudero"
 2023/04/01;Scotland;Wales;22;34;2023 Women's Six Nations Championship;;;;FALSE;FALSE;3;5;2;3;3;5;1;1;1;1;0;0;0;0;0;0;Maggie Cogger-Orr;3031;"Skeldon; Grant; Rollie";"Tuipulotu (2); Pyrs (2); F. Lewis"
@@ -1140,6 +1195,9 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2023/07/14;New Zealand;United States;39;17;2023 Pacific Four Series;;;;FALSE;FALSE;6;2;3;2;6;2;1;1;1;1;0;0;0;0;1;0;Julianne Zussman;1000;"Gago; Marino-Tauhinu; Love; Mikaele-Tu'u; Demant; du Plessis";"Tafuna; Johnson"
 2023/07/14;Canada;Australia;45;7;2023 Pacific Four Series;;;;FALSE;FALSE;7;1;5;1;7;1;0;0;0;0;0;0;0;0;0;0;Sara Cox;;"de Goede (2); Lachance; Beukeboom (3); Gallagher";Marsters
 2023/07/22;Italy;Spain;23;0;2023 WXV;;;;FALSE;FALSE;4;0;0;0;0;0;1;0;1;0;0;0;;;;;Aimee Barrett-Theron;1035;"Giordano; D'Incà; Vecchini; Granzotto";
+2023/09/23;England;Canada;50;24;Test match;Sandy Park;Exeter;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2023/09/30;England;Canada;29;12;Test match;StoneX Stadium (Barnet Copthall);London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2023/09/30;New Zealand;Australia;43;3;2023 Laurie O'Reilly Cup;Waikato Stadium;Hamilton;New Zealand;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2023/10/13;Italy;Japan;28;15;2023 WXV;;;;FALSE;FALSE;4;3;4;0;4;0;0;0;0;0;0;0;0;0;0;0;Kat Roche;;"Rigoni; Muzzo (2); Granzotto";"Matsumura (2); Nduka"
 2023/10/13;Scotland;South Africa;31;17;2023 WXV;;;;FALSE;FALSE;5;2;3;2;4;2;0;1;0;1;0;0;0;0;0;0;Natarsha Ganley;;"Gallagher; Skeldon (2); Bartlett; Thomson";"Hele; Botes"
 2023/10/13;Fiji;Colombia;67;13;2023 WXV;;;;FALSE;FALSE;11;1;6;1;11;1;0;2;0;2;0;0;0;0;0;0;Amelia Luciano;;"Nakesa; Waisega (2); Arei (2); Korovata; Tisolo; Naisewa; Milinia; Neivosa; Cumu";Lopera
@@ -1177,6 +1235,7 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2024/03/30;Spain;Portugal;24;0;2024 Rugby Europe Women's Championship;;;;FALSE;FALSE;4;0;2;0;4;0;0;0;0;0;0;0;;;;;Jennifer Ann Davies;450;"Blanco Herrera; Peña Hidalgo; Del Castillo; Diaz";
 2024/03/30;Scotland;France;5;15;2024 Women's Six Nations Championship;;;;FALSE;FALSE;1;2;0;1;0;2;0;1;0;1;0;0;0;0;0;0;Sara Cox;5000;Martin;"Arbey; Gros"
 2024/03/30;England;Wales;46;10;2024 Women's Six Nations Championship;;;;FALSE;FALSE;8;1;3;1;8;1;0;1;0;1;0;0;0;0;0;0;Kat Roche;19705;"Muir; Aldcroft; Botterman; Atkin-Davies; Kildunne (2); Dow; Galligan";Bevan
+2024/03/30;South Africa;United States;17;38;Test match;Trailfinders Sports Ground;London;England;TRUE;FALSE;;;;;;;;;;;;;;;;;;;;
 2024/03/31;Ireland;Italy;21;27;2024 Women's Six Nations Championship;;;;FALSE;FALSE;3;4;2;2;2;4;0;1;0;1;0;0;0;1;0;0;Hollie Davidson;6605;"Penalty try; Jones; Corrigan";"Vecchini (2); Fedrighi; Muzzo"
 2024/04/06;Netherlands;Spain;5;22;2024 Rugby Europe Women's Championship;;;;FALSE;FALSE;1;3;0;2;0;3;0;1;0;1;0;0;;;;;Melissa Leboeuf;600;Karst;"Pineiro; Piquero; Peña Hidalgo"
 2024/04/13;Sweden;Spain;0;53;2024 Rugby Europe Women's Championship;;;;FALSE;FALSE;0;9;0;4;0;4;0;0;0;0;0;0;;;;;Doriane Domenjo;300;;"Piquero (4); Pérez; Cisa; Capell; Gorrochategui; Blanco"
@@ -1210,6 +1269,10 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2024/06/02;Samoa;Fiji;13;27;2024 Oceania Rugby Women's Championship;;;;FALSE;FALSE;2;3;0;3;0;3;1;2;1;2;0;0;;;;;Jessica Ling;;"Linda Fiafia; Tyra Boysen Auimatagi";"Doreen Narokete; Jennifer Ravutia; Evivi Senikarivi"
 2024/06/29;Wales;Spain;52;20;2024 WXV;;;;FALSE;FALSE;8;3;6;1;6;1;0;1;0;1;0;0;;;;;Aurélie Groizeleau;2436;"Lewis; Fleming; Joyce-Butchers; Cox (3); Evans; Hesketh";"Antolínez; Peña; Pérez"
 2024/06/29;Colombia;Brazil;13;34;2025 Women's Rugby World Cup qualifying;;;;FALSE;FALSE;2;6;0;2;0;2;1;0;1;0;0;0;;;;;Federico Solari;;"Juliana Soto; Laura Gutierrez";"Íris Coluna; Isadora Lopes; Eshyllen Coimbra; Aline Mayumi; Yasmim Soares; Mariana Nicolau"
+2024/07/14;Australia;New Zealand;0;62;2024 Laurie O'Reilly Cup;Ballymore Stadium;Brisbane;Australia;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2024/09/07;England;France;38;19;Test match (WXV warm-up);Kingsholm Stadium;Gloucester;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2024/09/14;England;New Zealand;24;12;Test match;Twickenham Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2024/09/14;Ireland;Australia;36;10;Test match (IRFU 150th celebration);Kingspan Stadium;Belfast;Northern Ireland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
 2024/09/22;Romania;Bulgaria;66;12;2024–25 Rugby Europe Women's Conference;;;;FALSE;FALSE;12;2;3;1;3;1;0;0;0;0;0;0;;;;;Laura Wunsch;;"Raluca Ștefania Săvădan (3); Simona Roșca; Renata Gabriela Prisecaru (2); Carina-Elena Dascălu (3); Ana-Maria Hîrtan; Olivia-Rose Gontineac; Bianca Alexandra Pr";"Veronika Tasleva; Zhivka Ivanova"
 2024/09/27;South Africa;Japan;31;24;2024 WXV;;;;FALSE;FALSE;5;4;3;2;5;4;0;0;0;0;0;0;;;;;Maria Latos;;"Hele; Qawe; Charlie; Malinga; Ubisi";"Taniguchi; Otsuka; Saito (2)"
 2024/09/27;Spain;Madagascar;83;0;2024 WXV;;;;FALSE;FALSE;13;0;9;0;13;0;0;0;0;0;0;0;;;;;Mélissa Leboeuf;;"Piquero (3); Cisa (2); Blanco; Pérez; Argudo; Castellucci; Peña; Fernández de Corres; Román Mallén; Calvo";
@@ -1401,6 +1464,7 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/09/12;Scotland;Canada;26;64;2026 WXV Global Series;;;;FALSE;FALSE;4;10;3;7;4;10;0;0;0;0;0;0;0;1;0;1;Holly Wood, England;2721;"E. Gallagher; Campbell; Skeldon; Lloyd";"Gibson (2); Apps (2); Kassil; Omokhuale; Perry; Pelletier; Senft; Bauder"
 2026/09/13;Spain;Fiji;32;38;2026 WXV Global Series Challenger;;;;FALSE;FALSE;4;6;3;4;4;6;2;0;2;0;0;0;;;;;Amber Stamp-Dunstan, Wales;;"V. Pérez (2); Cano; Argudo";"Ralivanawa; Neihamu; Fisher; Rokowati; Nailolo; Tove"
 2026/09/13;Netherlands;Samoa;70;0;2026 WXV Global Series Challenger;;;;FALSE;FALSE;12;0;5;0;12;0;0;0;0;0;0;0;;;;;Precious Pazani, Zimbabwe;;"van der Schoot (2); Mulling (4); van der Velden (2); Prins; Stallmann; Luijken; Boot";
+2026/09/13;Hong Kong;Brazil;29;24;2026 WXV Global Series Challenger;Kai Tak Youth Sports Ground;Hong Kong;Hong Kong;FALSE;FALSE;5;4;1;1;4;4;0;0;0;0;0;0;;;;;Hibiki Ikeda, Japan;2900;"Dhar (2); Lee (2); Penalty try";"Penalty try; Carvalho; Costa; Dos Santos"
 2026/09/18;Wales;South Africa;50;19;2026 WXV Global Series;;;;FALSE;FALSE;8;3;5;2;8;3;0;0;0;0;0;0;0;1;0;1;Ella Goldsmith Australia;;"Keight; Tuipulotu (2); Lockwood; Davies; K. Jones; Neumann; Callender";"Jacobs; Tshiremba; Samboya"
 2026/09/19;Samoa;Spain;21;59;2026 WXV Global Series Challenger;;;;FALSE;FALSE;3;9;3;7;3;9;0;0;0;0;0;0;3;0;0;0;Emma Gallagher, Canada;;"Savelio (2); Falaniko";"C. Pérez; V. Pérez (2); Fernández de Corres; Capell; Martínez; Cortés; Argudo; Gil"
 2026/09/19;Brazil;Netherlands;15;17;2026 WXV Global Series Challenger;;;;FALSE;FALSE;2;3;1;1;2;3;1;0;1;0;0;0;1;1;0;0;Sunny Lee, Hong Kong;;"Kochhann; Barth";"Mulling; Jongerius; Muggleton"
@@ -1408,6 +1472,7 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/09/19;England;Canada;26;26;2026 WXV Global Series;;;;FALSE;FALSE;4;4;3;3;4;4;0;0;0;0;0;0;0;0;0;0;Clara Munarini, Italy;14573;"Moloney-MacDonald (2); Botterman; Field";"Gibson; Menin (2); Apps"
 2026/09/19;Scotland;New Zealand;14;66;2026 WXV Global Series;;;;FALSE;FALSE;2;10;2;8;2;10;0;0;0;0;0;0;0;0;0;0;Jess Ling, Australia;4194;Gallagher (2);"Palu; Vaipulu; McGregor; E. King; Sae (2); du Plessis; Sititi; Turner; Saili"
 2026/09/19;Italy;Japan;55;21;2026 WXV Global Series;;;;FALSE;FALSE;9;3;5;3;8;3;0;0;0;0;0;0;1;1;0;0;Zoe Naude, South Africa;;"Muzzo (2); Frangipani; D'Incà; Vecchini; Duca; Ostuni Minuzzi; Sgorbini; Tonellotto";"Asari; Kuge; Kawamura"
+2026/09/19;Fiji;Hong Kong;54;26;2026 WXV Global Series Challenger;Kai Tak Youth Sports Ground;Hong Kong;Hong Kong;TRUE;FALSE;8;4;7;3;9;4;0;0;0;0;0;0;;;;;Giana Viljoen, South Africa;2700;"Nailolo; Qoro (2); Ralivanawa (2); Neivosa; Sorokacika; Duva";"Dhar; Lynam; Knowler; Bolton"
 2026/09/20;Ireland;United States;36;40;2026 WXV Global Series;;;;FALSE;FALSE;6;6;3;5;6;6;0;0;0;0;0;0;1;0;0;0;Maggie Cogger-Orr, New Zealand;3755;"Elmes Kinlan; Moloney-MacDonald; Wafer; Higgins; King; Wall";"Perris-Redding; Rogers; Treder (2); Taufo'ou; Tafuna"
 2026/09/26;Fiji;Netherlands;20;17;2026 WXV Global Series Challenger;;;;FALSE;FALSE;3;3;1;1;3;3;1;0;1;0;0;0;1;0;0;0;Emma Gallagher, Canada;2900;"Neivosa; Rokowati; Naliva";"Boot; van der Velden; Kievit"
 2026/09/26;France;Canada;21;5;2026 WXV Global Series;;;;FALSE;FALSE;3;1;3;0;3;0;0;0;0;0;0;0;0;0;0;0;Maggie Cogger-Orr, New Zealand;15000;"Boulard (2); Chambon";Gibson
@@ -1415,11 +1480,9 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/09/26;Scotland;Australia;10;30;2026 WXV Global Series;;;;FALSE;FALSE;1;4;1;2;1;4;1;2;1;2;0;0;0;0;0;0;Aurélie Groizeleau, France;3191;Gallagher;"Miller; Wood; Hoy; Moleka"
 2026/09/26;Wales;United States;24;26;2026 WXV Global Series;;;;FALSE;FALSE;4;4;2;3;4;4;0;0;0;0;0;0;0;0;0;0;Amber McLachlan, Australia;3367;"Bevan; Jones; Tuipulotu; Callender";"Tafuna (3); Coulibaly"
 2026/09/26;Italy;South Africa;29;41;2026 WXV Global Series;;;;FALSE;FALSE;4;6;3;4;4;6;1;1;1;1;0;0;0;1;0;0;Holly Wood, England;;"D'Incà (2); Vecchini; Ostuni Minuzzi";"Groenewald (2); Dolf; Tshiremba; Günter; Welman"
+2026/09/26;Hong Kong;Samoa;17;34;2026 WXV Global Series Challenger;Kai Tak Youth Sports Ground;Hong Kong;Hong Kong;FALSE;FALSE;3;5;1;3;3;5;0;1;0;1;0;0;;;;;Giana Viljoen, South Africa;;"Dhar (2); Chow";"Aumua; Auimatagi; Fiafia; Afuie; Lasini"
 2026/09/27;Ireland;Japan;31;24;2026 WXV Global Series;;;;FALSE;FALSE;5;4;3;2;5;4;0;0;0;0;0;0;1;0;0;0;Ella Goldsmith Australia;3000;"Hogan (2); Parsons (2); Dalton";"Nagaoka (2); Nagata; Asari"
 2026/10/04;Spain;South Africa;0;20;2026 WXV Global Series;Seville;Seville;;FALSE;FALSE;0;3;0;1;0;3;0;1;0;1;0;0;1;0;0;0;Bérénice Loubet, France;2000;;"Jacobs; Hele; Cilliers"
-2026/09/13;Hong Kong;Brazil;29;24;2026 WXV Global Series Challenger;Kai Tak Youth Sports Ground;Hong Kong;Hong Kong;FALSE;FALSE;5;4;1;1;4;4;0;0;0;0;0;0;;;;;Hibiki Ikeda, Japan;2900;"Dhar (2); Lee (2); Penalty try";"Penalty try; Carvalho; Costa; Dos Santos"
-2026/09/19;Fiji;Hong Kong;54;26;2026 WXV Global Series Challenger;Kai Tak Youth Sports Ground;Hong Kong;Hong Kong;TRUE;FALSE;8;4;7;3;9;4;0;0;0;0;0;0;;;;;Giana Viljoen, South Africa;2700;"Nailolo; Qoro (2); Ralivanawa (2); Neivosa; Sorokacika; Duva";"Dhar; Lynam; Knowler; Bolton"
-2026/09/26;Hong Kong;Samoa;17;34;2026 WXV Global Series Challenger;Kai Tak Youth Sports Ground;Hong Kong;Hong Kong;FALSE;FALSE;3;5;1;3;3;5;0;1;0;1;0;0;;;;;Giana Viljoen, South Africa;;"Dhar (2); Chow";"Aumua; Auimatagi; Fiafia; Afuie; Lasini"
 2026/10/16;Canada;England;24;21;2026 WXV Global Series;BMO Field;Toronto;Canada;FALSE;FALSE;4;3;2;3;4;3;0;0;0;0;0;0;1;1;0;0;Aurélie Groizeleau, France;18621;"Bauder; Corrigan; Menin; Seumanutafa";"Feaunati; Harrison; Bern"
 2026/10/17;Australia;Scotland;56;12;2026 WXV Global Series;Stadium Australia;Sydney;Australia;FALSE;FALSE;8;2;8;1;8;2;0;0;0;0;0;0;0;2;0;0;Maggie Cogger-Orr, New Zealand;;"Merlo; Stewart; Miller (2); Whitaker (2); Ellis; Karpani";"Buchanan; Malcolm"
 2026/10/17;New Zealand;France;81;12;2026 WXV Global Series;Waikato Stadium;Hamilton;New Zealand;FALSE;FALSE;13;2;8;1;13;2;0;0;0;0;0;0;0;0;0;0;Ella Goldsmith, Australia;;"Maia Joseph (2); Leti-I'iga (2); du Plessis (2); Olsen-Baker; Ponsonby; Tuliau-Tua'a (4); Demant";"Murie; Bazola-Allières"
