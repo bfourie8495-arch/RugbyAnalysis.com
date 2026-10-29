@@ -23,6 +23,7 @@ minute or two. Nobody needs to touch anything.
 | Yellow and red cards for the Wikipedia competitions | Wikipedia (team sheets or the match box's "Cards" line) |
 | Sevens: each leg's winner, runner-up and final score, and series standings | Wikipedia |
 | Current squads and official caps (Mondays) | Wikipedia |
+| App analysis feed: style of play, pack weights, key players, typical size by shirt number | Built from the ESPN stats, line-ups and player profiles above |
 
 Records, win rates, head-to-heads, trophy holders, form guides, leaderboards and
 league tables are all recalculated from the data on every run.
@@ -51,12 +52,35 @@ pipeline/update.py     downloads new data into the files in pipeline/
 pipeline/wiki_feed.py  reads results and fixtures from Wikipedia pages
 pipeline/build_all.py  rebuilds site/ from those files
 pipeline/*.csv, *.json the data
+pipeline/build_analysis.py  builds site/app/analysis.json for the app (see below)
 pipeline/matchday.js   the Match Centre landing page and head-to-head page
                (+ matchday.css), slotted into template.html by build.py
 .github/workflows/update.yml  the daily schedule
 .github/workflows/deploy.yml  publishes site/ to Cloudflare after every change
 wrangler.jsonc         tells Cloudflare to serve the site/ folder
 ```
+
+## The app's analysis feed
+
+`pipeline/build_analysis.py` runs at the end of every rebuild and writes
+`site/app/analysis.json`, served at https://rugbyanalysis.com/app/analysis.json.
+For each nation with enough data it holds:
+
+- **Style of play:** 14 per-game numbers (possession, territory, kicks, passes,
+  carries, metres, tackles, set piece and more), each ranked against the top-ranked
+  teams, plus a plain-English style label and tags.
+- **Pack:** the last starting eight with weights, the bench split, the average
+  pack over the period and its rank, and a yearly trend.
+- **Key players:** top try scorer, metres, tackles, points, defenders beaten,
+  lineouts and the most capped player.
+- **Typical size** for each shirt number, and a kicks-against-passes style map.
+
+Men's numbers cover Tests since 1 January two years back; women's cover the most
+recent year with full ESPN team stats (the 2025 World Cup for now). Both move on by
+themselves. Top-tier teams use ESPN team totals; other nations use their players'
+stats added up. Clubs aren't covered yet. If the step fails, the previous file is
+kept and the run shows a yellow warning. `site/_headers` lets a web version of the
+app read the feed from another domain.
 
 ## Running it yourself
 

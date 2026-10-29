@@ -1,0 +1,4 @@
+# Lets the RugbyAnalysis app (including a web version on another domain) read the app feeds.
+/app/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=1800
