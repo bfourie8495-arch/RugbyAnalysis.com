@@ -103,7 +103,15 @@ https://rugbyanalysis.com/app/tournaments.json. It holds:
 - **The next World Cup:** the 2027 pools, all 52 matches with kick-offs converted from
   local time at each ground to UTC, the knockout path, and pool tables that fill in
   from results once it starts. The draw and schedule are typed in at the top of the
-  script from World Rugby's published schedule. The women's 2029 entry lists the
+  script from World Rugby's published schedule.
+- **World Cup predictions:** the tournament is played 20,000 times with the same model
+  behind every pick on the site (World Rugby ranking points, +3 for Australia at
+  home). Scores are drawn from how Tests between ranked teams have gone since 2023,
+  to settle bonus points and points difference. For each team that gives its chance
+  of reaching each round and winning, and a scenario for each pool finish: who it
+  most likely meets in each round, and its chance of winning each of those games.
+  Played matches replace the simulation as results come in, and a fixed seed keeps
+  the file the same until the rankings or results change. The women's 2029 entry lists the
   teams already qualified.
 
 To add a tournament, add an entry to `TOURNAMENTS` at the top of the script.
