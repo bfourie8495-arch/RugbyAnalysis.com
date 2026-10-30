@@ -8,7 +8,7 @@ Runs from build_all.py after update.py. Each tournament picks its latest edition
 the World Cup draw and schedule below are typed in from World Rugby's published schedule (kick-offs are local
 to each venue and converted here). If anything goes wrong, the previous file is kept and the run shows a
 yellow warning instead of stopping the rest of the site build."""
-import json, os, re, datetime, collections
+import json, os, re, datetime, collections, random, statistics
 from zoneinfo import ZoneInfo
 import pandas as pd
 
@@ -235,6 +235,153 @@ def build_rwc(RES, ranks):
             'venues': sorted({(v, CITY[v]) for v in TZ}, key=lambda x: (x[1], x[0]))}
 
 
+# ---------------------------------------------------------------- World Cup scenarios
+# The model's win chance is the same one the app shows for every fixture (World Rugby ranking points, +3 at home;
+# here only Australia is at home). Scores are then drawn to settle bonus points and points difference, calibrated
+# on Tests between ranked teams since 2023: margin about 25.8 x z(p) with a spread of 16.5 points, total points
+# 45.5 + 0.45 x margin with a spread of 13, and the chance of 4+ tries rising through 50% at about 28 points.
+SIMS, SEED = 20000, 2027
+THIRD_SLOTS = [('R16 2', 'CEF'), ('R16 4', 'DEF'), ('R16 5', 'AEF'), ('R16 6', 'BEF')]
+BRACKET = {'QF 1': ('R16 2', 'R16 4'), 'QF 2': ('R16 1', 'R16 3'), 'QF 3': ('R16 5', 'R16 6'), 'QF 4': ('R16 7', 'R16 8'),
+           'SF 1': ('QF 1', 'QF 2'), 'SF 2': ('QF 3', 'QF 4'), 'Final': ('SF 1', 'SF 2')}
+STAGES = [('R16', 'Round of 16'), ('QF', 'Quarter-final'), ('SF', 'Semi-final'), ('Final', 'Final')]
+
+
+def win_p(a, b, pts):
+    adv = 3 if a == RWC['host'] else -3 if b == RWC['host'] else 0
+    return 1 / (1 + 10 ** (-(pts.get(a, 50) + adv - pts.get(b, 50)) / 10 * 0.6))
+
+
+def third_slots(pools):
+    """Give the four best third-placed pools a round-of-16 slot each, keeping to the pools each slot allows.
+    Where more than one fit is possible, the first in alphabetical order is used."""
+    pools = sorted(pools)
+
+    def fit(i, left):
+        if i == len(THIRD_SLOTS): return {}
+        for p in left:
+            if p in THIRD_SLOTS[i][1]:
+                rest = fit(i + 1, [x for x in left if x != p])
+                if rest is not None: return dict(rest, **{THIRD_SLOTS[i][0]: p})
+        return None
+    return fit(0, pools) or {s[0]: p for s, p in zip(THIRD_SLOTS, pools)}
+
+
+def simulate_rwc(rwc, pts, ranks, known, known_ko):
+    rng = random.Random(SEED)
+    N = statistics.NormalDist()
+    pools = {p['p']: [r['t'] for r in p['rows']] for p in rwc['pools']}
+    team_pool = {t: p for p, ts in pools.items() for t in ts}
+    fixtures = [(m['h'], m['a'], team_pool[m['h']]) for m in rwc['matches']]
+    ko = {k['id']: k for k in rwc['knockouts']}
+
+    def score(a, b):
+        r = known.get((a, b))
+        if r: return r
+        p = win_p(a, b, pts)
+        a_wins = rng.random() < p
+        mu = 25.8 * N.inv_cdf(min(max(p, 0.005), 0.995))
+        while True:  # a margin on the right side of the result the model picked
+            m = rng.gauss(mu, 16.5)
+            if (m >= 1) if a_wins else (m <= -1): break
+        m = round(m)
+        tot = max(abs(m), 45.5 + 0.45 * abs(m) + rng.gauss(0, 13))
+        hi = round((tot + abs(m)) / 2); lo = hi - abs(m)
+        sa, sb = (hi, lo) if m > 0 else (lo, hi)
+        tri = lambda s: max(0, round(s / 6.8 + rng.gauss(0, 0.6)))
+        return sa, sb, tri(sa), tri(sb)
+
+    def pick(a, b):  # knockouts: the model's win chance decides it (extra time and kicks included)
+        r = known_ko.get((a, b))
+        if r: return a if r[0] > r[1] else b
+        return a if rng.random() < win_p(a, b, pts) else b
+
+    count = {t: collections.Counter() for t in team_pool}
+    scen = {t: collections.defaultdict(lambda: {'n': 0, 'slot': collections.Counter(), 'stage': {s: collections.Counter() for s, _ in STAGES},
+                                                'won': collections.Counter(), 'title': 0}) for t in team_pool}
+    champs = collections.Counter()
+    for _ in range(SIMS):
+        T = {t: [0, 0, 0, 0] for t in team_pool}  # points, points difference, points for, tries
+        h2h = {}
+        for a, b, _p in fixtures:
+            sa, sb, ta, tb = score(a, b)
+            for me, op, ms, os_, mt in ((a, b, sa, sb, ta), (b, a, sb, sa, tb)):
+                x = T[me]
+                x[0] += 4 if ms > os_ else 2 if ms == os_ else (1 if os_ - ms <= 7 else 0)
+                x[0] += 1 if mt >= 4 else 0
+                x[1] += ms - os_; x[2] += ms; x[3] += mt
+            h2h[(a, b)] = sa - sb; h2h[(b, a)] = sb - sa
+        place, thirds = {}, []
+        for p, ts in pools.items():
+            order = sorted(ts, key=lambda t: (-T[t][0], -T[t][1], -T[t][2], -T[t][3], ranks.get(t, 99)))
+            for i in range(3):  # two teams level on points: the one who won their match goes first
+                a, b = order[i], order[i + 1]
+                if T[a][0] == T[b][0] and h2h.get((b, a), 0) > 0 and (i + 2 > 3 or T[order[i + 2]][0] != T[a][0]) and (i == 0 or T[order[i - 1]][0] != T[a][0]):
+                    order[i], order[i + 1] = b, a
+            place[p] = order
+            thirds.append(order[2])
+        best = sorted(thirds, key=lambda t: (-T[t][0], -T[t][1], -T[t][2], -T[t][3], ranks.get(t, 99)))[:4]
+        slots = third_slots([team_pool[t] for t in best])
+        third_in = {s: place[p][2] for s, p in slots.items()}
+        seat = {}
+
+        def who(lbl, k):
+            if lbl.startswith('Winner Pool '): return place[lbl[-1]][0]
+            if lbl.startswith('2nd Pool '): return place[lbl[-1]][1]
+            if lbl.startswith('3rd Pool '): return third_in[k]
+            return seat[lbl.replace('Winner ', '')]
+        path = collections.defaultdict(dict)  # team -> stage -> (match id, opponent, won)
+        for k in ['R16 %d' % i for i in range(1, 9)] + ['QF 1', 'QF 2', 'QF 3', 'QF 4', 'SF 1', 'SF 2', 'Final']:
+            a, b = (who(ko[k]['h'], k), who(ko[k]['a'], k)) if k.startswith('R16') else (seat[BRACKET[k][0]], seat[BRACKET[k][1]])
+            w = pick(a, b)
+            seat[k] = w
+            stage = 'R16' if k.startswith('R16') else k.split(' ')[0] if k != 'Final' else 'Final'
+            path[a][stage] = (k, b, w == a); path[b][stage] = (k, a, w == b)
+        champs[seat['Final']] += 1
+        for p, order in place.items():
+            for i, t in enumerate(order):
+                key = str(i + 1) if i < 2 else ('3' if t in best else 'out')
+                count[t][key] += 1
+                sc = scen[t][key]; sc['n'] += 1
+                if t == seat['Final']: sc['title'] += 1
+                for st_, _lbl in STAGES:
+                    if st_ in path[t]:
+                        mid, opp, won = path[t][st_]
+                        if st_ == 'R16': sc['slot'][mid] += 1
+                        sc['stage'][st_][opp] += 1
+                        sc['won'][st_] += won
+        for t in team_pool:
+            for st_, _ in STAGES:
+                if st_ in path[t]: count[t]['reach_' + st_] += 1
+            if seat['Final'] == t: count[t]['win'] += 1
+
+    pct = lambda n, d: round(100 * n / d, 1) if d else 0
+    LBL = {'1': 'Top Pool %s', '2': 'Second in Pool %s', '3': 'Third in Pool %s, as one of the best four thirds', 'out': 'Out in Pool %s'}
+    out = {}
+    for t, c in count.items():
+        p = team_pool[t]
+        sc_out = []
+        for key in ('1', '2', '3', 'out'):
+            sc = scen[t][key]
+            if not sc['n'] or pct(sc['n'], SIMS) < 1: continue
+            e = {'k': key, 'lbl': LBL[key] % p, 'p': pct(sc['n'], SIMS), 'title': pct(sc['title'], sc['n'])}
+            if key != 'out':
+                slot = sc['slot'].most_common(1)[0][0]
+                e['slot'] = {'id': slot, 'ko': ko[slot]['ko'], 'city': ko[slot]['city'], 'v': ko[slot]['v'], 'share': pct(sc['slot'][slot], sc['n'])}
+                e['stages'] = []
+                for st_, lbl in STAGES:
+                    reach = sum(sc['stage'][st_].values())
+                    if not reach: break
+                    e['stages'].append({'s': st_, 'lbl': lbl, 'reach': pct(reach, sc['n']), 'win': pct(sc['won'][st_], reach),
+                                        'opps': [[o, pct(n, reach)] for o, n in sc['stage'][st_].most_common(3)]})
+            sc_out.append(e)
+        out[t] = {'pool': p, 'finish': {k: pct(c[k], SIMS) for k in ('1', '2', '3', 'out')},
+                  'reach': {s: pct(c['reach_' + s], SIMS) for s, _ in STAGES}, 'win': pct(c['win'], SIMS), 'scen': sc_out}
+    fav = [[t, pct(n, SIMS)] for t, n in champs.most_common()]
+    return {'n': SIMS, 'teams': out, 'title': fav, 'ranksAsOf': TODAY,
+            'about': 'We play the whole World Cup %s times using the model behind every pick in the app: each team’s chance of winning a match comes from its World Rugby ranking points, with Australia at home. Scores are drawn from how Tests between ranked teams have gone since 2023, to settle bonus points and points difference. Results replace the simulation as they come in.' % '{:,}'.format(SIMS)}
+
+
 def main():
     RES = pd.concat([load('RugbyResults_AllNations_Detailed.csv', 'm'), load('WomensRugbyResults_Detailed.csv', 'w')])
     RES = RES[RES.home_score.notna() & RES.away_score.notna()]
@@ -242,6 +389,15 @@ def main():
     ranks = {l.split('|')[1]: int(l.split('|')[0]) for l in open('rank30.txt', encoding='utf-8') if l.strip()}
     comps = [c for c in (build_tournament(cfg, RES, FX) for cfg in TOURNAMENTS) if c]
     rwc = build_rwc(RES, ranks)
+    rank_pts = {l.split('|')[1]: float(l.split('|')[2]) for l in open('rank30.txt', encoding='utf-8') if l.strip()}
+    res = RES[(RES.g == 'm') & RES.competition.str.match(RWC['pat'], na=False)]
+    known, known_ko = {}, {}
+    for r in res.itertuples():  # matches already played count as they finished (pool and knockout kept apart)
+        kn = known if r.date < '2027-10-20' else known_ko
+        th, ta = (r.home_tries if not pd.isna(r.home_tries) else round(r.home_score / 6.8)), (r.away_tries if not pd.isna(r.away_tries) else round(r.away_score / 6.8))
+        kn[(r.home_team, r.away_team)] = (int(r.home_score), int(r.away_score), int(th), int(ta))
+        kn.setdefault((r.away_team, r.home_team), (int(r.away_score), int(r.home_score), int(ta), int(th)))
+    rwc['sim'] = simulate_rwc(rwc, rank_pts, ranks, known, known_ko)
     # which tournaments each nation is in, and where it sits
     teams = {'m': collections.defaultdict(list), 'w': collections.defaultdict(list)}
     for c in comps:
