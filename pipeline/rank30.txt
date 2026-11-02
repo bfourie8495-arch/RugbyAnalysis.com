@@ -20,11 +20,11 @@
 20|Samoa|64.73
 21|Romania|62.45
 22|Canada|62.29
-23|Belgium|61.03
-24|Hong Kong|60.74
+23|Belgium|62.0
+24|Hong Kong|59.77
 25|Zimbabwe|58.6
 26|Netherlands|56.44
 27|Namibia|56.03
 28|Switzerland|55.47
-29|Czech Republic|54.78
+29|Czech Republic|55.42
 30|Poland|54.54
