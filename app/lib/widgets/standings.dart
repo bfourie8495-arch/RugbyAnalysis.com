@@ -13,7 +13,7 @@ class StandingsTable extends StatelessWidget {
   const StandingsTable({super.key, required this.gender, required this.rows, this.highlight, this.compact = false});
 
   final Gender gender;
-  final List<TableRow> rows;
+  final List<StandingRow> rows;
   final String? highlight;
   final bool compact; // fewer columns, for cards
 
@@ -22,7 +22,7 @@ class StandingsTable extends StatelessWidget {
     final c = AppScope.of(context);
     final feed = c.matchday!;
     final cols = compact ? ['P', 'W', 'L', 'PD', 'Pts'] : ['P', 'W', 'D', 'L', 'PD', 'BP', 'Pts'];
-    List<String> values(TableRow r) => compact
+    List<String> values(StandingRow r) => compact
         ? ['${r.played}', '${r.won}', '${r.lost}', signed(r.diff), '${r.points}']
         : ['${r.played}', '${r.won}', '${r.drawn}', '${r.lost}', signed(r.diff), '${r.bonus}', '${r.points}'];
     const head = TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: RaColors.faint, letterSpacing: 0.5);

@@ -187,8 +187,8 @@ class MatchdayFeed {
 
 // ---------------------------------------------------------------- tournaments
 
-class TableRow {
-  TableRow.fromJson(Map<String, dynamic> j)
+class StandingRow {
+  StandingRow.fromJson(Map<String, dynamic> j)
       : pos = _int(j['pos']),
         team = _str(j['t']),
         played = _int(j['p']),
@@ -213,7 +213,7 @@ class TableRow {
 class TableGroup {
   TableGroup(this.name, this.rows);
   final String name;
-  final List<TableRow> rows;
+  final List<StandingRow> rows;
 }
 
 /// A team's record in a series with no league table (the WXV Global Series).
@@ -241,7 +241,7 @@ class Tournament {
         isSeries = _str(j['fmt']) == 'series',
         checked = j['checked'] != false,
         groups = [
-          for (final g in _list(j['groups'])) TableGroup(_str(_map(g)['name']), [for (final r in _list(_map(g)['rows'])) TableRow.fromJson(_map(r))])
+          for (final g in _list(j['groups'])) TableGroup(_str(_map(g)['name']), [for (final r in _list(_map(g)['rows'])) StandingRow.fromJson(_map(r))])
         ],
         records = [
           for (final e in _map(j['teams']).entries)
@@ -427,7 +427,7 @@ class WorldCup {
         firstKickOff = parseKickOff(j['firstKo'])!,
         format = _str(j['format']),
         pools = {
-          for (final p in _list(j['pools'])) _str(_map(p)['p']): [for (final r in _list(_map(p)['rows'])) TableRow.fromJson(_map(r))]
+          for (final p in _list(j['pools'])) _str(_map(p)['p']): [for (final r in _list(_map(p)['rows'])) StandingRow.fromJson(_map(r))]
         },
         matches = [for (final m in _list(j['matches'])) WorldCupMatch.fromJson(_map(m))],
         knockouts = [for (final m in _list(j['knockouts'])) WorldCupMatch.fromJson(_map(m))],
@@ -441,7 +441,7 @@ class WorldCup {
   final String end;
   final DateTime firstKickOff;
   final String format;
-  final Map<String, List<TableRow>> pools; // 'A'..'F'
+  final Map<String, List<StandingRow>> pools; // 'A'..'F'
   final List<WorldCupMatch> matches; // pool games, in kick-off order
   final List<WorldCupMatch> knockouts;
   final String simAbout;

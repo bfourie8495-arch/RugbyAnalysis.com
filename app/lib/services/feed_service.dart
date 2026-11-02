@@ -11,7 +11,7 @@ abstract class FeedSource {
   Future<Map<String, dynamic>> load(String name);
 }
 
-/// Reads https://rugbyanalysis.com/app/<name>.json, which the daily pipeline
+/// Reads `https://rugbyanalysis.com/app/<name>.json`, which the daily pipeline
 /// rebuilds every morning. The last good copy is kept on the phone, so the app
 /// still opens with no signal, and a failed download falls back to it.
 class WebFeedSource implements FeedSource {
