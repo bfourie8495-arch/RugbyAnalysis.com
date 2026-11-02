@@ -28,6 +28,17 @@ Finder tab(String label) => find.descendant(of: find.byType(NavigationBar), matc
 Finder listOf(Type screen) => find.descendant(of: find.byType(screen), matching: find.byType(Scrollable)).first;
 Finder textIn(Type screen, String text) => find.descendant(of: find.byType(screen), matching: find.text(text));
 
+/// Scrolls a screen's list down until [f] matches at least one widget, then brings the first fully into view.
+/// (A ListView only builds what's on screen, so anything further down doesn't exist until you scroll to it.)
+Future<void> scrollTo(WidgetTester tester, Type screen, Finder f) async {
+  for (var i = 0; i < 50 && f.evaluate().isEmpty; i++) {
+    await tester.drag(listOf(screen), const Offset(0, -300));
+    await tester.pump();
+  }
+  await tester.ensureVisible(f.first);
+  await tester.pumpAndSettle();
+}
+
 Future<AppController> startApp(WidgetTester tester) async {
   // A phone-sized screen (390 x 844), so layout problems show up as they would on a phone.
   tester.view.physicalSize = const Size(1170, 2532);
@@ -47,7 +58,7 @@ void main() {
     expect(find.textContaining('Rugby World Cup 2027'), findsWidgets);
     await tester.scrollUntilVisible(find.text('Up next'), 300, scrollable: listOf(MatchdayScreen));
     expect(find.text('Up next'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Model pick ').first, 300, scrollable: listOf(MatchdayScreen));
+    await scrollTo(tester, MatchdayScreen, find.text('Model pick '));
     expect(find.text('Model pick '), findsWidgets);
     await tester.scrollUntilVisible(find.text('Latest results'), 300, scrollable: listOf(MatchdayScreen));
     expect(find.text('Latest results'), findsOneWidget);
@@ -83,7 +94,7 @@ void main() {
     final c = await startApp(tester);
     await tester.tap(tab('World Cup'));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(textIn(WorldCupScreen, 'South Africa').first, 300, scrollable: listOf(WorldCupScreen));
+    await scrollTo(tester, WorldCupScreen, textIn(WorldCupScreen, 'South Africa'));
     await tester.tap(textIn(WorldCupScreen, 'South Africa').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Follow'));
