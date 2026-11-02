@@ -45,7 +45,9 @@ void main() {
   testWidgets('Matchday shows the World Cup strip, fixtures with picks and results', (tester) async {
     await startApp(tester);
     expect(find.textContaining('Rugby World Cup 2027'), findsWidgets);
+    await tester.scrollUntilVisible(find.text('Up next'), 300, scrollable: listOf(MatchdayScreen));
     expect(find.text('Up next'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Model pick ').first, 300, scrollable: listOf(MatchdayScreen));
     expect(find.text('Model pick '), findsWidgets);
     await tester.scrollUntilVisible(find.text('Latest results'), 300, scrollable: listOf(MatchdayScreen));
     expect(find.text('Latest results'), findsOneWidget);
@@ -66,7 +68,9 @@ void main() {
     await startApp(tester);
     await tester.tap(tab('World Cup'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(textIn(WorldCupScreen, 'POOL B'), 300, scrollable: listOf(WorldCupScreen));
     expect(textIn(WorldCupScreen, 'POOL B'), findsOneWidget);
+    await tester.scrollUntilVisible(find.widgetWithText(ChoiceChip, 'Predictions'), -300, scrollable: listOf(WorldCupScreen));
     await tester.tap(find.widgetWithText(ChoiceChip, 'Predictions'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(textIn(WorldCupScreen, 'Who wins it?'), 300, scrollable: listOf(WorldCupScreen));
@@ -79,6 +83,7 @@ void main() {
     final c = await startApp(tester);
     await tester.tap(tab('World Cup'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(textIn(WorldCupScreen, 'South Africa').first, 300, scrollable: listOf(WorldCupScreen));
     await tester.tap(textIn(WorldCupScreen, 'South Africa').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Follow'));
