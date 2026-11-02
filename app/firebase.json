@@ -1,0 +1,16 @@
+{
+  "firestore": [
+    {
+      "database": "rugbydb",
+      "rules": "firestore.rules"
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "rugby",
+      "runtime": "python313",
+      "ignore": ["venv", "__pycache__", "test_*.py"]
+    }
+  ]
+}

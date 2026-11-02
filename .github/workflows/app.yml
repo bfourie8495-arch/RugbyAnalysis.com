@@ -1,0 +1,55 @@
+name: App checks
+
+# Checks the Flutter app (app/) and its Cloud Functions (app/functions/) on every
+# change to them: static analysis, the Dart tests and the Python tests. Problems
+# show up as annotations on the commit and the pull request.
+on:
+  push:
+    paths: ["app/**", ".github/workflows/app.yml"]
+  pull_request:
+    paths: ["app/**", ".github/workflows/app.yml"]
+  workflow_dispatch:
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Versions
+        run: flutter --version
+      - name: Get packages
+        run: flutter pub get
+      - name: Analyze
+        # Every analyzer message becomes an annotation on the commit.
+        run: |
+          status=0
+          flutter analyze --no-fatal-infos > analyze.txt 2>&1 || status=$?
+          cat analyze.txt
+          sed -nE 's/^ *(error|warning|info) • (.*) • ([^ ]+):([0-9]+):([0-9]+) • (.*)$/::\1 file=app\/\3,line=\4,col=\5::\2 (\6)/p' analyze.txt | sed 's/^::info/::notice/'
+          exit $status
+      - name: Test
+        run: flutter test --reporter github
+
+  functions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: app/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Test the alert logic
+        run: |
+          pip install pytest
+          python -m pytest -q
