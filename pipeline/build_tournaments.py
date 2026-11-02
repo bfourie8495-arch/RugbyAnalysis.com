@@ -164,7 +164,7 @@ def fixture_list(FX, g, name, since):
     for f in FX:
         if f.get('g', 'm') != g or f['c'].split(' · ')[0] != name or f['d'] < since: continue
         out.append({'d': f['d'], 'ko': f.get('ko'), 'h': ALIAS.get(f['h'], f['h']), 'a': ALIAS.get(f['a'], f['a']),
-                    'v': f.get('v', ''), 'r': f['c'].split(' · ')[1] if ' · ' in f['c'] else ''})
+                    'v': f.get('v', ''), 'r': f['c'].split(' · ')[1] if ' · ' in f['c'] else '', 'p': f.get('p')})
     return sorted(out, key=lambda x: (x['d'], x['ko'] or ''))
 
 
@@ -247,6 +247,82 @@ BRACKET = {'QF 1': ('R16 2', 'R16 4'), 'QF 2': ('R16 1', 'R16 3'), 'QF 3': ('R16
 STAGES = [('R16', 'Round of 16'), ('QF', 'Quarter-final'), ('SF', 'Semi-final'), ('Final', 'Final')]
 
 
+def sim_score(rng, p):
+    """One simulated Test: the side with win chance p wins with exactly that chance; the score around it
+    follows how Tests between ranked teams have gone. Returns (score a, score b, tries a, tries b)."""
+    a_wins = rng.random() < p
+    mu = 25.8 * statistics.NormalDist().inv_cdf(min(max(p, 0.005), 0.995))
+    while True:  # a margin on the right side of the result the model picked
+        m = rng.gauss(mu, 16.5)
+        if (m >= 1) if a_wins else (m <= -1): break
+    m = round(m)
+    tot = max(abs(m), 45.5 + 0.45 * abs(m) + rng.gauss(0, 13))
+    hi = round((tot + abs(m)) / 2); lo = hi - abs(m)
+    sa, sb = (hi, lo) if m > 0 else (lo, hi)
+    tri = lambda x: max(0, round(x / 6.8 + rng.gauss(0, 0.6)))
+    return sa, sb, tri(sa), tri(sb)
+
+
+def table_points(ms, os_, mt):
+    return (4 if ms > os_ else 2 if ms == os_ else (1 if os_ - ms <= 7 else 0)) + (1 if mt >= 4 else 0)
+
+
+# ---------------------------------------------------------------- Nations Championship scenarios
+# Finals weekend at Twickenham (Allianz Stadium): each place in the Northern group plays the same place in the
+# Southern group. UK times, which are UTC in late November.
+NC_FINALS = [(6, '2026-11-27T16:40Z'), (3, '2026-11-27T20:10Z'), (5, '2026-11-28T13:10Z'), (2, '2026-11-28T16:40Z'),
+             (4, '2026-11-29T13:10Z'), (1, '2026-11-29T16:40Z')]
+
+
+def simulate_nc(c, RES, pts):
+    """Play the rest of the Nations Championship 20,000 times: the remaining group Tests with the model's own
+    pick for each, then finals weekend, where England are at home at Twickenham."""
+    rng = random.Random(SEED)
+    groups = [[r['t'] for r in g['rows']] for g in c['groups']]
+    base = {r['t']: (r['pts'], r['pd'], r['pf']) for g in c['groups'] for r in g['rows']}
+    fx = [(f['h'], f['a'], f['p'] if f.get('p') is not None else win_p_home(f['h'], f['a'], pts)) for f in c['fixtures']]
+    fin_res = RES[(RES.g == 'm') & RES.competition.str.match(r'^%s Nations Championship' % c['season'], na=False) & (RES.date >= '2026-11-26')]
+    fin_known = {}
+    for r in fin_res.itertuples():
+        fin_known[(r.home_team, r.away_team)] = r.home_score > r.away_score
+        fin_known[(r.away_team, r.home_team)] = r.away_score > r.home_score
+    place = {t: collections.Counter() for g in groups for t in g}
+    opp = {t: collections.Counter() for t in place}
+    fwin = collections.Counter(); title = collections.Counter(); pairs = {k: collections.Counter() for k, _ in NC_FINALS}
+    for _ in range(SIMS):
+        T = {t: list(base[t]) for t in place}
+        for h, a, p in fx:
+            sh, sa, th, ta = sim_score(rng, p)
+            T[h][0] += table_points(sh, sa, th); T[a][0] += table_points(sa, sh, ta)
+            T[h][1] += sh - sa; T[a][1] += sa - sh; T[h][2] += sh; T[a][2] += sa
+        order = [sorted(g, key=lambda t: (-T[t][0], -T[t][1], -T[t][2])) for g in groups]
+        for k in range(6):
+            n, so = order[0][k], order[1][k]
+            place[n][k + 1] += 1; place[so][k + 1] += 1
+            opp[n][so] += 1; opp[so][n] += 1
+            pairs[k + 1][(n, so)] += 1
+            if (n, so) in fin_known: w = n if fin_known[(n, so)] else so
+            else:
+                pn = 1 / (1 + 10 ** (-(pts.get(n, 50) + (3 if n == 'England' else 0) - pts.get(so, 50)) / 10 * 0.6))
+                w = n if rng.random() < pn else so
+            fwin[w] += 1
+            if k == 0: title[w] += 1
+    pct = lambda n: round(100 * n / SIMS, 1)
+    teams = {}
+    for t in place:
+        n_opp = sum(opp[t].values())
+        teams[t] = {'place': [pct(place[t][k]) for k in range(1, 7)], 'title': pct(title[t]), 'finalWin': pct(fwin[t]),
+                    'opps': [[o, pct(x)] for o, x in opp[t].most_common(3)]}
+    finals = [{'k': k, 'ko': ko, 'v': 'Allianz Stadium, Twickenham', 'pairs': [[a, b, pct(x)] for (a, b), x in pairs[k].most_common(3)]}
+              for k, ko in NC_FINALS]
+    return {'n': SIMS, 'teams': teams, 'finals': finals, 'title': [[t, pct(x)] for t, x in title.most_common()],
+            'about': 'We play the rest of the Nations Championship %s times with the model behind every pick in the app: the remaining group Tests, then finals weekend, where England are at home at Twickenham. Ties on points are split by points difference, then points scored.' % '{:,}'.format(SIMS)}
+
+
+def win_p_home(h, a, pts):
+    return 1 / (1 + 10 ** (-(pts.get(h, 50) + 3 - pts.get(a, 50)) / 10 * 0.6))
+
+
 def win_p(a, b, pts):
     adv = 3 if a == RWC['host'] else -3 if b == RWC['host'] else 0
     return 1 / (1 + 10 ** (-(pts.get(a, 50) + adv - pts.get(b, 50)) / 10 * 0.6))
@@ -278,18 +354,7 @@ def simulate_rwc(rwc, pts, ranks, known, known_ko):
     def score(a, b):
         r = known.get((a, b))
         if r: return r
-        p = win_p(a, b, pts)
-        a_wins = rng.random() < p
-        mu = 25.8 * N.inv_cdf(min(max(p, 0.005), 0.995))
-        while True:  # a margin on the right side of the result the model picked
-            m = rng.gauss(mu, 16.5)
-            if (m >= 1) if a_wins else (m <= -1): break
-        m = round(m)
-        tot = max(abs(m), 45.5 + 0.45 * abs(m) + rng.gauss(0, 13))
-        hi = round((tot + abs(m)) / 2); lo = hi - abs(m)
-        sa, sb = (hi, lo) if m > 0 else (lo, hi)
-        tri = lambda s: max(0, round(s / 6.8 + rng.gauss(0, 0.6)))
-        return sa, sb, tri(sa), tri(sb)
+        return sim_score(rng, win_p(a, b, pts))
 
     def pick(a, b):  # knockouts: the model's win chance decides it (extra time and kicks included)
         r = known_ko.get((a, b))
@@ -388,8 +453,11 @@ def main():
     FX = json.load(open('fixtures.json', encoding='utf-8'))
     ranks = {l.split('|')[1]: int(l.split('|')[0]) for l in open('rank30.txt', encoding='utf-8') if l.strip()}
     comps = [c for c in (build_tournament(cfg, RES, FX) for cfg in TOURNAMENTS) if c]
-    rwc = build_rwc(RES, ranks)
     rank_pts = {l.split('|')[1]: float(l.split('|')[2]) for l in open('rank30.txt', encoding='utf-8') if l.strip()}
+    for c in comps:
+        if c['id'] == 'nc' and c['status'] == 'live':
+            c['sim'] = simulate_nc(c, RES, rank_pts)
+    rwc = build_rwc(RES, ranks)
     res = RES[(RES.g == 'm') & RES.competition.str.match(RWC['pat'], na=False)]
     known, known_ko = {}, {}
     for r in res.itertuples():  # matches already played count as they finished (pool and knockout kept apart)

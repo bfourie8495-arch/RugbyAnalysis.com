@@ -111,7 +111,12 @@ https://rugbyanalysis.com/app/tournaments.json. It holds:
   of reaching each round and winning, and a scenario for each pool finish: who it
   most likely meets in each round, and its chance of winning each of those games.
   Played matches replace the simulation as results come in, and a fixed seed keeps
-  the file the same until the rankings or results change. The women's 2029 entry lists the
+  the file the same until the rankings or results change.
+- **Nations Championship predictions** (while it's live): the remaining group Tests
+  are played 20,000 times with each fixture's own model pick, then finals weekend at
+  Twickenham (England at home). For each team: its chance of finishing in each
+  place, who it most often meets at Twickenham, its chance of winning there, and its
+  title chance; plus the most likely pairing for each finals-weekend match. The women's 2029 entry lists the
   teams already qualified.
 
 To add a tournament, add an entry to `TOURNAMENTS` at the top of the script.
