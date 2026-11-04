@@ -64,7 +64,9 @@ wrangler.jsonc         tells Cloudflare to serve the site/ folder
 
 ## The app's feeds
 
-Two files are rebuilt at the end of every run for the RugbyAnalysis app. If either
+Three files are rebuilt at the end of every run for the RugbyAnalysis app (its code is in `app/`).
+`pipeline/build_matchday.py` writes `site/app/matchday.json`: rankings, upcoming Tests with the
+model's pick, the latest results, each nation's form, colours and flag code. If either
 step fails, its previous file is kept and the run shows a yellow warning.
 
 ### Analysis
