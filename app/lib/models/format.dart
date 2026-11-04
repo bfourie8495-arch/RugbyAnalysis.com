@@ -50,5 +50,6 @@ String signed(int n) => n > 0 ? '+$n' : '$n';
 int daysUntil(DateTime day, {DateTime? now}) {
   final n = (now ?? DateTime.now()).toLocal();
   final d = day.toLocal();
-  return DateTime(d.year, d.month, d.day).difference(DateTime(n.year, n.month, n.day)).inDays;
+  // UTC midnights, so a clock change between the two dates can't lose an hour and drop a day.
+  return DateTime.utc(d.year, d.month, d.day).difference(DateTime.utc(n.year, n.month, n.day)).inDays;
 }

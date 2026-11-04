@@ -1,16 +1,1 @@
-{
-  "firestore": [
-    {
-      "database": "rugbydb",
-      "rules": "firestore.rules"
-    }
-  ],
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "rugby",
-      "runtime": "python313",
-      "ignore": ["venv", "__pycache__", "test_*.py"]
-    }
-  ]
-}
+{"firestore":[{"database":"rugbydb","rules":"firestore.rules"}],"functions":[{"source":"functions","codebase":"rugby","runtime":"python313","ignore":["venv","__pycache__","test_*.py"]}],"flutter":{"platforms":{"android":{"default":{"projectId":"middle-509820","appId":"1:118790275017:android:891408929e5ecc6e30b218","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"middle-509820","configurations":{"android":"1:118790275017:android:891408929e5ecc6e30b218","web":"1:118790275017:web:909f203eea70813b30b218"}}}}}}

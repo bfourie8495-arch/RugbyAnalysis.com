@@ -25,7 +25,9 @@ function Succeeds($command) {
 }
 function Run {
     # Runs a command and stops the script if it fails.
-    & $args[0] @($args | Select-Object -Skip 1)
+    # Splat a variable (@rest), so a PowerShell-script command like firebase.ps1 gets separate arguments.
+    $rest = @($args | Select-Object -Skip 1)
+    & $args[0] @rest
     if ($LASTEXITCODE -ne 0) { throw "This failed: $($args -join ' ')" }
 }
 
@@ -54,7 +56,7 @@ Write-Host "Web app: $($web.appId)"
 Step "Registering the Android app $Package and writing the Firebase settings"
 Run dart pub global activate flutterfire_cli
 Run dart pub global run flutterfire_cli:flutterfire configure `
-    --project=$Project --platforms=android,web --android-package-name=$Package `
+    --project=$Project '--platforms=android,web' --android-package-name=$Package `
     --web-app-id=$($web.appId) --out=lib/firebase_options.dart --yes
 
 Step "Creating the Firestore database '$Database' in $Region"
