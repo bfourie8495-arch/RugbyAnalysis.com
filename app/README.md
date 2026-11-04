@@ -22,48 +22,40 @@ daily pipeline rebuilds every morning:
 
 Not in yet: clubs, sevens, head-to-heads, the Learn section and the style-of-play analysis from the prototype.
 
-## Run it on your computer (about 15 minutes)
+## Set it up on your computer (one script)
 
-You already have Flutter from Smack Bang. In PowerShell:
+You already have Flutter, Python and the Firebase CLI from Smack Bang. In PowerShell:
 
-1. Get the code and go to this folder:
-   ```powershell
-   git clone https://github.com/bfourie8495-arch/RugbyAnalysis.com.git
-   cd RugbyAnalysis.com
-   git checkout claude/flutter-app
-   cd app
-   ```
-2. Make the Android and web folders (this never touches `lib/`):
-   ```powershell
-   flutter create . --org com.rugbyanalysis --project-name rugby_analysis --platforms android,web
-   ```
-3. In `android/app/src/main/AndroidManifest.xml`, add these two lines just above `<application`:
-   ```xml
-   <uses-permission android:name="android.permission.INTERNET"/>
-   <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-   ```
-   (Debug builds can reach the internet without the first line; release builds can't.)
-4. Run it:
-   ```powershell
-   flutter pub get
-   flutter run
-   ```
-   Without Firebase it works fully, but keeps your teams and alerts on the phone and sends no alerts.
+```powershell
+cd ~
+git clone -b claude/flutter-app https://github.com/bfourie8495-arch/RugbyAnalysis.com.git
+cd RugbyAnalysis.com\app
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
 
-## Connect it to Firebase (same project as Smack Bang)
+`setup.ps1` connects the app to Smack Bang's Firebase project (**middle-509820**) without
+touching any of Smack Bang's data, apps or functions. It's safe to run again; each step
+checks what's already done.
 
-It uses project **middle-509820**, with its own Firestore database and its own
-functions, so it never touches Smack Bang's data or functions.
+1. Signs you in to Firebase if you're signed out.
+2. Registers two apps in the project: Android `com.rugbyanalysis.app` and "RugbyAnalysis (web)".
+   It writes `android/app/google-services.json` and `lib/firebase_options.dart`.
+3. Creates the Firestore database `rugbydb` in `europe-west2` (London) and deploys its rules.
+4. Deploys the alert functions as their own codebase, `rugby`.
 
-1. Firebase console > Firestore > **Add database**, named `rugbydb`, location `europe-west2` (London), production mode.
-2. In this folder: `flutterfire configure --project=middle-509820 --platforms=android,web`. It adds the Android app (`com.rugbyanalysis.rugby_analysis`), writes `android/app/google-services.json` and replaces `lib/firebase_options.dart`.
-3. Deploy the rules and the alert functions, from this folder:
-   ```powershell
-   firebase deploy --only firestore:rugbydb
-   firebase deploy --only functions:rugby
-   ```
-   `firebase.json` here names the functions codebase `rugby`, so this never deletes or changes Smack Bang's functions. Anonymous sign-in is already on for the project.
-4. Run the app on your phone, follow a team, and turn on alerts. Your settings appear at `users/{your uid}` in `rugbydb`, and the phone's token at `devices/{your uid}`.
+Then plug in your phone and run `flutter run`.
+
+The `android/` and `web/` folders are already in the repo, so there's no `flutter create`
+step. The app icons are drawn from the website's logo by `tool/make_icons.py`.
+Android builds need the Firebase file the script writes. The web version
+(`flutter run -d chrome`) runs without it, keeping your teams and alerts in the browser.
+
+To deploy again after a change, run these from this folder (always keep `:rugby` on functions):
+
+```powershell
+firebase deploy --only firestore --project middle-509820
+firebase deploy --only functions:rugby --project middle-509820
+```
 
 ## Checks
 
