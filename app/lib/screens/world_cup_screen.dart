@@ -403,10 +403,15 @@ class _WorldCupScreenState extends State<WorldCupScreen> {
                   tileColor: isMine(k.home) || isMine(k.away) ? RaColors.cardHi : null,
                   leading: SizedBox(
                     width: 54,
-                    child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(dayLabel(k.kickOff.toLocal()).substring(0, 6), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                      Text(clock(k.kickOff.toLocal()), style: const TextStyle(fontSize: 12, color: RaColors.faint)),
-                    ]),
+                    // Shrinks to fit when the phone's text size is turned up, instead of overflowing.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(dayLabel(k.kickOff.toLocal()).substring(0, 6), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                        Text(clock(k.kickOff.toLocal()), style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+                      ]),
+                    ),
                   ),
                   title: Text('${k.id == 'Final' || k.id == 'Bronze' ? '' : '${k.id}: '}${humanSlot(k.home)} v ${humanSlot(k.away)}',
                       style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
