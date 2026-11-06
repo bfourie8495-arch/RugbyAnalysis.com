@@ -7,6 +7,7 @@ on:
       start_utc: {description: "Start polling at HH:MM UTC", default: "20:00"}
       minutes: {description: "Minutes to poll", default: "125"}
       interval: {description: "Seconds between polls", default: "90"}
+      ko_actual: {description: "Actual kick-off HH:MM UTC, if already kicked off (blank = detect)", default: "", required: false}
 jobs:
   live:
     runs-on: ubuntu-latest
@@ -24,3 +25,4 @@ jobs:
           START_UTC: ${{ inputs.start_utc }}
           MINUTES: ${{ inputs.minutes }}
           INTERVAL: ${{ inputs.interval }}
+          KO_ACTUAL: ${{ inputs.ko_actual }}
