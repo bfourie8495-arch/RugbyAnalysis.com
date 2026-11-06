@@ -68,6 +68,11 @@ a.chip{text-decoration:none}
 .grid2.one{grid-template-columns:1fr}
 @media (max-width:700px){.wlist{columns:1}}
 /*__REDESIGN__*/
+.howit{display:grid;grid-template-columns:1fr 1.4fr;gap:22px;margin-bottom:14px}
+.howit p{margin:4px 0 0;line-height:1.5}
+.howit .howlbl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+#nowAt{font-weight:600}
+@media (max-width:720px){.howit{grid-template-columns:1fr;gap:12px}}
 </style>
 </head>
 <body>
@@ -96,6 +101,10 @@ a.chip{text-decoration:none}
 
 
 <main class="wrap" id="lgView">
+  <section class="panel howit" id="howWrap" aria-label="How this competition works">
+    <div class="howcol"><div class="howlbl">Where it’s at</div><p id="nowAt"></p></div>
+    <div class="howcol"><div class="howlbl">How it works</div><p id="howTxt"></p></div>
+  </section>
   <section class="kpis" id="lgKpis" aria-label="Season headline numbers"></section>
   <section class="panel" id="tblWrap">
     <div class="filterbar"><h2 style="flex:1" id="tblH">League table</h2></div>
@@ -203,16 +212,16 @@ const D=__DATA__;
 const FLAGS=__FLAGS__;
 const LG=(id,name,short,mark,p,al,ad,countries,po,extra)=>Object.assign({id,name,short,mark,p,onp:"#FFFFFF",al,ad,countries,po,g:"m"},extra||{});
 const LEAGUES=[
- LG("urc","United Rugby Championship","URC","URC","#0E2A47","#007C85","#3FD3DC","Ireland, Scotland, Wales, Italy and South Africa",8,{stripe:"linear-gradient(90deg,#169B62 0 20%,#0065BD 20% 40%,#C8102E 40% 60%,#009246 60% 80%,#FFB612 80%)"}),
- LG("prem","Premiership Rugby","Premiership","PREM","#1C1446","#5B3FD1","#A99BFF","England",4,{stripe:"linear-gradient(90deg,#C8102E 0 50%,#FFFFFF 50%)"}),
- LG("pwr","Premiership Women's Rugby","PWR","PWR","#3A1340","#A0287A","#F07FC8","England",4,{g:"w",note:"Called the Premier 15s until 2023.",stripe:"linear-gradient(90deg,#F07FC8 0 50%,#FFFFFF 50%)"}),
- LG("top14","Top 14","Top 14","T14","#0B1E4F","#2F5BD0","#9DB5FF","France",6,{stripe:"linear-gradient(90deg,#0055A4 0 33%,#FFFFFF 33% 66%,#EF4135 66%)",note:"English Wikipedia lists full regular-season results only for some seasons; tables are the published standings."}),
- LG("super","Super Rugby Pacific","Super Rugby","SR","#101820","#0B8A6E","#3FE0B8","New Zealand, Australia, Fiji and Samoa",6,{stripe:"linear-gradient(90deg,#000 0 50%,#FFB81C 50%)",calc:true}),
- LG("currie","Currie Cup","Currie Cup","CC","#113B2A","#0E7A4E","#5FD39A","South Africa",4,{stripe:"linear-gradient(90deg,#007749 0 34%,#FFB612 34% 67%,#000 67%)",calc:true}),
- LG("npc","National Provincial Championship","NPC","NPC","#101418","#3C6E8F","#9CC9EE","New Zealand",8,{stripe:"linear-gradient(90deg,#000 0 50%,#FFFFFF 50%)",calc:true}),
- LG("league1","Japan Rugby League One","League One","JL1","#3B0F14","#C8102E","#FF7A83","Japan",6,{stripe:"linear-gradient(90deg,#FFFFFF 0 50%,#BC002D 50%)",note:"Regular-season results are listed without dates on Wikipedia, so they appear as \"Regular season\"."}),
- LG("champions","European Rugby Champions Cup","Champions Cup","ECC","#0B1B3A","#2455C3","#8FB0FF","Europe and South Africa",0,{cup:true,stripe:"linear-gradient(90deg,#1C3E8C 0 50%,#F2C200 50%)"}),
- LG("challenge","EPCR Challenge Cup","Challenge Cup","EPC","#16222E","#4A7A9E","#A9CCE6","Europe and South Africa",0,{cup:true,stripe:"linear-gradient(90deg,#6FA8DC 0 50%,#FFFFFF 50%)"})];
+ LG("urc","United Rugby Championship","URC","URC","#0E2A47","#007C85","#3FD3DC","Ireland, Scotland, Wales, Italy and South Africa",8,{stripe:"linear-gradient(90deg,#169B62 0 20%,#0065BD 20% 40%,#C8102E 40% 60%,#009246 60% 80%,#FFB612 80%)",how:"Sixteen clubs from Ireland, Scotland, Wales, Italy and South Africa play an 18-round league from September to May. The top eight reach the quarter-finals, then semi-finals and a Grand Final in June. The higher-ranked side is at home in every play-off, the final included."}),
+ LG("prem","Premiership Rugby","Premiership","PREM","#1C1446","#5B3FD1","#A99BFF","England",4,{stripe:"linear-gradient(90deg,#C8102E 0 50%,#FFFFFF 50%)",how:"Ten English clubs play each other home and away: 18 rounds from September to May. The top four reach the semi-finals, first v fourth and second v third at the higher-ranked club, and the final is at Twickenham in June."}),
+ LG("pwr","Premiership Women's Rugby","PWR","PWR","#3A1340","#A0287A","#F07FC8","England",4,{g:"w",note:"Called the Premier 15s until 2023.",stripe:"linear-gradient(90deg,#F07FC8 0 50%,#FFFFFF 50%)",how:"England's top women's league. The clubs play each other home and away, then the top four reach the semi-finals and the final."}),
+ LG("top14","Top 14","Top 14","T14","#0B1E4F","#2F5BD0","#9DB5FF","France",6,{stripe:"linear-gradient(90deg,#0055A4 0 33%,#FFFFFF 33% 66%,#EF4135 66%)",note:"English Wikipedia lists full regular-season results only for some seasons; tables are the published standings.",how:"Fourteen French clubs play 26 rounds from September to June. The top two go straight to the semi-finals; third to sixth play off for the other two places, and the final is in late June. The bottom club goes down to Pro D2, and 13th plays off to stay up."}),
+ LG("super","Super Rugby Pacific","Super Rugby","SR","#101820","#0B8A6E","#3FE0B8","New Zealand, Australia, Fiji and Samoa",6,{stripe:"linear-gradient(90deg,#000 0 50%,#FFB81C 50%)",calc:true,how:"Clubs from New Zealand, Australia, Fiji and Samoa play a regular season from February to May. The leading teams go through to the finals series, which ends with the final in June."}),
+ LG("currie","Currie Cup","Currie Cup","CC","#113B2A","#0E7A4E","#5FD39A","South Africa",4,{stripe:"linear-gradient(90deg,#007749 0 34%,#FFB612 34% 67%,#000 67%)",calc:true,how:"South Africa's provincial championship, played in the southern winter: a round-robin league, then the top four play semi-finals and a final."}),
+ LG("npc","National Provincial Championship","NPC","NPC","#101418","#3C6E8F","#9CC9EE","New Zealand",8,{stripe:"linear-gradient(90deg,#000 0 50%,#FFFFFF 50%)",calc:true,how:"Fourteen New Zealand provinces play ten matches each from August to October. The top eight reach the quarter-finals, then semi-finals and a final, with the higher-ranked side at home."}),
+ LG("league1","Japan Rugby League One","League One","JL1","#3B0F14","#C8102E","#FF7A83","Japan",6,{stripe:"linear-gradient(90deg,#FFFFFF 0 50%,#BC002D 50%)",note:"Regular-season results are listed without dates on Wikipedia, so they appear as \"Regular season\".",how:"Japan's top division runs from December to May. After the regular season the top six reach the play-offs, which end with the final in late May."}),
+ LG("champions","European Rugby Champions Cup","Champions Cup","ECC","#0B1B3A","#2455C3","#8FB0FF","Europe and South Africa",0,{cup:true,stripe:"linear-gradient(90deg,#1C3E8C 0 50%,#F2C200 50%)",how:"Europe's top club competition: 24 clubs, eight each from the URC, the Premiership and the Top 14, in four pools of six. Each club plays four pool games, against the clubs from the other two leagues. The top four in each pool reach the round of 16, then come the quarter-finals, semi-finals and final. Fifth place drops into the Challenge Cup knockouts."}),
+ LG("challenge","EPCR Challenge Cup","Challenge Cup","EPC","#16222E","#4A7A9E","#A9CCE6","Europe and South Africa",0,{cup:true,stripe:"linear-gradient(90deg,#6FA8DC 0 50%,#FFFFFF 50%)",how:"Europe's second club cup: the clubs that miss the Champions Cup, plus invited teams, in pools of six, four pool games each. The top sides in each pool reach the round of 16, joined by the four clubs that finished fifth in their Champions Cup pools; then come the quarter-finals, semi-finals and final."})];
 const LIDX=Object.fromEntries(D.leagues.map((l,i)=>[l,i]));
 const C=D.clubs, S=D.seasons, NS=S.length;
 const CFLAG={Ireland:"ireland",Scotland:"scotland",Wales:"wales",Italy:"italy","South Africa":"south-africa",England:"england",France:"france","New Zealand":"new-zealand",Australia:"australia",Fiji:"fiji",Samoa:"samoa",Japan:"japan",Georgia:"georgia"};
@@ -311,6 +320,16 @@ function renderLeague(){
   const left=G.filter(m=>!played(m)).length;
   $("heroSub").textContent=`${S[s]} season: ${P.length} matches played${left?`, ${left} still to come`:""}. ${T.length||new Set(G.flatMap(m=>[m.h,m.a])).size} clubs.${L.note?" "+L.note:""}`;$("atHint").textContent=`Every league, play-off${L.g==="w"?" and cup":""} match in the seasons covered, ranked by win rate. Click a club to open its page.`;
   const ch=champion(lg,s),lead=T[0];
+  // Where it's at: for someone who watches the big games but doesn't follow the competition week to week
+  {const byDate=(a,b)=>a.date<b.date?-1:a.date>b.date?1:0,today=new Date().toISOString().slice(0,10),cur=curS(lg);let w;
+   // the next match from today on (a match already past with no score is a result still to be added)
+   const todo=G.filter(m=>!played(m)).sort(byDate),nx=todo.find(m=>m.nd||m.date>=today)||todo[0];
+   const nextLine=m=>`${stageTxt(m)||"League match"}, ${dTxt(m)}: ${nm(m.h)} v ${nm(m.a)}.`;
+   if(nx&&!P.length)w=`The ${S[s]} season starts ${dTxt(nx)}. First up: ${nextLine(nx)}`;
+   else if(nx)w=`${P.length} of ${G.length} matches played. Next: ${nextLine(nx)}`;
+   else w=ch?`The ${S[s]} season is over: ${nm(ch.w)} won the final.`:`The ${S[s]} season is over.`;
+   if(!nx&&s<cur){const f=M.filter(m=>m.lg===lg&&m.s===cur&&!played(m)).sort(byDate)[0];if(f)w+=f.nd?` The ${S[cur]} season is next.`:` The ${S[cur]} season starts ${dTxt(f)}.`}
+   $("nowAt").textContent=w;$("howTxt").textContent=L.how||"";$("howWrap").hidden=!L.how}
   $("rank").innerHTML=ch?`<div class="hmono">${mono(ch.w,"md")}</div><div><div class="lbl">${S[s]} champions</div><div class="holder">${nm(ch.w)}</div><div class="pts">Final: ${Math.max(ch.m.hs,ch.m.as)}–${Math.min(ch.m.hs,ch.m.as)} v ${nm(ch.r)}</div></div>`:lead&&lead.p?`<div>${mono(lead.i,"md")}</div><div><div class="lbl">Top of the table</div><div class="holder">${nm(lead.i)}</div><div class="pts">${lead.pts} pts from ${lead.p} match${lead.p===1?"":"es"}</div></div>`:"";
   // KPIs
   const pts=P.reduce((a,m)=>a+m.hs+m.as,0),det=P.filter(m=>m.sc),tries=det.reduce((a,m)=>a+m.sc[0][0]+m.sc[0][1],0),hw=P.filter(m=>m.hs>m.as).length,bps=T.length?T.reduce((a,r)=>a+r.tb+r.lb,0):P.reduce((a,m)=>a+m.bp[0]+m.bp[1],0);
