@@ -13,7 +13,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // needed before plugins run
   final backend = await Backend.connect();
   final notifications = backend != null && alertsSupported ? Notifications(backend) : null;
-  final controller = AppController(source: WebFeedSource(), backend: backend, enableAlerts: notifications?.enable);
+  final controller = AppController(source: WebFeedSource(), backend: backend, enableAlerts: notifications?.enable, disableAlerts: notifications?.disable,
+      refreshAlerts: notifications?.refresh);
   runApp(RugbyApp(controller: controller, notifications: notifications));
   controller.start();
 }

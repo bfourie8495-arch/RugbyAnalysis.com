@@ -1,0 +1,41 @@
+name: App store screenshots
+
+# Renders the Google Play phone screenshots (app/store/screenshots/) with the real fonts and the
+# latest feeds from rugbyanalysis.com, and commits them to the branch it ran on.
+on:
+  push:
+    paths: ["app/tool/store_screenshots_test.dart", ".github/workflows/app-store-screenshots.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Latest feeds and an emoji font for the flags
+        run: |
+          mkdir -p tool/live tool/fonts
+          for f in matchday tournaments; do curl -fsSL "https://rugbyanalysis.com/app/$f.json" -o "tool/live/$f.json"; done
+          curl -fsSL https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf -o tool/fonts/NotoColorEmoji.ttf
+      - name: Render
+        run: flutter test tool/store_screenshots_test.dart --update-goldens
+      - name: Commit the screenshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add store/screenshots
+          git diff --cached --quiet && exit 0
+          git commit -m "Store screenshots from ${GITHUB_SHA::7}"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"

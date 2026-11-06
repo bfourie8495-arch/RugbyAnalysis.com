@@ -14,6 +14,12 @@ const firestoreDatabaseId = 'rugbydb';
 /// anonymous sign-in, your teams and alert settings at users/{uid}, and this
 /// phone's notification token at devices/{uid}. The server reads both to send
 /// the weekend heads-up and kick-off reminders (functions/main.py).
+/// Records unused for this long are deleted by a Firestore TTL policy on `deleteAt`
+/// (users and devices in rugbydb). The date moves forward every time the app opens.
+const keepUnusedFor = Duration(days: 365);
+
+Timestamp _deleteAt() => Timestamp.fromDate(DateTime.now().add(keepUnusedFor));
+
 class Backend {
   Backend._(this._db, this.uid);
 
@@ -49,11 +55,25 @@ class Backend {
         'alerts': alerts,
         'utcOffsetMinutes': utcOffsetMinutes,
         'updatedAt': FieldValue.serverTimestamp(),
+        'deleteAt': _deleteAt(),
       });
+
+  /// "Delete my data": removes your teams, alert settings and phone token from the
+  /// server, then the anonymous sign-in itself. The next launch starts afresh.
+  Future<void> deleteEverything() async {
+    await _db.collection('devices').doc(uid).delete();
+    await _user.delete();
+    try {
+      await FirebaseAuth.instance.currentUser?.delete();
+    } catch (e) {
+      debugPrint('Could not remove the sign-in: $e'); // the data is gone either way
+    }
+  }
 
   Future<void> saveDeviceToken(String token) => _db.collection('devices').doc(uid).set({
         'token': token,
         'platform': kIsWeb ? 'web' : 'android',
         'updatedAt': FieldValue.serverTimestamp(),
+        'deleteAt': _deleteAt(),
       });
 }

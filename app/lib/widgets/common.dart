@@ -25,7 +25,7 @@ class TeamBadge extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(color: nation.primary, shape: BoxShape.circle, border: Border.all(color: Colors.white24)),
         child: flag.isNotEmpty
-            ? Text(flag, style: TextStyle(fontSize: size * 0.55, height: 1))
+            ? Text(flag, style: TextStyle(fontSize: size * 0.55, height: 1, fontFamilyFallback: const ['Noto Color Emoji']))
             : Text(nation.code,
                 style: TextStyle(fontSize: size * 0.3, fontWeight: FontWeight.w800, color: nation.onPrimary, height: 1)),
       ),

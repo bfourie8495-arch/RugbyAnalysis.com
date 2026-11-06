@@ -132,6 +132,27 @@ class MeScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: RaColors.faint)),
           ),
       ],
+      const SectionTitle('Your data'),
+      RaCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(
+              c.backend == null
+                  ? 'Your teams and alert settings are kept on this phone only.'
+                  : 'The app keeps your teams, alert settings and this phone’s alert token, under an anonymous ID. No name, email or location.',
+              style: const TextStyle(color: RaColors.muted)),
+          const SizedBox(height: 4),
+          TextButton(
+            style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 44)),
+            onPressed: () => openLink('https://rugbyanalysis.com/privacy'),
+            child: const Text('Privacy policy'),
+          ),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(44), side: const BorderSide(color: RaColors.line2)),
+            onPressed: () => _confirmDelete(context, c),
+            child: const Text('Delete my data', style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ]),
+      ),
       if (!standalone) const FooterLinks(),
     ]);
     if (!standalone) return list;
@@ -184,6 +205,28 @@ class MeScreen extends StatelessWidget {
         ),
       ]),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, AppController c) async {
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (d) => AlertDialog(
+        title: const Text('Delete your data?'),
+        content: const Text('This removes your teams, alert settings and reminders from the app and its server, and turns alerts off. It can’t be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(d).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(d).pop(true), child: const Text('Delete')),
+        ],
+      ),
+    );
+    if (yes != true || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await c.deleteMyData();
+      messenger.showSnackBar(const SnackBar(content: Text('Your data has been deleted.')));
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(content: Text('Couldn’t reach the server. Check your connection and try again.')));
+    }
   }
 
   Future<void> _pickTeams(BuildContext context) {

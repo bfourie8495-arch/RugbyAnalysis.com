@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rugby_analysis/main.dart';
 import 'package:rugby_analysis/screens/matchday_screen.dart';
+import 'package:rugby_analysis/screens/me_screen.dart';
 import 'package:rugby_analysis/screens/tournament_screen.dart';
 import 'package:rugby_analysis/screens/tournaments_screen.dart';
 import 'package:rugby_analysis/screens/world_cup_screen.dart';
@@ -107,5 +108,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('South Africa'), findsWidgets);
     expect(find.text('Turn on alerts'), findsOneWidget);
+    // Delete my data clears your teams.
+    await scrollTo(tester, MeScreen, find.text('Delete my data'));
+    await tester.tap(find.text('Delete my data'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(c.follows, isEmpty);
+    expect(find.text('Your data has been deleted.'), findsOneWidget);
   });
 }

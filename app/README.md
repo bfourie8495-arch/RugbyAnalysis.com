@@ -57,6 +57,19 @@ firebase deploy --only firestore --project middle-509820
 firebase deploy --only functions:rugby --project middle-509820
 ```
 
+## Google Play
+
+- **Upload key (once):** `powershell -ExecutionPolicy Bypass -File .\make-upload-key.ps1` creates
+  `~\rugbyanalysis-upload.jks` and `android\key.properties`, and gives the key to GitHub as four secrets.
+  Back up the .jks and its password.
+- **Builds:** every app change pushed to GitHub builds `RugbyAnalysis.apk` (the `app-latest` release, for
+  installing by link) and `RugbyAnalysis.aab` (for Play: Actions > App APK > the run > Artifacts),
+  both signed with the upload key, each with a higher build number.
+- **Listing:** `store/play-listing.md` has every answer Play Console asks for; the graphics are in `store/`.
+- **Privacy:** `https://rugbyanalysis.com/privacy` and `/delete-data` (`site/` in this repo). In the app:
+  Me > Your data > Delete my data. Records unused for a year expire through a Firestore TTL policy on
+  `deleteAt` (users and devices, database rugbydb).
+
 ## Checks
 
 GitHub Actions (`.github/workflows/app.yml`) runs `flutter analyze`, `flutter test`

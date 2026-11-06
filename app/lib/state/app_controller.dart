@@ -13,7 +13,7 @@ import '../services/feed_service.dart';
 /// through [AppScope] and rebuild when it calls notifyListeners(), a bit like
 /// an observable object in Python UI code.
 class AppController extends ChangeNotifier {
-  AppController({required this.source, this.backend, this.enableAlerts});
+  AppController({required this.source, this.backend, this.enableAlerts, this.disableAlerts, this.refreshAlerts});
 
   final FeedSource source;
   final Backend? backend; // null: Firebase isn't set up, so everything stays on the phone
@@ -21,6 +21,14 @@ class AppController extends ChangeNotifier {
   /// Asks the phone for permission to show alerts; null where alerts aren't
   /// supported (the web, tests). Returns true when allowed.
   final Future<bool> Function()? enableAlerts;
+
+  /// Forgets this phone's alert token (null where alerts aren't supported).
+  final Future<void> Function()? disableAlerts;
+
+  /// Re-saves this phone's alert token without asking (null where alerts aren't supported).
+  final Future<void> Function()? refreshAlerts;
+
+  bool _deleted = false; // after "Delete my data", nothing more goes to the server this session
 
   MatchdayFeed? matchday;
   TournamentsFeed? tournaments;
@@ -53,7 +61,8 @@ class AppController extends ChangeNotifier {
     }
     notifyListeners();
     await refresh();
-    _save(); // refreshes the clock offset the server uses
+    _save(); // refreshes the clock offset the server uses, and the record's deleteAt
+    if (alerts.on) refreshAlerts?.call();
   }
 
   Future<void> refresh() async {
@@ -121,6 +130,20 @@ class AppController extends ChangeNotifier {
   /// This weekend's games worth watching (your teams, big games, reminders).
   List<WatchItem> weekend() => matchday == null ? const [] : nextWeekend(worthWatching(matchday!, follows, alerts));
 
+  /// Deletes your teams and settings from the server and this phone. Throws if
+  /// the server copy couldn't be deleted (no connection), so the screen can say so.
+  Future<void> deleteMyData() async {
+    await backend?.deleteEverything();
+    _deleted = true;
+    await disableAlerts?.call();
+    follows = {};
+    alerts = const AlertPrefs();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_followsKey);
+    await prefs.remove(_alertsKey);
+    notifyListeners();
+  }
+
   void _changed() {
     notifyListeners();
     _save();
@@ -131,6 +154,7 @@ class AppController extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_followsKey, follows.toList());
       await prefs.setString(_alertsKey, jsonEncode(alerts.toMap()));
+      if (_deleted) return;
       await backend?.saveProfile(
           follows: follows.toList(), alerts: alerts.toMap(), utcOffsetMinutes: DateTime.now().timeZoneOffset.inMinutes);
     } catch (e) {

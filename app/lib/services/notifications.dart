@@ -50,6 +50,30 @@ class Notifications {
     }
   }
 
+  /// Re-saves this phone's token without asking anything, if alerts are still allowed.
+  /// Called when the app opens, so the token (and its deleteAt) stays current.
+  Future<void> refresh() async {
+    try {
+      final settings = await FirebaseMessaging.instance.getNotificationSettings();
+      if (settings.authorizationStatus != AuthorizationStatus.authorized) return;
+      _enabled = true;
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) await _save(token);
+    } catch (e) {
+      debugPrint('Could not refresh the device token: $e');
+    }
+  }
+
+  /// Stops alerts on this phone: forgets its token, so even a stale copy on the server can't reach it.
+  Future<void> disable() async {
+    _enabled = false;
+    try {
+      await FirebaseMessaging.instance.deleteToken();
+    } catch (e) {
+      debugPrint('Could not forget the device token: $e');
+    }
+  }
+
   Future<void> _save(String token) async {
     try {
       await backend.saveDeviceToken(token);

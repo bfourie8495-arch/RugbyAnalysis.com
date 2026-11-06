@@ -1,9 +1,10 @@
-"""Draws the app's launcher and web icons from the website's logo (site/logo/icon.svg: a gold rugby
-ball on navy). Run from app/:  python tool/make_icons.py   (needs Pillow)."""
+"""Draws the app's launcher and web icons and its Google Play graphics (store/) from the website's
+logo (site/logo/icon.svg: a gold rugby ball on navy). Run from app/:  python tool/make_icons.py
+(needs Pillow). The Play phone screenshots come from tool/store_screenshots_test.dart instead."""
 
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 NAVY, GOLD = (16, 33, 58, 255), (201, 162, 75, 255)
 SEAM = (16, 33, 58, 255)
@@ -41,6 +42,26 @@ def icon(size: int, *, rounded: bool, scale: float = 1.0) -> Image.Image:
     return bg
 
 
+def feature_graphic() -> Image.Image:
+    w, h = 1024, 500
+    im = Image.new("RGBA", (w, h), (14, 27, 48, 255))
+    lines = Image.new("RGBA", (w, h), (0, 0, 0, 0))  # a faint halfway line and 22, as on the website
+    for x, a in ((w * 0.72, 60), (w * 0.94, 34)):
+        ImageDraw.Draw(lines).line([x, 0, x, h], fill=(201, 162, 75, a), width=3)
+    im.alpha_composite(lines)
+    d = ImageDraw.Draw(im)
+    b = ball(420, 1.25)
+    im.alpha_composite(b, (int(w * 0.72) - 210, 40))
+    fonts = HERE / "assets/fonts"
+    title = ImageFont.truetype(str(fonts / "Poppins-ExtraBold.ttf"), 70)
+    line = ImageFont.truetype(str(fonts / "Figtree-SemiBold.ttf"), 31)
+    d.text((64, 128), "RugbyAnalysis", font=title, fill=(244, 239, 228, 255))
+    d.text((66, 232), "Every Test with the model's pick.", font=line, fill=(244, 239, 228, 255))
+    d.text((66, 276), "Rugby World Cup 2027 predictions.", font=line, fill=(201, 162, 75, 255))
+    d.text((66, 320), "A heads-up when your team plays.", font=line, fill=(169, 179, 196, 255))
+    return im.convert("RGB")
+
+
 def save(im: Image.Image, rel: str) -> None:
     p = HERE / rel
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -58,4 +79,7 @@ if __name__ == "__main__":
     for px in (192, 512):
         save(icon(px, rounded=True), f"web/icons/Icon-{px}.png")
         save(icon(px, rounded=False, scale=0.8), f"web/icons/Icon-maskable-{px}.png")
+    # Google Play: a square 512 icon (Play rounds the corners itself) and the 1024 x 500 feature graphic.
+    save(icon(512, rounded=False, scale=0.9).convert("RGB"), "store/play-icon-512.png")
+    save(feature_graphic(), "store/feature-graphic-1024x500.png")
     print("Icons written")
