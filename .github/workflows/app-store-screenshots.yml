@@ -28,7 +28,7 @@ jobs:
           mkdir -p tool/live tool/fonts
           # (falls back to the test copies in test/data when a live feed isn't there)
           for f in matchday tournaments; do curl -fsSL "https://rugbyanalysis.com/app/$f.json" -o "tool/live/$f.json" || rm -f "tool/live/$f.json"; done
-          curl -fsSL https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf -o tool/fonts/NotoColorEmoji.ttf
+          curl -fsSL https://raw.githubusercontent.com/google/fonts/main/ofl/notocoloremoji/NotoColorEmoji-Regular.ttf -o tool/fonts/NotoColorEmoji.ttf || echo "::warning::No emoji font, so flags show as boxes"
       - name: Render
         run: flutter test tool/store_screenshots_test.dart --update-goldens
       - name: Commit the screenshots
