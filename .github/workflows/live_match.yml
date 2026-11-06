@@ -1,0 +1,26 @@
+name: Live match on site
+on:
+  workflow_dispatch:
+    inputs:
+      home: {description: "Home team (as Highlightly names it)", default: "Ireland"}
+      away: {description: "Away team", default: "Argentina"}
+      start_utc: {description: "Start polling at HH:MM UTC", default: "20:00"}
+      minutes: {description: "Minutes to poll", default: "125"}
+      interval: {description: "Seconds between polls", default: "90"}
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g wrangler@4
+      - run: python pipeline/live_match.py
+        env:
+          HIGHLIGHTLY_API_KEY: ${{ secrets.HIGHLIGHTLY_API_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          HOME_TEAM: ${{ inputs.home }}
+          AWAY_TEAM: ${{ inputs.away }}
+          START_UTC: ${{ inputs.start_utc }}
+          MINUTES: ${{ inputs.minutes }}
+          INTERVAL: ${{ inputs.interval }}
