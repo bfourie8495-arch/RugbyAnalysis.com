@@ -17,7 +17,7 @@ and the phone screenshots in `screenshots/` (1080 x 1920), made on GitHub by
 **Short description** (80/80)
 
 ```
-Every international rugby Test with the model's pick, tables and World Cup odds.
+Every rugby Test with the model's pick, tournament tables and World Cup chances.
 ```
 
 **Full description** (1710/4000)

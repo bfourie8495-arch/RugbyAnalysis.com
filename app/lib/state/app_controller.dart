@@ -42,11 +42,14 @@ class AppController extends ChangeNotifier {
 
   static const _followsKey = 'follows';
   static const _alertsKey = 'alerts';
+  static const _showAllKey = 'showAllTests';
+  static const minorCutoff = 12;
 
   /// Loads your saved teams and settings, then the feeds.
   Future<void> start() async {
     final prefs = await SharedPreferences.getInstance();
     follows = {...?prefs.getStringList(_followsKey)};
+    showAllTests = prefs.getBool(_showAllKey) ?? false;
     final saved = prefs.getString(_alertsKey);
     if (saved != null) alerts = AlertPrefs.fromMap((jsonDecode(saved) as Map).cast<String, dynamic>());
     // With an account, the server copy wins (e.g. after reinstalling the app).
@@ -88,6 +91,39 @@ class AppController extends ChangeNotifier {
   }
 
   bool isFollowing(Gender g, String team) => follows.contains(followKey(g, team));
+
+  /// Your team: the first team you follow. It leads the weekend list and the Me tab; the others
+  /// are "teams you follow". Kept as the order of [follows], so the server needs nothing new.
+  String? get myTeamKey => follows.isEmpty ? null : follows.first;
+  bool isMyTeam(Gender g, String team) => myTeamKey == followKey(g, team);
+
+  void makeMyTeam(Gender g, String team) {
+    final k = followKey(g, team);
+    follows = {k, ...follows.where((x) => x != k)};
+    _changed();
+  }
+
+  /// Matchday hides Tests between smaller nations unless you ask for them (see [isMinorTest]).
+  bool showAllTests = false;
+
+  void setShowAllTests(bool v) {
+    showAllTests = v;
+    notifyListeners();
+    SharedPreferences.getInstance().then((p) => p.setBool(_showAllKey, v)).catchError((Object e) {
+      debugPrint('Could not save the Matchday filter: $e');
+      return false;
+    });
+  }
+
+  /// A Test most people won't want in their list: neither side in the world top [minorCutoff]
+  /// and neither one a team you follow.
+  bool isMinorTest(Gender g, String home, String away) {
+    if (isFollowing(g, home) || isFollowing(g, away)) return false;
+    final side = matchday?.side(g);
+    if (side == null) return false;
+    bool top(String t) => (side.rankOf(t) ?? 999) <= minorCutoff;
+    return !top(home) && !top(away);
+  }
 
   void toggleFollow(Gender g, String team) {
     final k = followKey(g, team);

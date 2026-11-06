@@ -77,7 +77,7 @@ ThemeData buildTheme() {
       backgroundColor: RaColors.page,
       selectedColor: RaColors.gold,
       side: BorderSide(color: RaColors.line2),
-      labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+      labelStyle: TextStyle(fontFamily: body, fontWeight: FontWeight.w600, fontSize: 13),
       shape: pill,
     ),
     switchTheme: SwitchThemeData(

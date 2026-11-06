@@ -93,7 +93,20 @@ def espn():
     return {}
 
 
+def sync_site():
+    """Brings site/ up to date with main before each deploy. Without this, a match that runs for two
+    hours keeps republishing the site as it was when the job started, undoing anything merged or
+    refreshed in the meantime (on 6 Nov this took the app's feed and privacy pages offline)."""
+    subprocess.run(["git", "fetch", "-q", "--depth=1", "origin", "main"], capture_output=True)
+    if subprocess.run(["git", "checkout", "-q", "FETCH_HEAD", "--", "site"], capture_output=True).returncode == 0:
+        with open("site/live.html", "w") as f:
+            f.write(PAGE)
+        with open("site/_headers", "a") as f:  # checkout put back main's _headers without the live rules
+            f.write(HEADERS)
+
+
 def publish(doc):
+    sync_site()
     with open("site/live.json", "w") as f:
         json.dump(doc, f)
     r = subprocess.run(["wrangler", "deploy"], capture_output=True, text=True)

@@ -43,9 +43,16 @@ class MatchdayScreen extends StatelessWidget {
   List<Widget> _content(BuildContext context, AppController c) {
     final g = c.gender;
     final side = c.matchday!.side(g);
-    final weekend = c.weekend();
+    // Your team's games lead the weekend list; the rest stay in kick-off order.
+    final all = c.weekend();
+    bool mine(WatchItem w) => w.reason == WatchReason.yourTeam && w.team != null && c.isMyTeam(w.gender, w.team!);
+    final weekend = [...all.where(mine), ...all.where((w) => !mine(w))];
+    // Tests between smaller nations are hidden unless you ask for them.
+    final fixtures = [for (final f in side.fixtures) if (c.showAllTests || !c.isMinorTest(g, f.home, f.away)) f];
+    final hidden = side.fixtures.length - fixtures.length;
+    final results = [for (final r in side.results) if (c.showAllTests || !c.isMinorTest(g, r.home, r.away)) r];
     final groups = <String, List<Fixture>>{};
-    for (final f in side.fixtures.take(30)) {
+    for (final f in fixtures.take(30)) {
       final label = f.kickOff == null ? dateLabel(f.date) : dayLabel(f.kickOff!.toLocal());
       (groups[label] ??= []).add(f);
     }
@@ -60,8 +67,13 @@ class MatchdayScreen extends StatelessWidget {
             FixtureTile(
               gender: w.gender,
               fixture: w.fixture,
-              tag: Tag(switch (w.reason) { WatchReason.yourTeam => 'Your team', WatchReason.bigGame => 'Big game', WatchReason.reminder => 'Reminder' },
-                  strong: w.reason == WatchReason.yourTeam),
+              tag: Tag(
+                  switch (w.reason) {
+                    WatchReason.yourTeam => mine(w) ? 'Your team' : 'You follow',
+                    WatchReason.bigGame => 'Big game',
+                    WatchReason.reminder => 'Reminder',
+                  },
+                  strong: mine(w)),
             ),
         ])
       else
@@ -86,7 +98,7 @@ class MatchdayScreen extends StatelessWidget {
               content: Text(ok ? 'Alerts on. Your heads-up comes on Thursday evening.' : 'Alerts are blocked in your phone’s settings.')));
         }),
       ],
-      SectionTitle('Up next', eyebrow: 'Matchday', note: side.fixtures.isEmpty ? null : '${side.fixtures.length} scheduled'),
+      SectionTitle('Up next', eyebrow: 'Matchday', note: fixtures.isEmpty ? null : '${fixtures.length} scheduled'),
       if (groups.isEmpty)
         EmptyNote('No ${g == Gender.men ? 'men’s' : 'women’s'} Tests scheduled', 'The latest results are below.')
       else
@@ -98,10 +110,40 @@ class MatchdayScreen extends StatelessWidget {
           TileList(children: [for (final f in e.value) FixtureTile(gender: g, fixture: f)]),
           const SizedBox(height: 8),
         ],
+      if (hidden > 0 || c.showAllTests)
+        _ShowAllButton(
+          showingAll: c.showAllTests,
+          hidden: hidden,
+          onTap: () => c.setShowAllTests(!c.showAllTests),
+        ),
       const SectionTitle('Latest results'),
-      TileList(children: [for (final r in side.results.take(10)) ResultTile(gender: g, result: r)]),
+      TileList(children: [for (final r in results.take(10)) ResultTile(gender: g, result: r)]),
       const FooterLinks(),
     ];
+  }
+}
+
+/// "Show all Tests" under Up next: the smaller nations' Tests are a tap away, but not in the way.
+class _ShowAllButton extends StatelessWidget {
+  const _ShowAllButton({required this.showingAll, required this.hidden, required this.onTap});
+
+  final bool showingAll;
+  final int hidden;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      style: TextButton.styleFrom(minimumSize: const Size.fromHeight(44), foregroundColor: RaColors.muted),
+      onPressed: onTap,
+      icon: Icon(showingAll ? Icons.filter_list : Icons.expand_more, size: 20),
+      label: Text(
+        showingAll
+            ? 'Show only Tests with a top-${AppController.minorCutoff} team or yours'
+            : 'Show all Tests ($hidden more between smaller nations)',
+        style: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+    );
   }
 }
 

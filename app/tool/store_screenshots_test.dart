@@ -51,9 +51,16 @@ void main() {
       'assets/fonts/Figtree-SemiBold.ttf',
       'assets/fonts/Figtree-Bold.ttf',
     ]);
+    // Widgets that don't name a font (chips, for one) use the platform default, Roboto on Android.
+    // Tests have no Roboto, so Figtree stands in for it here.
+    await _font('Roboto', ['assets/fonts/Figtree-Regular.ttf', 'assets/fonts/Figtree-SemiBold.ttf', 'assets/fonts/Figtree-Bold.ttf']);
     await _font('Noto Color Emoji', ['tool/fonts/NotoColorEmoji.ttf']);
-    final flutterRoot = Platform.environment['FLUTTER_ROOT'] ?? '';
-    await _font('MaterialIcons', ['$flutterRoot/bin/cache/artifacts/material_fonts/materialicons-regular.otf']);
+    // The icon font's file name has changed case between Flutter versions, so look for it.
+    final fonts = Directory('${Platform.environment['FLUTTER_ROOT'] ?? ''}/bin/cache/artifacts/material_fonts');
+    final icons = fonts.existsSync()
+        ? fonts.listSync().whereType<File>().where((f) => f.path.toLowerCase().endsWith('materialicons-regular.otf')).map((f) => f.path).toList()
+        : <String>[];
+    await _font('MaterialIcons', icons);
   });
 
   Future<AppController> start(WidgetTester tester) async {
