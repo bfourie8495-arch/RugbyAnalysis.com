@@ -26,7 +26,8 @@ jobs:
       - name: Latest feeds and an emoji font for the flags
         run: |
           mkdir -p tool/live tool/fonts
-          for f in matchday tournaments; do curl -fsSL "https://rugbyanalysis.com/app/$f.json" -o "tool/live/$f.json"; done
+          # (falls back to the test copies in test/data when a live feed isn't there)
+          for f in matchday tournaments; do curl -fsSL "https://rugbyanalysis.com/app/$f.json" -o "tool/live/$f.json" || rm -f "tool/live/$f.json"; done
           curl -fsSL https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf -o tool/fonts/NotoColorEmoji.ttf
       - name: Render
         run: flutter test tool/store_screenshots_test.dart --update-goldens
