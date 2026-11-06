@@ -63,7 +63,11 @@ class MeScreen extends StatelessWidget {
       else ...[
         Container(
           decoration: cardDecoration(),
-          child: Column(children: [
+          clipBehavior: Clip.antiAlias,
+          // A Material of its own, so the rows' tap ripples show on the card.
+          child: Material(
+            color: Colors.transparent,
+            child: Column(children: [
             SwitchListTile(
               title: const Text('Weekend heads-up', style: TextStyle(fontWeight: FontWeight.w700)),
               subtitle: const Text('Thursday evening: this weekend’s games for you', style: TextStyle(fontSize: 12, color: RaColors.faint)),
@@ -122,6 +126,7 @@ class MeScreen extends StatelessWidget {
               onTap: () => c.setAlerts(a.copyWith(on: false)),
             ),
           ]),
+          ),
         ),
         const SectionTitle('Your next heads-up'),
         _preview(c),

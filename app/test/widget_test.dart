@@ -89,6 +89,10 @@ void main() {
     expect(textIn(WorldCupScreen, 'Who wins it?'), findsOneWidget);
     await tester.scrollUntilVisible(textIn(WorldCupScreen, 'SCENARIOS'), 300, scrollable: listOf(WorldCupScreen));
     expect(find.textContaining('Top Pool'), findsWidgets);
+    await tester.scrollUntilVisible(find.widgetWithText(ChoiceChip, 'Knockouts'), -300, scrollable: listOf(WorldCupScreen));
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Knockouts'));
+    await tester.pumpAndSettle();
+    expect(textIn(WorldCupScreen, 'Round of 16'), findsWidgets);
   });
 
   testWidgets('Following a team from its page shows it under Me', (tester) async {
@@ -108,6 +112,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('South Africa'), findsWidgets);
     expect(find.text('Turn on alerts'), findsOneWidget);
+    // Turning alerts on shows their settings (a card of tappable rows).
+    await tester.tap(find.text('Turn on alerts'));
+    await tester.pumpAndSettle();
+    expect(c.alerts.on, isTrue);
+    expect(find.text('Weekend heads-up'), findsOneWidget);
     // Delete my data clears your teams.
     await scrollTo(tester, MeScreen, find.text('Delete my data'));
     await tester.tap(find.text('Delete my data'));

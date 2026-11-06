@@ -395,11 +395,12 @@ class _WorldCupScreenState extends State<WorldCupScreen> {
         Container(
           decoration: cardDecoration(),
           clipBehavior: Clip.antiAlias,
-          child: Column(children: [
+          child: Material(
+            color: Colors.transparent,
+            child: Column(children: [
             for (final k in e.value)
-              Container(
-                color: isMine(k.home) || isMine(k.away) ? RaColors.cardHi : null,
-                child: ListTile(
+              ListTile(
+                  tileColor: isMine(k.home) || isMine(k.away) ? RaColors.cardHi : null,
                   leading: SizedBox(
                     width: 54,
                     child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -411,8 +412,8 @@ class _WorldCupScreenState extends State<WorldCupScreen> {
                       style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   subtitle: Text('${k.venue}, ${k.city} · ${k.localTime} local', style: const TextStyle(fontSize: 12, color: RaColors.faint)),
                 ),
-              ),
           ]),
+          ),
         ),
       ],
     ];
