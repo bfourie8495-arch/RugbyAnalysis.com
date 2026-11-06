@@ -7,7 +7,8 @@ HOME, AWAY = os.environ["HOME_TEAM"], os.environ["AWAY_TEAM"]
 START = os.environ.get("START_UTC", "")          # HH:MM, poll start (UTC)
 MINUTES = int(os.environ.get("MINUTES", "125"))
 EVERY = int(os.environ.get("INTERVAL", "90"))    # seconds between polls
-ESPN_LG = os.environ.get("ESPN_LEAGUE", "17567")  # ESPN Nations Championship; match clock comes from ESPN
+ESPN_LG = os.environ.get("ESPN_LEAGUE", "17567")  # ESPN Nations Championship (score cross-check only)
+KO_ACTUAL = os.environ.get("KO_ACTUAL", "")      # HH:MM UTC the match really kicked off, if known
 if not KEY:
     sys.exit("HIGHLIGHTLY_API_KEY is not set")
 utc = lambda: dt.datetime.now(dt.timezone.utc)
@@ -29,7 +30,7 @@ const e=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 async function go(){try{const d=await (await fetch('/live.json?t='+Date.now(),{cache:'no-store'})).json();
 const sc=String(d.score||'').split(/\\s*[-:]\\s*/);const live=d.live;
 let mn=parseInt(d.clock);if(live&&!isNaN(mn)&&/half/i.test(d.status)&&!/half.?time/i.test(d.status))
-mn+=Math.max(0,Math.floor((Date.now()-new Date(d.updated))/60000));const ck=live&&!isNaN(mn)?` &middot; ${mn}&prime;`:'';
+if(!/\\+/.test(d.clock))mn+=Math.min(2,Math.max(0,Math.floor((Date.now()-new Date(d.updated))/60000)));const ck=live&&!isNaN(mn)?` &middot; ${mn}${/\\+/.test(d.clock)?'+':''}&prime;`:'';
 document.getElementById('c').innerHTML=`<div class="k">${e(d.league)}</div>
 <div class="row" style="margin-top:14px"><span class="t">${e(d.home)}</span><span class="s">${e(sc[0]??'')}</span></div>
 <div class="row"><span class="t">${e(d.away)}</span><span class="s">${e(sc[1]??'')}</span></div>
@@ -46,6 +47,28 @@ def fetch():
                                  headers={"x-rapidapi-key": KEY, "x-rapidapi-host": "rugby.highlightly.net"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)["data"], r.headers.get("x-ratelimit-requests-remaining")
+
+
+def hhmm(v):
+    h, mi = map(int, v.split(":"))
+    return utc().replace(hour=h, minute=mi, second=0, microsecond=0)
+
+
+HALF = {"first": hhmm(KO_ACTUAL) if KO_ACTUAL else None, "second": None}
+
+
+def match_clock(desc):
+    """Minutes played, counted from when each half was first seen live (or the known kick-off)."""
+    d, now = desc.lower(), utc()
+    if "first half" in d:
+        HALF["first"] = HALF["first"] or now
+        mins = int((now - HALF["first"]).total_seconds() // 60) + 1
+        return f"{mins}'" if mins <= 40 else "40+'"
+    if "second half" in d:
+        HALF["second"] = HALF["second"] or now
+        mins = 41 + int((now - HALF["second"]).total_seconds() // 60)
+        return f"{mins}'" if mins <= 80 else "80+'"
+    return None
 
 
 def espn():
@@ -107,6 +130,7 @@ while time.time() < end and done < 2:
                "state": s, "live": bool(desc) and not fin and "not started" not in desc.lower(),
                "kickoff": m.get("date"), "updated": utc().isoformat()}
         doc.update(espn())
+        doc["espn_clock"], doc["clock"] = doc.get("clock"), match_clock(desc)
         cur = (desc, s.get("score"))
         res = publish(doc)
         print(f"{stamp} {'CHANGE' if cur != last else 'same  '} {cur[0]} | {cur[1]} | ESPN {doc.get('clock')} {doc.get('espn_score')} | quota {left} | {res}",
