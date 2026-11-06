@@ -76,8 +76,8 @@ if (-not (Test-Path functions\venv)) {
         if (Get-Command py -ErrorAction SilentlyContinue) { Run py -3 -m venv functions\venv } else { Run python -m venv functions\venv }
     }
 }
-Run functions\venv\Scripts\python.exe -m pip install --quiet --upgrade pip
-Run functions\venv\Scripts\python.exe -m pip install --quiet -r functions\requirements.txt
+Run .\functions\venv\Scripts\python.exe -m pip install --quiet --upgrade pip
+Run .\functions\venv\Scripts\python.exe -m pip install --quiet -r functions\requirements.txt
 Run firebase deploy --only functions:rugby --project $Project
 
 Step 'All set'
