@@ -1,0 +1,51 @@
+name: rugby_analysis
+description: "RugbyAnalysis: fixtures, tables, model predictions and match alerts."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.5.0
+
+# The same stack as Smack Bang: Firebase for sign-in, saved teams and alerts.
+dependencies:
+  cloud_firestore: ^6.0.0
+  firebase_auth: ^6.0.0
+  firebase_core: ^4.0.0
+  firebase_messaging: ^16.0.0
+  flutter:
+    sdk: flutter
+  # The app's data comes from the website's feeds (rugbyanalysis.com/app/*.json).
+  http: ^1.2.0
+  # Keeps the last feeds and your teams on the phone, so it opens offline.
+  shared_preferences: ^2.3.0
+  url_launcher: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # The RugbyAnalysis.com look: Poppins for titles and numbers, Figtree for
+  # everything else. Bundled, so nothing is fetched at runtime. Both SIL OFL.
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-ExtraBold.ttf
+          weight: 800
+    - family: Figtree
+      fonts:
+        - asset: assets/fonts/Figtree-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Figtree-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Figtree-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Figtree-Bold.ttf
+          weight: 700

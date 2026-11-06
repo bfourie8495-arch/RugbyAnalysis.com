@@ -1,0 +1,6 @@
+# Copy to android/key.properties (git ignores it) and fill in your own
+# passwords. Never commit the real file or the .jks key.
+storeFile=C:/Users/brend/rugbyanalysis-upload.jks
+storePassword=YOUR-STORE-PASSWORD
+keyAlias=upload
+keyPassword=YOUR-KEY-PASSWORD

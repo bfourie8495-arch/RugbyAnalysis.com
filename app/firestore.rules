@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// RugbyAnalysis app rules, for the "rugbydb" database in project middle-509820
+// (Smack Bang's halfwaydb1 has its own rules). Deploy from the app folder:
+//   firebase deploy --only firestore --project middle-509820
+//
+// users/{uid}: your teams and alert settings. Only you can read or write yours.
+// devices/{uid}: this phone's notification token. Only you can write yours.
+// sent/*: the server's record of results already announced. No app access.
+// deleteAt (optional, a year ahead, renewed whenever the app opens): a Firestore
+// TTL policy on users.deleteAt and devices.deleteAt removes records nobody uses.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['follows', 'alerts', 'utcOffsetMinutes', 'updatedAt', 'deleteAt'])
+        && (!('deleteAt' in request.resource.data) || request.resource.data.deleteAt is timestamp)
+        && request.resource.data.follows is list
+        && request.resource.data.follows.size() <= 60
+        && request.resource.data.alerts is map
+        && request.resource.data.utcOffsetMinutes is int
+        && request.resource.data.utcOffsetMinutes >= -840
+        && request.resource.data.utcOffsetMinutes <= 840;
+    }
+
+    match /devices/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['token', 'platform', 'updatedAt', 'deleteAt'])
+        && (!('deleteAt' in request.resource.data) || request.resource.data.deleteAt is timestamp)
+        && request.resource.data.token is string
+        && request.resource.data.token.size() < 4096
+        && request.resource.data.platform in ['android', 'web'];
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "118790275017",
+    "project_id": "middle-509820",
+    "storage_bucket": "middle-509820.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118790275017:android:6926d46b8a34312730b218",
+        "android_client_info": {
+          "package_name": "app.smackbang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTNPIX4Ui98r7RusJ2NJ4tUUNgWb_k8KY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118790275017:android:68500115c638cf4930b218",
+        "android_client_info": {
+          "package_name": "com.halfwayapp.halfway"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTNPIX4Ui98r7RusJ2NJ4tUUNgWb_k8KY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118790275017:android:891408929e5ecc6e30b218",
+        "android_client_info": {
+          "package_name": "com.rugbyanalysis.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTNPIX4Ui98r7RusJ2NJ4tUUNgWb_k8KY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
