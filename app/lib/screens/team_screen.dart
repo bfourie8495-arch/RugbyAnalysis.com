@@ -59,6 +59,20 @@ class TeamScreen extends StatelessWidget {
                 label: Text(following ? 'Following' : 'Follow', style: const TextStyle(fontWeight: FontWeight.w700)),
               ),
             ),
+            if (following)
+              Center(
+                child: c.isMyTeam(gender, team)
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text('Your team', style: TextStyle(color: n.onPrimary, fontWeight: FontWeight.w700)),
+                      )
+                    : TextButton.icon(
+                        style: TextButton.styleFrom(foregroundColor: n.onPrimary, minimumSize: const Size(0, 44)),
+                        onPressed: () => c.makeMyTeam(gender, team),
+                        icon: const Icon(Icons.favorite_border, size: 18),
+                        label: Text('Make $team your team', style: const TextStyle(fontWeight: FontWeight.w700)),
+                      ),
+              ),
           ]),
         ),
         if ((side.form[team] ?? '').isNotEmpty) ...[

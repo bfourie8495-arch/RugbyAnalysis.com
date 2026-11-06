@@ -18,7 +18,7 @@ class MeScreen extends StatelessWidget {
     final a = c.alerts;
     final list = ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24), children: [
       if (!standalone) Text('Your teams and alerts', style: displayStyle(22)),
-      const SectionTitle('Teams you follow'),
+      SectionTitle('Teams you follow', note: c.follows.length > 1 ? 'Tap ♡ to choose your team' : null),
       if (c.follows.isEmpty)
         const EmptyNote('No teams yet', 'Follow a team to see its games first and get its alerts.')
       else
@@ -167,11 +167,18 @@ class MeScreen extends StatelessWidget {
   Widget _followRow(BuildContext context, AppController c, Gender g, String team) {
     final k = followKey(g, team);
     final muted = c.alerts.muted.contains(k);
+    final mine = c.isMyTeam(g, team);
     return ListTile(
       leading: TeamBadge(c.matchday?.nation(team) ?? Nation.unknown(team)),
       title: Text(team, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text('${g.label} · ${muted ? 'alerts muted' : 'alerts on'}', style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+      subtitle: Text('${mine ? 'Your team · ' : ''}${g.label} · ${muted ? 'alerts muted' : 'alerts on'}',
+          style: TextStyle(fontSize: 12, color: mine ? RaColors.goldSoft : RaColors.faint, fontWeight: mine ? FontWeight.w700 : null)),
       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+        IconButton(
+          tooltip: mine ? '$team is your team' : 'Make $team your team',
+          icon: Icon(mine ? Icons.favorite : Icons.favorite_border, color: mine ? RaColors.gold : RaColors.faint),
+          onPressed: mine ? null : () => c.makeMyTeam(g, team),
+        ),
         IconButton(
           tooltip: muted ? 'Turn on alerts for $team' : 'Mute alerts for $team',
           icon: Icon(muted ? Icons.notifications_off_outlined : Icons.notifications_active_outlined, color: muted ? RaColors.faint : RaColors.gold),

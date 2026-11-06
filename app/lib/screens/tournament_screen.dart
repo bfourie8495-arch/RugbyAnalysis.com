@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/feeds.dart';
 import '../models/format.dart';
+import '../models/stage.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -35,11 +36,15 @@ class TournamentScreen extends StatelessWidget {
                   ]),
                   const SizedBox(height: 6),
                   Text(t.name, style: displayStyle(26, weight: FontWeight.w800)),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 12),
+                  const _Label('Where it’s at'),
+                  Text(whereItsAt(t), style: const TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 12),
+                  const _Label('How it works'),
                   Text(t.about, style: const TextStyle(color: RaColors.muted)),
                   if (t.finals.isNotEmpty && t.status != TournamentStatus.done) ...[
-                    const Divider(height: 20),
-                    Text(t.finals, style: const TextStyle(fontSize: 13, color: RaColors.muted)),
+                    const SizedBox(height: 6),
+                    Text(t.finals, style: const TextStyle(color: RaColors.muted)),
                   ],
                 ]),
               ),
@@ -193,4 +198,17 @@ class TournamentScreen extends StatelessWidget {
       onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => MatchScreen(gender: g, fixture: f))),
     );
   }
+}
+
+class _Label extends StatelessWidget {
+  const _Label(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 3),
+        child: Text(text.toUpperCase(),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.1, color: RaColors.gold)),
+      );
 }
