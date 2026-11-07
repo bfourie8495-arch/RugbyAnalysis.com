@@ -377,13 +377,14 @@ class TeamNumbers extends StatelessWidget {
     final played = s.allTime.fold(0, (a, b) => a + b);
     return RaCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(children: [
+        IntrinsicHeight(
+            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           box(pct(TeamStats.winRate(s.allTime)), 'All-time wins', '$played Tests since ${s.since}'),
           const SizedBox(width: 8),
           box(s.year.every((x) => x == 0) ? '–' : wdl(s.year), 'This year', 'won–drawn–lost'),
           const SizedBox(width: 8),
           box(wdl(s.last), 'Last ${s.lastN}', s.streakText),
-        ]),
+        ])),
         const SizedBox(height: 12),
         Text('Over the last ${s.lastN} Tests', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.gold)),
         const SizedBox(height: 4),
@@ -399,7 +400,7 @@ class TeamNumbers extends StatelessWidget {
         child: Row(children: [
           Expanded(child: Text(label, style: const TextStyle(color: RaColors.muted))),
           const SizedBox(width: 8),
-          Flexible(flex: 2, child: Text(value, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w700))),
+          Expanded(flex: 2, child: Text(value, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w700))),
         ]),
       );
 }

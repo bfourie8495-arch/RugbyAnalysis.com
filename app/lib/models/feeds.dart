@@ -267,7 +267,7 @@ class TeamStats {
     if (streak.length < 2) return '';
     final n = int.tryParse(streak.substring(1)) ?? 0;
     final word = switch (streak[0]) { 'W' => n == 1 ? 'win' : 'wins', 'L' => n == 1 ? 'defeat' : 'defeats', _ => n == 1 ? 'draw' : 'draws' };
-    return n == 1 ? 'Last time: ${switch (streak[0]) { 'W' => 'won', 'L' => 'lost', _ => 'drew' }}' : '$n $word in a row';
+    return n == 1 ? '${switch (streak[0]) { 'W' => 'Won', 'L' => 'Lost', _ => 'Drew' }} last time' : '$n $word in a row';
   }
 }
 
