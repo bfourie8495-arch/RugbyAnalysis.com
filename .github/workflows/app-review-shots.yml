@@ -1,0 +1,26 @@
+name: App review shots (temporary)
+on:
+  push:
+    branches: [app-stats-and-logo]
+    paths: ["app/tool/review_shots_test.dart", ".github/workflows/app-review-shots.yml"]
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: |
+          mkdir -p tool/fonts
+          curl -fsSL https://raw.githubusercontent.com/google/fonts/main/ofl/notocoloremoji/NotoColorEmoji-Regular.ttf -o tool/fonts/NotoColorEmoji.ttf || true
+      - run: flutter test tool/review_shots_test.dart --update-goldens
+      - uses: actions/upload-artifact@v4
+        with:
+          name: review
+          path: app/tool/review/*.png
