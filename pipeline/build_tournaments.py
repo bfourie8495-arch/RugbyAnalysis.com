@@ -173,6 +173,38 @@ def res_list(df):
             for r in df.sort_values('date').itertuples()]
 
 
+def comp_stats(ed):
+    """An edition's numbers: points and tries a game, the biggest win, the highest-scoring Test, each team's
+    attack and defence, and the top try scorers where the record names them."""
+    if ed.empty: return None
+    rows = list(ed.sort_values('date').itertuples())
+    def m(r): return [r.date, r.home_team, r.away_team, int(r.home_score), int(r.away_score)]
+    known = [r for r in rows if not pd.isna(r.home_tries) and not pd.isna(r.away_tries)
+             and 5 * r.home_tries <= r.home_score and 5 * r.away_tries <= r.away_score]
+    out = {'games': len(rows), 'avgPts': round(sum(r.home_score + r.away_score for r in rows) / len(rows), 1),
+           'big': m(max(rows, key=lambda r: (abs(r.home_score - r.away_score), r.date))),
+           'high': m(max(rows, key=lambda r: (r.home_score + r.away_score, r.date)))}
+    if len(known) == len(rows):
+        out['avgTries'] = round(sum(r.home_tries + r.away_tries for r in rows) / len(rows), 1)
+        T = collections.Counter()
+        for r in rows:
+            T[r.home_team] += int(r.home_tries); T[r.away_team] += int(r.away_tries)
+        out['tries'] = dict(T)
+    S = collections.Counter()
+    for r in rows:
+        for team, col in ((r.home_team, r.home_try_scorers), (r.away_team, r.away_try_scorers)):
+            if not isinstance(col, str): continue
+            for part in col.split(';'):
+                mt = re.match(r'\s*(.+?)\s*(?:\((\d+)\))?\s*$', part)
+                if mt and mt.group(1) and mt.group(1).lower() != 'penalty try':
+                    S[(mt.group(1), team)] += int(mt.group(2) or 1)
+    named = sum(1 for r in rows if isinstance(r.home_try_scorers, str) or isinstance(r.away_try_scorers, str))
+    if S:
+        out['scorers'] = [[p, t, n] for (p, t), n in sorted(S.items(), key=lambda x: (-x[1], x[0][0]))[:8]]
+        out['scorersFrom'] = named
+    return out
+
+
 def build_tournament(cfg, RES, FX):
     df = RES[RES.g == cfg['g']]
     hit = df[df.competition.str.match(cfg['pat'], na=False)]
@@ -194,6 +226,7 @@ def build_tournament(cfg, RES, FX):
            'about': cfg.get('about', ''), 'finals': cfg.get('finals', ''), 'fmt': cfg.get('fmt', 'table'),
            'checked': cfg.get('checked', True), 'played': len(ed), 'last': ed.date.max(),
            'results': res_list(ed)[-12:], 'fixtures': fx[:18]}
+    if (st := comp_stats(ed)): out['stats'] = st
     if out['fmt'] == 'series':
         S = series(ed)
         out['teams'] = {t: S[t] for t in sorted(S, key=lambda t: (-S[t]['w'], -(S[t]['pf'] - S[t]['pa'])))}

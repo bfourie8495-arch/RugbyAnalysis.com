@@ -7,6 +7,7 @@ import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../widgets/standings.dart';
+import '../widgets/stats.dart';
 import 'match_screen.dart';
 import 'team_screen.dart';
 import 'tournaments_screen.dart';
@@ -50,6 +51,7 @@ class TournamentScreen extends StatelessWidget {
               ),
               if (t.isSeries) ..._series(context, t) else ..._tables(t),
               if (t.sim != null) ..._predictions(context, c, t),
+              TournamentStatsSection(tournament: t),
               if (t.fixtures.isNotEmpty) ...[
                 SectionTitle('Still to play', note: '${t.fixtures.length} matches'),
                 _list([
@@ -65,6 +67,7 @@ class TournamentScreen extends StatelessWidget {
                       title: Text('${r.home} v ${r.away}', style: const TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text(shortDate(r.date), style: const TextStyle(color: RaColors.faint, fontSize: 12)),
                       trailing: Text('${r.homeScore}–${r.awayScore}', style: displayStyle(16)),
+                      onTap: () => openResult(context, t.gender, r),
                     ),
                 ]),
               ],

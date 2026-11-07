@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/common.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/standings.dart';
+import '../widgets/stats.dart';
 import 'tournament_screen.dart';
 import 'tournaments_screen.dart';
 import 'world_cup_screen.dart';
@@ -79,6 +80,10 @@ class TeamScreen extends StatelessWidget {
           const SectionTitle('Form', note: 'Most recent on the right'),
           RaCard(child: Align(alignment: Alignment.centerLeft, child: FormDots(side.form[team]!))),
         ],
+        if (side.stats[team] case final s?) ...[
+          const SectionTitle('By the numbers'),
+          TeamNumbers(s),
+        ],
         if (next.isNotEmpty) ...[
           const SectionTitle('Next up'),
           TileList(children: [for (final f in next) FixtureTile(gender: gender, fixture: f)]),
@@ -92,6 +97,17 @@ class TeamScreen extends StatelessWidget {
         if (results.isNotEmpty) ...[
           const SectionTitle('Recent results'),
           TileList(children: [for (final r in results) ResultTile(gender: gender, result: r)]),
+        ] else if (side.stats[team]?.recent case final recent? when recent.isNotEmpty) ...[
+          const SectionTitle('Recent results'),
+          TileList(children: [
+            for (final r in recent.take(6))
+              MeetingRow(
+                gender: gender,
+                result: r.where == 'a'
+                    ? Result(date: r.date, home: r.opponent, away: team, homeScore: r.against, awayScore: r.score, comp: r.comp)
+                    : Result(date: r.date, home: team, away: r.opponent, homeScore: r.score, awayScore: r.against, comp: r.comp),
+              ),
+          ]),
         ],
       ]),
     );

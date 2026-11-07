@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rugby_analysis/main.dart';
+import 'package:rugby_analysis/models/feeds.dart';
+import 'package:rugby_analysis/screens/match_screen.dart';
 import 'package:rugby_analysis/screens/matchday_screen.dart';
 import 'package:rugby_analysis/screens/me_screen.dart';
 import 'package:rugby_analysis/screens/tournament_screen.dart';
@@ -11,6 +13,7 @@ import 'package:rugby_analysis/screens/tournaments_screen.dart';
 import 'package:rugby_analysis/screens/world_cup_screen.dart';
 import 'package:rugby_analysis/services/feed_service.dart';
 import 'package:rugby_analysis/state/app_controller.dart';
+import 'package:rugby_analysis/widgets/match_tiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Serves the real feed copies in test/data instead of the website.
@@ -74,6 +77,40 @@ void main() {
     expect(find.text('Northern group'), findsWidgets);
     await tester.scrollUntilVisible(find.text('Who wins it?'), 300, scrollable: listOf(TournamentScreen));
     expect(find.text('Who wins it?'), findsOneWidget);
+  });
+
+  testWidgets('A fixture shows the head-to-head and both teams’ numbers', (tester) async {
+    await startApp(tester);
+    await scrollTo(tester, MatchdayScreen, find.byType(FixtureTile));
+    await tester.tap(find.byType(FixtureTile).first);
+    await tester.pumpAndSettle();
+    expect(find.byType(MatchScreen), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Head to head'), 300, scrollable: listOf(MatchScreen));
+    expect(find.text('Head to head'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Points scored a game'), 300, scrollable: listOf(MatchScreen));
+    expect(find.text('Points scored a game'), findsOneWidget);
+  });
+
+  testWidgets('A result opens its match stats', (tester) async {
+    final c = await startApp(tester);
+    final r = c.matchday!.men.results.firstWhere((r) => r.detail?.hasScoring ?? false);
+    await tester.pumpWidget(AppScope(controller: c, child: MaterialApp(home: MatchScreen.result(gender: Gender.men, result: r))));
+    await tester.pumpAndSettle();
+    expect(find.text('${r.homeScore}–${r.awayScore}'), findsWidgets);
+    expect(find.text('Match stats'), findsOneWidget);
+    expect(find.text('Tries'), findsOneWidget);
+  });
+
+  testWidgets('A tournament shows its stats and top try scorers', (tester) async {
+    await startApp(tester);
+    await tester.tap(tab('Tournaments'));
+    await tester.pumpAndSettle();
+    await tester.tap(textIn(TournamentsScreen, 'Nations Championship 2026'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Tournament stats'), 300, scrollable: listOf(TournamentScreen));
+    expect(find.text('Tournament stats'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Top try scorers'), 300, scrollable: listOf(TournamentScreen));
+    expect(find.text('Top try scorers'), findsOneWidget);
   });
 
   testWidgets('World Cup shows pools, predictions and a team’s scenarios', (tester) async {

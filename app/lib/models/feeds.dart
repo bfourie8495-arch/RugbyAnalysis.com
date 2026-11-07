@@ -114,7 +114,7 @@ class Fixture {
 }
 
 class Result {
-  Result({required this.date, required this.home, required this.away, required this.homeScore, required this.awayScore, this.comp = ''});
+  Result({required this.date, required this.home, required this.away, required this.homeScore, required this.awayScore, this.comp = '', this.detail});
 
   factory Result.fromJson(Map<String, dynamic> j) => Result(
         date: _str(j['d']),
@@ -123,7 +123,12 @@ class Result {
         homeScore: _int(j['hs']),
         awayScore: _int(j['as']),
         comp: _str(j['c']),
+        detail: MatchDetail.fromJson(j),
       );
+
+  /// A result from a compact [date, home, away, home score, away score] list.
+  static Result? fromRow(Object? x) =>
+      x is List && x.length >= 5 ? Result(date: _str(x[0]), home: _str(x[1]), away: _str(x[2]), homeScore: _int(x[3]), awayScore: _int(x[4])) : null;
 
   final String date;
   final String home;
@@ -132,7 +137,138 @@ class Result {
   final int awayScore;
   final String comp;
 
+  /// Tries, kicks, cards and so on, for the latest results (empty when the record has none).
+  final MatchDetail? detail;
+
   bool involves(String team) => home == team || away == team;
+  String get key => '$date|$home|$away';
+  String? get winner => homeScore > awayScore ? home : awayScore > homeScore ? away : null;
+  int scoreOf(String team) => team == home ? homeScore : awayScore;
+}
+
+/// One side's numbers in a finished Test. Null where the record doesn't say.
+class SideDetail {
+  SideDetail.fromJson(Map<String, dynamic> j, String k)
+      : tries = _intOrNull(j['${k}t']),
+        cons = _intOrNull(j['${k}c']),
+        pens = _intOrNull(j['${k}p']),
+        drops = _intOrNull(j['${k}dg']),
+        yellow = _intOrNull(j['${k}y']),
+        red = _intOrNull(j['${k}r']),
+        scorers = _str(j['${k}sc']);
+
+  final int? tries;
+  final int? cons;
+  final int? pens;
+  final int? drops;
+  final int? yellow;
+  final int? red;
+  final String scorers; // 'Kolbe (2); Arendse', or ''
+}
+
+int? _intOrNull(Object? x) => x is num ? x.toInt() : null;
+
+/// What the record holds about a Test beyond the score.
+class MatchDetail {
+  MatchDetail._(this.home, this.away, this.referee, this.ground, this.city, this.crowd);
+
+  /// Null when the feed has nothing beyond the score.
+  static MatchDetail? fromJson(Map<String, dynamic> j) {
+    const keys = ['ht', 'at', 'hy', 'ay', 'hsc', 'asc', 'ref', 'gr', 'att'];
+    if (!keys.any(j.containsKey)) return null;
+    return MatchDetail._(SideDetail.fromJson(j, 'h'), SideDetail.fromJson(j, 'a'), _str(j['ref']), _str(j['gr']), _str(j['city']), _intOrNull(j['att']));
+  }
+
+  final SideDetail home;
+  final SideDetail away;
+  final String referee;
+  final String ground;
+  final String city;
+  final int? crowd;
+
+  bool get hasScoring => home.tries != null && away.tries != null;
+  bool get hasCards => home.yellow != null && away.yellow != null;
+}
+
+/// Every Test between two nations, from the matchday feed. [a] and [b] are in alphabetical order;
+/// [forPair] turns it round so the first team is the one you ask for.
+class HeadToHead {
+  HeadToHead({required this.a, required this.b, required this.record, required this.last10, required this.first, required this.avg,
+      required this.biggest, required this.meetings});
+
+  factory HeadToHead.fromJson(Map<String, dynamic> j) => HeadToHead(
+        a: _str(j['a']),
+        b: _str(j['b']),
+        record: [for (final x in _list(j['rec'])) _int(x)],
+        last10: [for (final x in _list(j['last10'])) _int(x)],
+        first: _str(j['first']),
+        avg: [for (final x in _list(j['avg'])) _dbl(x)],
+        biggest: {for (final e in _map(j['big']).entries) if (Result.fromRow(e.value) case final r?) e.key: r},
+        meetings: [for (final m in _list(j['last'])) if (Result.fromRow(m) case final r?) r],
+      );
+
+  final String a;
+  final String b;
+  final List<int> record; // a's wins, draws, b's wins
+  final List<int> last10; // the same, over the last ten meetings
+  final String first; // year of the first meeting
+  final List<double> avg; // a's and b's average score over the last ten
+  final Map<String, Result> biggest; // each side's biggest win
+  final List<Result> meetings; // newest first
+
+  int get played => record.fold(0, (x, y) => x + y);
+
+  /// The same head-to-head with [team] first.
+  HeadToHead forPair(String team) => team == a || record.length < 3
+      ? this
+      : HeadToHead(a: b, b: a, record: record.reversed.toList(), last10: last10.reversed.toList(), first: first, avg: avg.reversed.toList(),
+          biggest: biggest, meetings: meetings);
+}
+
+/// A nation's numbers: all-time and this year's record, the last ten Tests, its streak and latest results.
+class TeamStats {
+  TeamStats.fromJson(Map<String, dynamic> j)
+      : allTime = [for (final x in _list(j['all'])) _int(x)],
+        since = _str(j['since']),
+        year = [for (final x in _list(j['year'])) _int(x)],
+        last = [for (final x in _list(j['last'])) _int(x)],
+        lastN = _int(j['n']),
+        pointsFor = _dbl(j['pf']),
+        pointsAgainst = _dbl(j['pa']),
+        triesFor = _dblOrNull(j['tf']),
+        triesAgainst = _dblOrNull(j['ta']),
+        triesFrom = _int(j['tn']),
+        streak = _str(j['streak']),
+        recent = [
+          for (final r in _list(j['recent']))
+            if (r is List && r.length >= 6)
+              (date: _str(r[0]), opponent: _str(r[1]), score: _int(r[2]), against: _int(r[3]), where: _str(r[4]), comp: _str(r[5]))
+        ];
+
+  final List<int> allTime; // won, drawn, lost
+  final String since;
+  final List<int> year; // this calendar year
+  final List<int> last; // the last [lastN] Tests
+  final int lastN;
+  final double pointsFor; // a game, over the last ten
+  final double pointsAgainst;
+  final double? triesFor; // a game, over [triesFrom] of the last ten (where tries are recorded)
+  final double? triesAgainst;
+  final int triesFrom;
+  final String streak; // 'W3'
+  final List<({String date, String opponent, int score, int against, String where, String comp})> recent; // newest first
+
+  static double winRate(List<int> wdl) {
+    final p = wdl.fold(0, (a, b) => a + b);
+    return p == 0 ? 0 : 100 * wdl[0] / p;
+  }
+
+  String get streakText {
+    if (streak.length < 2) return '';
+    final n = int.tryParse(streak.substring(1)) ?? 0;
+    final word = switch (streak[0]) { 'W' => n == 1 ? 'win' : 'wins', 'L' => n == 1 ? 'defeat' : 'defeats', _ => n == 1 ? 'draw' : 'draws' };
+    return n == 1 ? 'Last time: ${switch (streak[0]) { 'W' => 'won', 'L' => 'lost', _ => 'drew' }}' : '$n $word in a row';
+  }
 }
 
 class Ranked {
@@ -144,19 +280,37 @@ class Ranked {
 
 /// One side (men's or women's) of the matchday feed.
 class MatchdaySide {
-  MatchdaySide({required this.ranked, required this.fixtures, required this.results, required this.form});
+  MatchdaySide({required this.ranked, required this.fixtures, required this.results, required this.form, this.h2h = const {}, this.stats = const {}});
 
   factory MatchdaySide.fromJson(Map<String, dynamic> j) => MatchdaySide(
         ranked: [for (final r in _list(j['ranked'])) if (r is List && r.length >= 3) Ranked(_str(r[0]), _int(r[1]), _dbl(r[2]))],
         fixtures: [for (final f in _list(j['fixtures'])) Fixture.fromJson(_map(f))],
         results: [for (final r in _list(j['results'])) Result.fromJson(_map(r))],
         form: _map(j['form']).map((k, v) => MapEntry(k, _str(v))),
+        h2h: _map(j['h2h']).map((k, v) => MapEntry(k, HeadToHead.fromJson(_map(v)))),
+        stats: _map(j['stats']).map((k, v) => MapEntry(k, TeamStats.fromJson(_map(v)))),
       );
 
   final List<Ranked> ranked;
   final List<Fixture> fixtures; // soonest first
   final List<Result> results; // newest first
   final Map<String, String> form; // 'WWLDW', oldest to newest
+  final Map<String, HeadToHead> h2h; // 'Italy|South Africa' (alphabetical)
+  final Map<String, TeamStats> stats;
+
+  /// [first] against [second], with [first]'s numbers first. Null if they've never met (or the feed is older).
+  HeadToHead? meeting(String first, String second) {
+    final names = [first, second]..sort();
+    return h2h['${names[0]}|${names[1]}']?.forPair(first);
+  }
+
+  /// The full record of this Test, if it's among the latest results.
+  Result? resultFor(Result r) {
+    for (final x in results) {
+      if (x.date == r.date && x.home == r.home && x.away == r.away) return x;
+    }
+    return null;
+  }
 
   int? rankOf(String team) {
     for (final r in ranked) {
@@ -196,6 +350,8 @@ class StandingRow {
         drawn = _int(j['d']),
         lost = _int(j['l']),
         diff = _int(j['pd']),
+        pointsFor = _int(j['pf']),
+        pointsAgainst = _int(j['pa']),
         bonus = _int(j['tb']) + _int(j['lb']),
         points = _int(j['pts']);
 
@@ -206,6 +362,8 @@ class StandingRow {
   final int drawn;
   final int lost;
   final int diff;
+  final int pointsFor;
+  final int pointsAgainst;
   final int bonus;
   final int points;
 }
@@ -218,13 +376,38 @@ class TableGroup {
 
 /// A team's record in a series with no league table (the WXV Global Series).
 class SeriesRecord {
-  SeriesRecord(this.team, this.played, this.won, this.drawn, this.lost, this.diff);
+  SeriesRecord(this.team, this.played, this.won, this.drawn, this.lost, this.pointsFor, this.pointsAgainst);
   final String team;
   final int played;
   final int won;
   final int drawn;
   final int lost;
-  final int diff;
+  final int pointsFor;
+  final int pointsAgainst;
+  int get diff => pointsFor - pointsAgainst;
+}
+
+/// An edition's numbers: points and tries a game, the biggest win, the highest-scoring Test,
+/// tries by team and the top try scorers (where the record names them).
+class CompStats {
+  CompStats.fromJson(Map<String, dynamic> j)
+      : games = _int(j['games']),
+        avgPoints = _dbl(j['avgPts']),
+        avgTries = _dblOrNull(j['avgTries']),
+        biggest = Result.fromRow(j['big']),
+        highest = Result.fromRow(j['high']),
+        tries = _map(j['tries']).map((k, v) => MapEntry(k, _int(v))),
+        scorers = [for (final s in _list(j['scorers'])) if (s is List && s.length >= 3) (player: _str(s[0]), team: _str(s[1]), tries: _int(s[2]))],
+        scorersFrom = _int(j['scorersFrom']);
+
+  final int games;
+  final double avgPoints;
+  final double? avgTries;
+  final Result? biggest;
+  final Result? highest;
+  final Map<String, int> tries; // empty unless every game's tries are recorded
+  final List<({String player, String team, int tries})> scorers;
+  final int scorersFrom; // how many of the games name their try scorers
 }
 
 enum TournamentStatus { live, next, done }
@@ -246,11 +429,12 @@ class Tournament {
         records = [
           for (final e in _map(j['teams']).entries)
             SeriesRecord(e.key, _int(_map(e.value)['p']), _int(_map(e.value)['w']), _int(_map(e.value)['d']), _int(_map(e.value)['l']),
-                _int(_map(e.value)['pf']) - _int(_map(e.value)['pa']))
+                _int(_map(e.value)['pf']), _int(_map(e.value)['pa']))
         ],
         fixtures = [for (final f in _list(j['fixtures'])) Fixture.fromJson(_map(f), comp: _str(j['name']))],
         results = [for (final r in _list(j['results'])) Result.fromJson(_map(r))],
-        sim = j['sim'] is Map ? GroupSim.fromJson(_map(j['sim'])) : null;
+        sim = j['sim'] is Map ? GroupSim.fromJson(_map(j['sim'])) : null,
+        stats = j['stats'] is Map ? CompStats.fromJson(_map(j['stats'])) : null;
 
   final String id;
   final Gender gender;
@@ -266,6 +450,12 @@ class Tournament {
   final List<Fixture> fixtures;
   final List<Result> results; // oldest first
   final GroupSim? sim;
+  final CompStats? stats;
+
+  /// Every team's played, points for and against, from the tables or the series records.
+  List<({String team, int played, int pointsFor, int pointsAgainst})> get scoring => isSeries
+      ? [for (final r in records) (team: r.team, played: r.played, pointsFor: r.pointsFor, pointsAgainst: r.pointsAgainst)]
+      : [for (final g in groups) for (final r in g.rows) (team: r.team, played: r.played, pointsFor: r.pointsFor, pointsAgainst: r.pointsAgainst)];
 
   String get title => '$name $season';
 }

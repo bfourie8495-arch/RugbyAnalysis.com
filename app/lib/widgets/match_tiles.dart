@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../models/feeds.dart';
 import '../models/format.dart';
 import '../screens/match_screen.dart';
-import '../screens/team_screen.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import 'common.dart';
+import 'stats.dart';
 
 /// An upcoming Test: both teams with their form, kick-off in your time, and the model's pick.
 class FixtureTile extends StatelessWidget {
@@ -87,8 +87,7 @@ class ResultTile extends StatelessWidget {
     }
 
     return InkWell(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => TeamScreen(gender: gender, team: AppScope.read(context).isFollowing(gender, r.away) ? r.away : r.home))),
+      onTap: () => openResult(context, gender, r),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: Row(children: [

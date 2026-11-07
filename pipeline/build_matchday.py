@@ -91,6 +91,97 @@ def form(df, team, n=FORM):
     return ''.join(out)
 
 
+def num(x):
+    return None if pd.isna(x) else int(x)
+
+
+def tries_of(r, side):
+    """A side's tries in one Test, or None when the record doesn't have them (or has an impossible 0)."""
+    t, score = num(getattr(r, side + '_tries')), int(getattr(r, side + '_score'))
+    if t is None or 5 * t > score: return None
+    parts = [num(getattr(r, side + k)) for k in ('_cons', '_pens', '_drops')]
+    if t == 0 and score > 0 and all(p is not None for p in parts) and sum(parts) == 0: return None  # blank row, not 0 tries
+    if t == 0 and score >= 20: return None
+    return t
+
+
+def meeting(r):
+    return [r.date, r.home_team, r.away_team, int(r.home_score), int(r.away_score)]
+
+
+def h2h(df, a, b):
+    """Every Test between a and b: the record, the last ten, biggest wins, typical score and the latest meetings."""
+    m = df[((df.home_team == a) & (df.away_team == b)) | ((df.home_team == b) & (df.away_team == a))]
+    if m.empty: return None
+    def score(r, t): return int(r.home_score) if r.home_team == t else int(r.away_score)
+    rows = list(m.itertuples())
+    rec = lambda rs: [sum(score(r, a) > score(r, b) for r in rs), sum(score(r, a) == score(r, b) for r in rs),
+                      sum(score(r, a) < score(r, b) for r in rs)]
+    big = {}
+    for t, o in ((a, b), (b, a)):
+        wins = [r for r in rows if score(r, t) > score(r, o)]
+        if wins: big[t] = meeting(max(wins, key=lambda r: (score(r, t) - score(r, o), r.date)))
+    recent = rows[-10:]
+    return {'a': a, 'b': b, 'rec': rec(rows), 'last10': rec(recent), 'first': rows[0].date[:4],
+            'avg': [round(sum(score(r, a) for r in recent) / len(recent), 1), round(sum(score(r, b) for r in recent) / len(recent), 1)],
+            'big': big, 'last': [meeting(r) for r in reversed(rows[-6:])]}
+
+
+def team_stats(df, t):
+    """A nation's numbers: all-time record, this year, the last ten Tests' averages, its streak and latest results."""
+    rows = list(df[(df.home_team == t) | (df.away_team == t)].itertuples())
+    if not rows: return None
+    def side(r): return 'home' if r.home_team == t else 'away'
+    def other(r): return 'away' if r.home_team == t else 'home'
+    def res(r):
+        my, op = int(getattr(r, side(r) + '_score')), int(getattr(r, other(r) + '_score'))
+        return 'W' if my > op else 'L' if my < op else 'D'
+    def wdl(rs): return [sum(res(r) == k for r in rs) for k in 'WDL']
+    last = rows[-10:]
+    tf = [(tries_of(r, side(r)), tries_of(r, other(r))) for r in last]
+    tf = [x for x in tf if None not in x]
+    streak = res(rows[-1]); n = 0
+    for r in reversed(rows):
+        if res(r) != streak: break
+        n += 1
+    year = TODAY[:4]
+    out = {'all': wdl(rows), 'since': rows[0].date[:4], 'year': wdl([r for r in rows if r.date[:4] == year]),
+           'last': wdl(last), 'pf': round(sum(int(getattr(r, side(r) + '_score')) for r in last) / len(last), 1),
+           'pa': round(sum(int(getattr(r, other(r) + '_score')) for r in last) / len(last), 1), 'n': len(last),
+           'streak': '%s%d' % (streak, n),
+           'recent': [[r.date, r.away_team if side(r) == 'home' else r.home_team, int(getattr(r, side(r) + '_score')),
+                       int(getattr(r, other(r) + '_score')), 'n' if str(r.neutral).upper() == 'TRUE' else side(r)[0],
+                       re.sub(r'^\d{4}(–\d{2,4})? ', '', str(r.competition))] for r in reversed(rows[-6:])]}
+    if len(tf) >= 3:
+        out['tf'] = round(sum(x for x, _ in tf) / len(tf), 1)
+        out['ta'] = round(sum(y for _, y in tf) / len(tf), 1)
+        out['tn'] = len(tf)
+    return out
+
+
+def details(r):
+    """What the record holds about one Test beyond the score: tries, kicks, cards, try scorers, referee, ground, crowd."""
+    x = {}
+    for s, k in (('home', 'h'), ('away', 'a')):
+        t = tries_of(r, s)
+        if t is not None:
+            x[k + 't'] = t
+            for col, key in (('_cons', 'c'), ('_pens', 'p'), ('_drops', 'dg')):
+                v = num(getattr(r, s + col))
+                if v is not None: x[k + key] = v
+        for col, key in (('_yellow', 'y'), ('_red', 'r')):
+            v = num(getattr(r, s + col))
+            if v is not None: x[k + key] = v
+        sc = getattr(r, s + '_try_scorers')
+        if isinstance(sc, str) and sc.strip(): x[k + 'sc'] = sc.strip()
+    for col, key in (('referee', 'ref'), ('stadium', 'gr'), ('city', 'city')):
+        v = getattr(r, col)
+        if isinstance(v, str) and v.strip() and v.strip().lower() != 'nan': x[key] = v.strip()
+    att = num(r.attendance) if not isinstance(r.attendance, str) else (int(re.sub(r'\D', '', r.attendance)) if re.sub(r'\D', '', r.attendance) else None)
+    if att: x['att'] = att
+    return x
+
+
 def nation(t, others):
     o = others.get(t, {})
     nick, p, onp = T10.get(t, ('', o.get('p') or '#2E4A7A', o.get('onp') or '#FFFFFF'))
@@ -116,11 +207,15 @@ def main():
         df = res[g]
         latest = df.tail(RESULTS).iloc[::-1]
         results = [{'d': r.date, 'h': r.home_team, 'a': r.away_team, 'hs': int(r.home_score), 'as': int(r.away_score),
-                    'c': re.sub(r'^\d{4}(–\d{2,4})? ', '', str(r.competition))} for r in latest.itertuples()]
+                    'c': re.sub(r'^\d{4}(–\d{2,4})? ', '', str(r.competition)), **details(r)} for r in latest.itertuples()]
         teams = {t for t, _, _ in ranked} | {f['h'] for f in fixtures} | {f['a'] for f in fixtures} | \
                 {r['h'] for r in results} | {r['a'] for r in results}
+        # Head-to-heads for every pair in the fixtures and latest results, keyed by the two names in alphabetical order.
+        pairs = {tuple(sorted((x['h'], x['a']))) for x in fixtures + results}
+        meets = {'%s|%s' % p: h for p in sorted(pairs) if (h := h2h(df, *p))}
         out[g] = {'ranked': ranked, 'fixtures': fixtures, 'results': results,
-                  'form': {t: form(df, t) for t in sorted(teams)}}
+                  'form': {t: form(df, t) for t in sorted(teams)}, 'h2h': meets,
+                  'stats': {t: s for t in sorted(teams) if (s := team_stats(df, t))}}
         for t in teams:
             out['nations'].setdefault(t, nation(t, others))
     s = json.dumps(out, separators=(',', ':'), ensure_ascii=False, sort_keys=True)

@@ -52,10 +52,49 @@ void main() {
       expect(feed.nation('South Africa').flag, flagEmoji('za'));
       expect(feed.nation('Nowhere FC').code, 'NOW');
     });
+
+    test('every fixture has a head-to-head, turned round for whoever asks', () {
+      for (final f in feed.men.fixtures) {
+        final h = feed.men.meeting(f.home, f.away);
+        if (h == null) continue; // they've never met
+        expect(h.a, f.home);
+        expect(h.record.length, 3);
+        expect(h.played, greaterThan(0));
+        expect(h.meetings.first.date.compareTo(h.meetings.last.date), greaterThanOrEqualTo(0), reason: 'newest first');
+        final back = feed.men.meeting(f.away, f.home)!;
+        expect(back.record, h.record.reversed.toList());
+      }
+      final sa = feed.men.meeting('South Africa', 'Italy')!;
+      expect(sa.record[0], greaterThan(sa.record[2]));
+    });
+
+    test('team numbers and the latest results’ details', () {
+      final sa = feed.men.stats['South Africa']!;
+      expect(sa.allTime.length, 3);
+      expect(sa.last.fold(0, (a, b) => a + b), sa.lastN);
+      expect(sa.pointsFor, greaterThan(0));
+      expect(sa.recent, isNotEmpty);
+      expect(RegExp(r'^[WDL]\d+$').hasMatch(sa.streak), isTrue);
+      final withDetail = feed.men.results.where((r) => r.detail?.hasScoring ?? false);
+      expect(withDetail, isNotEmpty);
+      for (final r in withDetail) {
+        expect(r.detail!.home.tries! * 5, lessThanOrEqualTo(r.homeScore));
+      }
+    });
   });
 
   group('tournaments feed', () {
     final feed = TournamentsFeed.fromJson(readFeed('tournaments'));
+
+    test('tournaments carry their numbers', () {
+      final six = feed.byId('6n')!;
+      final s = six.stats!;
+      expect(s.games, six.groups.first.rows.fold(0, (a, r) => a + r.played) ~/ 2);
+      expect(s.avgPoints, greaterThan(20));
+      expect(s.biggest, isNotNull);
+      expect(s.scorers, isNotEmpty);
+      expect(six.scoring.every((x) => x.pointsFor > 0), isTrue);
+    });
 
     test('has tables, series and a World Cup', () {
       expect(feed.tournaments, isNotEmpty);
