@@ -1,4 +1,6 @@
 name: App review shots (temporary)
+permissions:
+  contents: write
 on:
   push:
     branches: [app-stats-and-logo]
@@ -20,7 +22,8 @@ jobs:
           mkdir -p tool/fonts
           curl -fsSL https://raw.githubusercontent.com/google/fonts/main/ofl/notocoloremoji/NotoColorEmoji-Regular.ttf -o tool/fonts/NotoColorEmoji.ttf || true
       - run: flutter test tool/review_shots_test.dart --update-goldens
-      - uses: actions/upload-artifact@v4
-        with:
-          name: review
-          path: app/tool/review/*.png
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tool/review
+          git commit -m "Review shots" && git push origin "HEAD:$GITHUB_REF_NAME"
