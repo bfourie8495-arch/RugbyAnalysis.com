@@ -66,10 +66,10 @@ void main() {
     late TournamentsFeed feed;
     setUpAll(() => feed = TournamentsFeed.fromJson(jsonDecode(File('test/data/tournaments.json').readAsStringSync()) as Map<String, dynamic>));
 
-    test('a live league says which round is next, and what comes after', () {
+    test('a live league says which round it’s on, and what comes after', () {
+      // In the test copy Ireland and Argentina have played round 4 (on the Friday) and everyone else plays it on Saturday.
       final nc = feed.byId('nc')!;
-      expect(whereItsAt(nc, now: DateTime.utc(2026, 10, 20)), 'After round 3 of 6. Round 4 starts Fri 6 Nov. Then finals.');
-      expect(whereItsAt(nc, now: DateTime.utc(2026, 11, 3)), startsWith('After round 3 of 6. Round 4 is this week, starting Fri 6 Nov.'));
+      expect(whereItsAt(nc, now: DateTime.utc(2026, 11, 7)), 'Round 4 of 6 is under way. Next: Italy v South Africa, Sat 7 Nov. Then finals.');
     });
 
     test('finished competitions name the winner', () {

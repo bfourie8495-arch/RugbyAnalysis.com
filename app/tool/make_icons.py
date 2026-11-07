@@ -20,7 +20,14 @@ def ball(size: int, scale: float) -> Image.Image:
     c = s / 2
     im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    d.ellipse([c - 25 * u, c - 15 * u, c + 25 * u, c + 15 * u], fill=GOLD, outline=EDGE, width=round(2.5 * u))
+    d.ellipse([c - 25 * u, c - 15 * u, c + 25 * u, c + 15 * u], fill=GOLD)
+    # The logo's darker rim: a see-through navy stroke centred on the ball's edge, laid over the gold (and the
+    # background) rather than replacing it, as the SVG does. Drawing it with outline= would punch a hole instead.
+    rim = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+    h = 1.25 * u
+    ImageDraw.Draw(rim).ellipse([c - 25 * u - h, c - 15 * u - h, c + 25 * u + h, c + 15 * u + h], outline=EDGE, width=round(2.5 * u))
+    im.alpha_composite(rim)
+    d = ImageDraw.Draw(im)
     d.line([c - 12 * u, c, c + 12 * u, c], fill=SEAM, width=round(3 * u))
     for r in (c - 12 * u, c + 12 * u):  # round ends of the seam
         d.ellipse([r - 1.5 * u, c - 1.5 * u, r + 1.5 * u, c + 1.5 * u], fill=SEAM)
@@ -72,9 +79,9 @@ if __name__ == "__main__":
     res = "android/app/src/main/res"
     for name, px in {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}.items():
         save(icon(px, rounded=True), f"{res}/mipmap-{name}/ic_launcher.png")
-        # Android 8+ adaptive icon: 108dp layers; the launcher shows the middle 72dp, so the ball is shrunk to fit.
+        # Android 8+ adaptive icon: 108dp layers; the launcher shows the middle 72dp and keeps the middle 66dp circle safe, so the ball is shrunk to fit it.
         a = round(px * 108 / 48)
-        save(ball(a, 0.62), f"{res}/mipmap-{name}/ic_launcher_foreground.png")
+        save(ball(a, 0.7), f"{res}/mipmap-{name}/ic_launcher_foreground.png")
     save(icon(32, rounded=True), "web/favicon.png")
     for px in (192, 512):
         save(icon(px, rounded=True), f"web/icons/Icon-{px}.png")

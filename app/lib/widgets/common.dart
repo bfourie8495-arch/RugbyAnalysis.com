@@ -33,6 +33,49 @@ class TeamBadge extends StatelessWidget {
   }
 }
 
+/// The RugbyAnalysis logo (site/logo/icon.svg): the gold ball on a navy rounded square.
+class BrandMark extends StatelessWidget {
+  const BrandMark({super.key, this.size = 32});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) =>
+      Semantics(label: 'RugbyAnalysis', image: true, child: CustomPaint(size: Size.square(size), painter: const _BrandPainter()));
+}
+
+/// Draws the logo on its 64-unit grid, with the same shapes and numbers as the SVG.
+class _BrandPainter extends CustomPainter {
+  const _BrandPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / 64);
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, 64, 64), const Radius.circular(14)), Paint()..color = RaColors.onGold);
+    canvas.translate(32, 32);
+    canvas.rotate(-35 * 3.14159265 / 180); // rotate(-35 32 32)
+    canvas.translate(-32, -32);
+    final ball = Rect.fromCenter(center: const Offset(32, 32), width: 50, height: 30);
+    canvas.drawOval(ball, Paint()..color = RaColors.gold);
+    canvas.drawOval(ball, Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..color = RaColors.onGold.withValues(alpha: 0.35));
+    final seam = Paint()
+      ..color = RaColors.onGold
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 3;
+    canvas.drawLine(const Offset(20, 32), const Offset(44, 32), seam);
+    seam.strokeWidth = 2.4;
+    for (final x in [25.0, 30.0, 35.0, 40.0]) {
+      canvas.drawLine(Offset(x, 28.5), Offset(x, 35.5), seam);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class RaCard extends StatelessWidget {
   const RaCard({super.key, required this.child, this.padding = const EdgeInsets.all(14), this.highlight = false, this.onTap});
 
@@ -274,7 +317,11 @@ class FooterLinks extends StatelessWidget {
       child: Column(children: [
         const Divider(),
         const SizedBox(height: 10),
-        Text('RugbyAnalysis.com', style: displayStyle(15)),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          const BrandMark(size: 22),
+          const SizedBox(width: 8),
+          Text('RugbyAnalysis.com', style: displayStyle(15)),
+        ]),
         const SizedBox(height: 4),
         const Text('More stats, stories and match previews', style: TextStyle(fontSize: 12, color: RaColors.faint)),
         const SizedBox(height: 12),

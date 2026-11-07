@@ -153,12 +153,7 @@ class _Brand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(color: RaColors.onGold, borderRadius: BorderRadius.circular(8), border: Border.all(color: RaColors.line2)),
-        child: Transform.rotate(angle: -0.6, child: const Icon(Icons.sports_rugby, color: RaColors.gold, size: 22)),
-      ),
+      const BrandMark(size: 32),
       const SizedBox(width: 9),
       Text('RugbyAnalysis', style: displayStyle(19)),
     ]);
