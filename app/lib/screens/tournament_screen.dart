@@ -133,10 +133,14 @@ class TournamentScreen extends StatelessWidget {
           ListTile(
             leading: SizedBox(
               width: 54,
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(f.kickOff == null ? '' : dayLabel(f.kickOff!.toLocal()).substring(0, 6), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                Text(f.kickOff == null ? '' : clock(f.kickOff!.toLocal()), style: const TextStyle(fontSize: 12, color: RaColors.faint)),
-              ]),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(f.kickOff == null ? '' : dayLabel(f.kickOff!.toLocal()).substring(0, 6), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                  Text(f.kickOff == null ? '' : clock(f.kickOff!.toLocal()), style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+                ]),
+              ),
             ),
             title: Text(names[(f.place - 1).clamp(0, 5)] + (f.place == 1 ? ': the title decider' : ''), style: const TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text(

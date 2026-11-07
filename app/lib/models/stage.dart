@@ -29,12 +29,17 @@ String whereItsAt(Tournament t, {DateTime? now}) {
     return next == null ? 'Not started yet.' : 'Starts ${when(next)} with ${next.home} v ${next.away}.';
   }
   final played = rows.map((r) => r.played).reduce((a, b) => a > b ? a : b);
+  final behind = rows.map((r) => r.played).reduce((a, b) => a < b ? a : b);
   final total = rows
       .map((r) => r.played + t.fixtures.where((f) => f.involves(r.team)).length)
       .reduce((a, b) => a > b ? a : b);
   final finalsNote = t.finals.isNotEmpty ? ' Then finals.' : '';
   if (next == null || played >= total) {
     return t.finals.isNotEmpty ? 'The group stage is over: finals next.' : 'All $total rounds played.';
+  }
+  // Part of a round played (some teams on `played`, others one behind): that round is under way.
+  if (behind == played - 1 && t.fixtures.where((f) => rows.any((r) => r.played == behind && f.involves(r.team))).isNotEmpty) {
+    return 'Round $played of $total is under way. Next: ${next.home} v ${next.away}, ${when(next)}.$finalsNote';
   }
   final soon = next.kickOff != null && next.kickOff!.toLocal().difference(today).inDays < 7;
   final round = 'Round ${played + 1}';

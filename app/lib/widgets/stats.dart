@@ -398,7 +398,8 @@ class TeamNumbers extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(children: [
           Expanded(child: Text(label, style: const TextStyle(color: RaColors.muted))),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(width: 8),
+          Flexible(flex: 2, child: Text(value, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w700))),
         ]),
       );
 }
