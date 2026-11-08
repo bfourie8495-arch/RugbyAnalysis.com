@@ -43,13 +43,14 @@ class SplitBar extends StatelessWidget {
 /// One line of a side-by-side comparison: 'Points a game  37.9 ▮▮▮▯ 21.2'. The better side is in bold;
 /// [lowerIsBetter] for things like points conceded.
 class CompareRow extends StatelessWidget {
-  const CompareRow({super.key, required this.label, required this.first, required this.second, this.lowerIsBetter = false, this.format});
+  const CompareRow({super.key, required this.label, required this.first, required this.second, this.lowerIsBetter = false, this.format, this.bar = true});
 
   final String label;
   final double? first;
   final double? second;
   final bool lowerIsBetter;
   final String Function(double)? format;
+  final bool bar; // false for numbers that can be negative
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +73,7 @@ class CompareRow extends StatelessWidget {
             Expanded(child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: RaColors.muted))),
             SizedBox(width: 56, child: Text(b == null ? '–' : f(b), textAlign: TextAlign.right, style: style(bBetter, RaColors.away))),
           ]),
-          if (known && total > 0) ...[
+          if (bar && known && a >= 0 && b >= 0 && total > 0) ...[
             const SizedBox(height: 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(2),
@@ -208,6 +209,96 @@ class HeadToHeadSection extends StatelessWidget {
   }
 }
 
+/// How the two teams have each done against the teams they've both played lately: if South Africa beat Italy
+/// by 30, how did everyone else get on against Italy? Per shared opponent, each side's record and average margin.
+class OppositionSection extends StatelessWidget {
+  const OppositionSection({super.key, required this.gender, required this.first, required this.second});
+
+  final Gender gender;
+  final String first;
+  final String second;
+
+  @override
+  Widget build(BuildContext context) {
+    final feed = AppScope.of(context).matchday!;
+    final c = feed.side(gender).sharedOpponents(first, second);
+    if (c == null || c.rows.isEmpty) return const SizedBox.shrink();
+    final a = CommonOpponents.total(c.rows.map((r) => r.first)), b = CommonOpponents.total(c.rows.map((r) => r.second));
+    final year = c.since.length >= 4 ? c.since.substring(0, 4) : c.since;
+    String margin(double m) => m.round() == 0 ? 'level' : m > 0 ? 'won by ${m.round()}' : 'lost by ${(-m).round()}';
+    final gap = (a.margin - b.margin).round();
+    final verdict = gap.abs() < 3
+        ? 'Against the same teams there’s little between them.'
+        : '${gap > 0 ? first : second} have done ${gap.abs()} points a game better against the same teams.';
+    Widget cell(VsRecord v, Color colour) {
+      final p = v.won + v.drawn + v.lost;
+      final m = p == 0 ? 0 : ((v.pointsFor - v.pointsAgainst) / p).round();
+      return SizedBox(
+        width: 84,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          Text(signed(m), style: displayStyle(16, color: m > 0 ? colour : RaColors.muted, weight: FontWeight.w800)),
+          Text('${v.won}–${v.drawn}–${v.lost}', style: _small),
+        ]),
+      );
+    }
+
+    const head = TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: RaColors.faint);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SectionTitle('Against the same teams', note: 'Since $year'),
+      RaCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(verdict, style: const TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(
+            'Both have played ${c.rows.length} of the same teams since $year (not counting each other). '
+            'On average $first ${margin(a.margin)} and $second ${margin(b.margin)}.',
+            style: const TextStyle(color: RaColors.muted, fontSize: 13),
+          ),
+          const SizedBox(height: 6),
+          CompareRow(label: 'Average margin', first: a.margin, second: b.margin, format: (x) => signed(x.round()), bar: false),
+          CompareRow(
+              label: 'Won',
+              first: a.won + a.drawn + a.lost == 0 ? null : 100 * a.won / (a.won + a.drawn + a.lost),
+              second: b.won + b.drawn + b.lost == 0 ? null : 100 * b.won / (b.won + b.drawn + b.lost),
+              format: (x) => '${x.round()}%'),
+        ]),
+      ),
+      const SizedBox(height: 10),
+      Container(
+        decoration: cardDecoration(),
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+            child: Row(children: [
+              const Expanded(child: Text('AGAINST', style: head)),
+              SizedBox(width: 84, child: Text(first.toUpperCase(), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: head)),
+              SizedBox(width: 84, child: Text(second.toUpperCase(), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: head)),
+            ]),
+          ),
+          for (final r in c.rows)
+            Container(
+              constraints: const BoxConstraints(minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: const BoxDecoration(border: Border(top: BorderSide(color: RaColors.line))),
+              child: Row(children: [
+                TeamBadge(feed.nation(r.opponent), size: 22),
+                const SizedBox(width: 8),
+                Expanded(child: Text(r.opponent, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600))),
+                cell(r.first, RaColors.gold),
+                cell(r.second, RaColors.away),
+              ]),
+            ),
+        ]),
+      ),
+      const Padding(
+        padding: EdgeInsets.only(top: 6),
+        child: Text('Average winning margin a game, then won–drawn–lost.', style: _small),
+      ),
+    ]);
+  }
+}
+
 /// Both teams side by side over their last ten Tests, then each team's latest results.
 class FormNumbersSection extends StatelessWidget {
   const FormNumbersSection({super.key, required this.gender, required this.first, required this.second});
@@ -255,8 +346,19 @@ class FormNumbersSection extends StatelessWidget {
                 first: a == null || a.year.every((x) => x == 0) ? null : TeamStats.winRate(a.year),
                 second: b == null || b.year.every((x) => x == 0) ? null : TeamStats.winRate(b.year),
                 format: (x) => '${x.round()}%'),
+            if (a?.kickingRate != null && b?.kickingRate != null)
+              CompareRow(label: 'Goal-kicking', first: a!.kickingRate, second: b!.kickingRate, format: (x) => '${x.round()}%'),
+            if (a?.pointsFromTries != null && b?.pointsFromTries != null)
+              CompareRow(
+                  label: 'Points from tries', first: a!.pointsFromTries!.toDouble(), second: b!.pointsFromTries!.toDouble(), format: (x) => '${x.round()}%'),
+            if (a?.cardsAGame != null && b?.cardsAGame != null)
+              CompareRow(label: 'Cards a game', first: a!.cardsAGame, second: b!.cardsAGame, lowerIsBetter: true, format: (x) => x.toStringAsFixed(1)),
           ]),
         ),
+        if ((a?.kickingRate != null && b?.kickingRate != null) || (a?.cardsAGame != null && b?.cardsAGame != null))
+          const Padding(
+              padding: EdgeInsets.only(top: 6),
+              child: Text('Goal-kicking, points from tries and cards: the last 12 months, where the record has them.', style: _small)),
         if ((a?.triesFor != null && a!.triesFrom < a.lastN) || (b?.triesFor != null && b!.triesFrom < b.lastN))
           const Padding(padding: EdgeInsets.only(top: 6), child: Text('Tries are a game over the Tests where they’re recorded.', style: _small)),
       ]);
@@ -391,6 +493,15 @@ class TeamNumbers extends StatelessWidget {
         _line('Points a game', '${_num(s.pointsFor)} scored · ${_num(s.pointsAgainst)} conceded'),
         if (s.triesFor != null) _line('Tries a game', '${_num(s.triesFor!)} scored · ${_num(s.triesAgainst!)} conceded'),
         _line('Average margin', signed((s.pointsFor - s.pointsAgainst).round())),
+        if (s.kickingRate != null || s.cardsAGame != null || s.pointsFromTries != null || s.scorers.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          const Text('Over the last 12 months', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.gold)),
+          const SizedBox(height: 4),
+          if (s.kickingRate != null) _line('Goal-kicking', '${s.kickingRate!.round()}% (${s.kicking!.made} of ${s.kicking!.tried})'),
+          if (s.pointsFromTries != null) _line('Points from tries', '${s.pointsFromTries}%'),
+          if (s.cards != null) _line('Cards', '${s.cards!.yellow} yellow, ${s.cards!.red} red in ${s.cards!.games} Tests'),
+          if (s.scorers.isNotEmpty) _line('Top try scorers', [for (final x in s.scorers) '${x.player} ${x.tries}'].join(' · ')),
+        ],
       ]),
     );
   }

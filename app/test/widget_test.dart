@@ -80,13 +80,18 @@ void main() {
   });
 
   testWidgets('A fixture shows the head-to-head and both teams’ numbers', (tester) async {
-    await startApp(tester);
+    final c = await startApp(tester);
     await scrollTo(tester, MatchdayScreen, find.byType(FixtureTile));
     await tester.tap(find.byType(FixtureTile).first);
     await tester.pumpAndSettle();
     expect(find.byType(MatchScreen), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Head to head'), 300, scrollable: listOf(MatchScreen));
     expect(find.text('Head to head'), findsOneWidget);
+    final f = tester.widget<MatchScreen>(find.byType(MatchScreen)).fixture!;
+    if (c.matchday!.men.sharedOpponents(f.home, f.away) != null) {
+      await tester.scrollUntilVisible(find.text('Against the same teams'), 300, scrollable: listOf(MatchScreen));
+      expect(find.text('Against the same teams'), findsOneWidget);
+    }
     await tester.scrollUntilVisible(find.text('Points scored a game'), 300, scrollable: listOf(MatchScreen));
     expect(find.text('Points scored a game'), findsOneWidget);
   });

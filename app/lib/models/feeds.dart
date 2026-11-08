@@ -87,7 +87,7 @@ class Nation {
 }
 
 class Fixture {
-  Fixture({required this.date, required this.home, required this.away, this.kickOff, this.comp = '', this.venue = '', this.pick});
+  Fixture({required this.date, required this.home, required this.away, this.kickOff, this.comp = '', this.venue = '', this.pick, this.live = false});
 
   factory Fixture.fromJson(Map<String, dynamic> j, {String comp = ''}) => Fixture(
         date: _str(j['d']),
@@ -97,9 +97,13 @@ class Fixture {
         comp: comp.isNotEmpty ? comp + (_str(j['r']).isNotEmpty ? ' · ${_str(j['r'])}' : '') : _str(j['c']),
         venue: _str(j['v']),
         pick: _dblOrNull(j['p']),
+        live: j['live'] == 1 || j['live'] == true,
       );
 
   final String date; // yyyy-mm-dd
+
+  /// Being played when the feed was built (it stays a fixture until its result is in).
+  final bool live;
   final DateTime? kickOff; // UTC; null when the time isn't known yet
   final String home;
   final String away;
@@ -225,6 +229,59 @@ class HeadToHead {
           biggest: biggest, meetings: meetings);
 }
 
+/// One side's results against a shared opponent.
+typedef VsRecord = ({int won, int drawn, int lost, int pointsFor, int pointsAgainst, String lastDate, int lastFor, int lastAgainst});
+
+VsRecord? _vs(Object? x) {
+  if (x is! List || x.length < 6) return null;
+  final last = _list(x[5]);
+  return (
+    won: _int(x[0]),
+    drawn: _int(x[1]),
+    lost: _int(x[2]),
+    pointsFor: _int(x[3]),
+    pointsAgainst: _int(x[4]),
+    lastDate: last.isEmpty ? '' : _str(last[0]),
+    lastFor: last.length > 1 ? _int(last[1]) : 0,
+    lastAgainst: last.length > 2 ? _int(last[2]) : 0,
+  );
+}
+
+/// How two nations have each done against the teams they've both played lately (not each other):
+/// the "how good were their opponents, really?" view. [first]'s numbers come first.
+class CommonOpponents {
+  CommonOpponents({required this.since, required this.rows});
+
+  factory CommonOpponents.fromJson(Map<String, dynamic> j) => CommonOpponents(
+        since: _str(j['since']),
+        rows: [
+          for (final r in _list(j['opp']))
+            if (r is List && r.length >= 3)
+              if ((_vs(r[1]), _vs(r[2])) case (final a?, final b?)) (opponent: _str(r[0]), first: a, second: b)
+        ],
+      );
+
+  final String since; // yyyy-mm-dd
+  final List<({String opponent, VsRecord first, VsRecord second})> rows; // most-played first
+
+  CommonOpponents swapped() =>
+      CommonOpponents(since: since, rows: [for (final r in rows) (opponent: r.opponent, first: r.second, second: r.first)]);
+
+  /// Totals over every shared opponent: won, drawn, lost, and the average winning margin a game.
+  static ({int won, int drawn, int lost, double margin}) total(Iterable<VsRecord> xs) {
+    var w = 0, d = 0, l = 0, f = 0, a = 0;
+    for (final x in xs) {
+      w += x.won;
+      d += x.drawn;
+      l += x.lost;
+      f += x.pointsFor;
+      a += x.pointsAgainst;
+    }
+    final p = w + d + l;
+    return (won: w, drawn: d, lost: l, margin: p == 0 ? 0 : (f - a) / p);
+  }
+}
+
 /// A nation's numbers: all-time and this year's record, the last ten Tests, its streak and latest results.
 class TeamStats {
   TeamStats.fromJson(Map<String, dynamic> j)
@@ -239,6 +296,12 @@ class TeamStats {
         triesAgainst = _dblOrNull(j['ta']),
         triesFrom = _int(j['tn']),
         streak = _str(j['streak']),
+        kicking = _list(j['kick']).length == 2 ? (made: _int(_list(j['kick'])[0]), tried: _int(_list(j['kick'])[1])) : null,
+        cards = _list(j['cards']).length == 3
+            ? (yellow: _int(_list(j['cards'])[0]), red: _int(_list(j['cards'])[1]), games: _int(_list(j['cards'])[2]))
+            : null,
+        pointsFromTries = j['tryPts'] is num ? _int(j['tryPts']) : null,
+        scorers = [for (final x in _list(j['scorers'])) if (x is List && x.length >= 2) (player: _str(x[0]), tries: _int(x[1]))],
         recent = [
           for (final r in _list(j['recent']))
             if (r is List && r.length >= 6)
@@ -256,6 +319,15 @@ class TeamStats {
   final double? triesAgainst;
   final int triesFrom;
   final String streak; // 'W3'
+
+  // Over the last twelve months (or the last ten Tests, if fewer), where the record has them:
+  final ({int made, int tried})? kicking; // conversions and penalty goals
+  final ({int yellow, int red, int games})? cards;
+  final int? pointsFromTries; // % of points from tries and their conversions
+  final List<({String player, int tries})> scorers; // the top three
+
+  double? get kickingRate => kicking == null || kicking!.tried == 0 ? null : 100 * kicking!.made / kicking!.tried;
+  double? get cardsAGame => cards == null || cards!.games == 0 ? null : (cards!.yellow + cards!.red) / cards!.games;
   final List<({String date, String opponent, int score, int against, String where, String comp})> recent; // newest first
 
   static double winRate(List<int> wdl) {
@@ -280,7 +352,7 @@ class Ranked {
 
 /// One side (men's or women's) of the matchday feed.
 class MatchdaySide {
-  MatchdaySide({required this.ranked, required this.fixtures, required this.results, required this.form, this.h2h = const {}, this.stats = const {}});
+  MatchdaySide({required this.ranked, required this.fixtures, required this.results, required this.form, this.h2h = const {}, this.stats = const {}, this.common = const {}});
 
   factory MatchdaySide.fromJson(Map<String, dynamic> j) => MatchdaySide(
         ranked: [for (final r in _list(j['ranked'])) if (r is List && r.length >= 3) Ranked(_str(r[0]), _int(r[1]), _dbl(r[2]))],
@@ -289,6 +361,7 @@ class MatchdaySide {
         form: _map(j['form']).map((k, v) => MapEntry(k, _str(v))),
         h2h: _map(j['h2h']).map((k, v) => MapEntry(k, HeadToHead.fromJson(_map(v)))),
         stats: _map(j['stats']).map((k, v) => MapEntry(k, TeamStats.fromJson(_map(v)))),
+        common: _map(j['common']).map((k, v) => MapEntry(k, CommonOpponents.fromJson(_map(v)))),
       );
 
   final List<Ranked> ranked;
@@ -297,6 +370,14 @@ class MatchdaySide {
   final Map<String, String> form; // 'WWLDW', oldest to newest
   final Map<String, HeadToHead> h2h; // 'Italy|South Africa' (alphabetical)
   final Map<String, TeamStats> stats;
+  final Map<String, CommonOpponents> common; // 'Italy|South Africa' (alphabetical)
+
+  /// How [first] and [second] have each done against the teams they've both played, [first]'s numbers first.
+  CommonOpponents? sharedOpponents(String first, String second) {
+    final names = [first, second]..sort();
+    final c = common['${names[0]}|${names[1]}'];
+    return c == null || names[0] == first ? c : c.swapped();
+  }
 
   /// [first] against [second], with [first]'s numbers first. Null if they've never met (or the feed is older).
   HeadToHead? meeting(String first, String second) {

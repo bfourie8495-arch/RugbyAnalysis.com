@@ -187,7 +187,8 @@ def update_tests(rank_pts):
             women = hw or aw or lg == '289237'
             venue = comp.get('venue') or {}
             vcountry = VENUE_COUNTRY_FIX.get((venue.get('address') or {}).get('country'), (venue.get('address') or {}).get('country')) or hn
-            if st.get('state') == 'pre':
+            # Not finished yet (to come, or being played: kept as a fixture so it doesn't vanish from the app until its result is in)
+            if st.get('state') == 'pre' or (st.get('state') == 'in' and not st.get('completed')):
                 rp = rank_w if women else rank_pts
                 if hn in NAMES and an in NAMES and (hn in rp or an in rp):
                     rh, ra = rp.get(hn, 50), rp.get(an, 50)
@@ -196,7 +197,8 @@ def update_tests(rank_pts):
                     city = (venue.get('address') or {}).get('city') or ''
                     fixtures.append({'ko': e['date'][:16] + ':00Z' if comp.get('timeValid', True) else None, 'd': e['date'][:10], 'h': hn, 'a': an,
                                      'c': label, 'v': ', '.join(x for x in [venue.get('fullName'), city] if x) or 'Venue TBC',
-                                     'p': round(p, 2), 'tz': TZ.get(vcountry, 'UTC'), **({'g': 'w'} if women else {})})
+                                     'p': round(p, 2), 'tz': TZ.get(vcountry, 'UTC'), **({'g': 'w'} if women else {}),
+                                     **({'live': 1} if st.get('state') == 'in' else {})})
                 continue
             if not st.get('completed') or eid in seen:
                 continue

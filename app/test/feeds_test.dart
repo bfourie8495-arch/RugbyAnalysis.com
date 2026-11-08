@@ -68,12 +68,25 @@ void main() {
       expect(sa.record[0], greaterThan(sa.record[2]));
     });
 
+    test('shared opponents turn round with the pair', () {
+      final pair = feed.men.common.keys.first.split('|');
+      final c = feed.men.sharedOpponents(pair[0], pair[1])!;
+      final back = feed.men.sharedOpponents(pair[1], pair[0])!;
+      expect(c.rows, isNotEmpty);
+      expect(back.rows.first.first, c.rows.first.second);
+      expect(c.rows.every((r) => r.opponent != pair[0] && r.opponent != pair[1]), isTrue);
+      final t = CommonOpponents.total(c.rows.map((r) => r.first));
+      expect(t.won + t.drawn + t.lost, greaterThan(0));
+    });
+
     test('team numbers and the latest results’ details', () {
       final sa = feed.men.stats['South Africa']!;
       expect(sa.allTime.length, 3);
       expect(sa.last.fold(0, (a, b) => a + b), sa.lastN);
       expect(sa.pointsFor, greaterThan(0));
       expect(sa.recent, isNotEmpty);
+      expect(sa.kickingRate, inInclusiveRange(40, 100));
+      expect(sa.scorers, isNotEmpty);
       expect(RegExp(r'^[WDL]\d+$').hasMatch(sa.streak), isTrue);
       final withDetail = feed.men.results.where((r) => r.detail?.hasScoring ?? false);
       expect(withDetail, isNotEmpty);

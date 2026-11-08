@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rugby_analysis/models/feeds.dart';
+import 'package:rugby_analysis/models/format.dart';
 import 'package:rugby_analysis/models/stage.dart';
 import 'package:rugby_analysis/services/feed_service.dart';
 import 'package:rugby_analysis/state/app_controller.dart';
@@ -62,14 +63,30 @@ void main() {
     });
   });
 
+  group('kick-off', () {
+    final now = DateTime(2026, 11, 7, 12, 0);
+    test('says today, tomorrow or the day', () {
+      expect(kickOffDay(DateTime(2026, 11, 7, 20, 10), now: now), 'Today');
+      expect(kickOffDay(DateTime(2026, 11, 8, 15, 10), now: now), 'Tomorrow');
+      expect(kickOffDay(DateTime(2026, 11, 13, 20, 10), now: now), 'Fri 13 Nov');
+    });
+    test('counts down, then live, then waits for the result', () {
+      expect(kickOffNote(DateTime(2026, 11, 7, 15, 20), now: now), 'In 3h 20m');
+      expect(kickOffNote(DateTime(2026, 11, 7, 12, 45), now: now), 'In 45 min');
+      expect(kickOffNote(DateTime(2026, 11, 9, 12, 0), now: now), isNull);
+      expect(kickOffNote(DateTime(2026, 11, 7, 11, 0), now: now), 'Live');
+      expect(kickOffNote(DateTime(2026, 11, 7, 9, 30), now: now), 'Result soon');
+    });
+  });
+
   group('where it’s at', () {
     late TournamentsFeed feed;
     setUpAll(() => feed = TournamentsFeed.fromJson(jsonDecode(File('test/data/tournaments.json').readAsStringSync()) as Map<String, dynamic>));
 
     test('a live league says which round it’s on, and what comes after', () {
-      // In the test copy Ireland and Argentina have played round 4 (on the Friday) and everyone else plays it on Saturday.
+      // In the test copy everyone but England and Australia has played round 4; they play it on the Sunday.
       final nc = feed.byId('nc')!;
-      expect(whereItsAt(nc, now: DateTime.utc(2026, 11, 7)), 'Round 4 of 6 is under way. Next: Italy v South Africa, Sat 7 Nov. Then finals.');
+      expect(whereItsAt(nc, now: DateTime.utc(2026, 11, 8)), 'Round 4 of 6 is under way. Next: England v Australia, Sun 8 Nov. Then finals.');
     });
 
     test('finished competitions name the winner', () {

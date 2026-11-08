@@ -37,25 +37,67 @@ class FixtureTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Row(children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(child: Column(children: [team(fixture.home), const SizedBox(height: 8), team(fixture.away)])),
             const SizedBox(width: 12),
-            SizedBox(
-              width: 86,
-              child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Text(k == null ? 'TBC' : clock(k), style: displayStyle(16)),
-                const SizedBox(height: 2),
-                Text(fixture.comp, textAlign: TextAlign.right, maxLines: 2, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, color: RaColors.faint, height: 1.25)),
-                if (tag != null) ...[const SizedBox(height: 4), tag!],
-              ]),
+            KickOffBlock(fixture: fixture),
+          ]),
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(
+              child: Text(fixture.comp, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: RaColors.muted)),
             ),
+            if (tag != null) ...[const SizedBox(width: 8), tag!],
           ]),
           if (fixture.pick != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             PickBar(home: fixture.home, away: fixture.away, homeChance: fixture.pick!),
           ],
         ]),
+      ),
+    );
+  }
+}
+
+/// When a Test kicks off, easy to read at a glance: the day ('Today', 'Tomorrow', 'Sat 7 Nov'), the time in
+/// your time zone, and how long to go (or 'Live', or 'Result soon' once it's over).
+class KickOffBlock extends StatelessWidget {
+  const KickOffBlock({super.key, required this.fixture, this.large = false});
+
+  final Fixture fixture;
+  final bool large;
+
+  @override
+  Widget build(BuildContext context) {
+    final k = fixture.kickOff?.toLocal();
+    final day = k == null ? dateLabel(fixture.date) : kickOffDay(k);
+    final note = k == null ? null : kickOffNote(k, live: fixture.live);
+    final today = day == 'Today' || note == 'Live';
+    final live = note == 'Live';
+    return Semantics(
+      label: 'Kick-off ${k == null ? '$day, time to be confirmed' : '$day at ${clock(k)}'}${note == null ? '' : ', $note'}',
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: large ? CrossAxisAlignment.center : CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(day.toUpperCase(),
+              style: TextStyle(fontSize: large ? 12 : 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: today ? RaColors.gold : RaColors.muted)),
+          Text(k == null ? 'TBC' : clock(k), style: displayStyle(large ? 26 : 21, weight: FontWeight.w800)),
+          if (note != null)
+            Container(
+              margin: const EdgeInsets.only(top: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: live ? RaColors.gold : RaColors.cardHi,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                if (live) ...[const Icon(Icons.circle, size: 7, color: RaColors.onGold), const SizedBox(width: 4)],
+                Text(note, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: live ? RaColors.onGold : RaColors.ink)),
+              ]),
+            ),
+        ],
       ),
     );
   }

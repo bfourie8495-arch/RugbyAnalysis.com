@@ -5,6 +5,7 @@ import '../models/format.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/match_tiles.dart';
 import '../widgets/stats.dart';
 import 'team_screen.dart';
 
@@ -53,12 +54,9 @@ class MatchScreen extends StatelessWidget {
             Text('${r.homeScore}–${r.awayScore}', style: displayStyle(30, weight: FontWeight.w800)),
             const Text('FULL TIME', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.1, color: RaColors.faint)),
           ])
-        : Column(children: [
-            Text('VS', style: displayStyle(20, color: RaColors.faint, weight: FontWeight.w800)),
-            Text(k == null ? 'TBC' : clock(k), style: displayStyle(17)),
-          ]);
+        : KickOffBlock(fixture: f!, large: true);
     final comp = f?.comp ?? r!.comp;
-    final when = f != null ? (k == null ? dateLabel(f.date) : dayLabel(k)) : '${dateLabel(r!.date)} ${r.date.substring(0, 4)}';
+    final when = f != null ? (k == null ? dateLabel(f.date) : '${dayLabel(k)} · ${clock(k)} your time') : '${dateLabel(r!.date)} ${r.date.substring(0, 4)}';
     final venue = f?.venue ?? r?.detail?.ground ?? '';
     return Scaffold(
       appBar: AppBar(title: Text(r != null ? 'Result' : 'Match preview')),
@@ -67,12 +65,13 @@ class MatchScreen extends StatelessWidget {
           child: Column(children: [
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               team(home),
-              Padding(padding: const EdgeInsets.only(top: 22), child: middle),
+              Padding(padding: const EdgeInsets.only(top: 14), child: middle),
               team(away),
             ]),
             const Divider(height: 22),
             if (comp.isNotEmpty) Text(comp, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
-            Text('$when${venue.isEmpty ? '' : ' · $venue'}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+            Text(when, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: RaColors.ink)),
+            if (venue.isNotEmpty) Text(venue, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: RaColors.muted)),
             if (f?.pick != null) ...[
               const Divider(height: 22),
               PickBar(home: f!.home, away: f.away, homeChance: f.pick!),
@@ -84,6 +83,7 @@ class MatchScreen extends StatelessWidget {
         if (f != null) ...[const SizedBox(height: 12), _ReminderButton(gender: gender, fixture: f)],
         if (r != null) MatchStatsSection(result: r),
         HeadToHeadSection(gender: gender, first: home, second: away, skip: r),
+        OppositionSection(gender: gender, first: home, second: away),
         FormNumbersSection(gender: gender, first: home, second: away),
         if (f?.pick != null) ...[
           const SizedBox(height: 12),
