@@ -21,7 +21,6 @@ class FixtureTile extends StatelessWidget {
     final c = AppScope.of(context);
     final feed = c.matchday!;
     final side = feed.side(gender);
-    final k = fixture.kickOff?.toLocal();
     Widget team(String t) => Row(children: [
           TeamBadge(feed.nation(t), size: 26),
           const SizedBox(width: 10),
