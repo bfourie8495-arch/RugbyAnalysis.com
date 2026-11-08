@@ -1,0 +1,23 @@
+{
+ "nc-2026": {
+  "18": {
+   "Argentina": 0.0,
+   "Australia": 1.1,
+   "England": 17.5,
+   "France": 8.8,
+   "Ireland": 2.0,
+   "New Zealand": 38.9,
+   "Scotland": 5.5,
+   "South Africa": 26.1
+  },
+  "23": {
+   "Australia": 0.0,
+   "England": 7.4,
+   "France": 17.9,
+   "Ireland": 8.0,
+   "New Zealand": 36.7,
+   "Scotland": 0.8,
+   "South Africa": 29.3
+  }
+ }
+}

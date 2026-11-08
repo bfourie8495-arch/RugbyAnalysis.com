@@ -480,6 +480,35 @@ def simulate_rwc(rwc, pts, ranks, known, known_ko):
             'about': 'We play the whole World Cup %s times using the model behind every pick in the app: each team’s chance of winning a match comes from its World Rugby ranking points, with Australia at home. Scores are drawn from how Tests between ranked teams have gone since 2023, to settle bonus points and points difference. Results replace the simulation as they come in.' % '{:,}'.format(SIMS)}
 
 
+HISTORY = 'sim_history.json'
+
+
+def moves(c):
+    """What the latest results did to each team's title chances. Each build keeps the simulation's title chances
+    in sim_history.json against the number of games played; when more have been played since the last entry, the
+    change from that entry is the effect of the results in between."""
+    try:
+        hist = json.load(open(HISTORY, encoding='utf-8'))
+    except (OSError, ValueError):
+        hist = {}
+    key = '%s-%s' % (c['id'], c['season'])
+    played = sum(r['p'] for g in c['groups'] for r in g['rows']) // 2
+    title = {t: p for t, p in c['sim']['title']}
+    h = hist.setdefault(key, {})
+    h.setdefault(str(played), title)  # the first simulation after each result stands for it
+    before = [int(k) for k in h if int(k) < played]
+    if before:
+        prev = max(before)
+        old = h[str(prev)]
+        teams = set(old) | set(title)
+        chg = [[t, old.get(t, 0.0), title.get(t, 0.0)] for t in teams]
+        chg = [x for x in chg if abs(x[2] - x[1]) >= 1 or max(x[1], x[2]) >= 5]
+        chg.sort(key=lambda x: -abs(x[2] - x[1]))
+        c['moves'] = {'games': played - prev, 'res': c['results'][-(played - prev):] if played - prev <= len(c['results']) else c['results'],
+                      'chg': chg[:8]}
+    json.dump(hist, open(HISTORY, 'w', encoding='utf-8'), indent=1, sort_keys=True)
+
+
 def main():
     RES = pd.concat([load('RugbyResults_AllNations_Detailed.csv', 'm'), load('WomensRugbyResults_Detailed.csv', 'w')])
     RES = RES[RES.home_score.notna() & RES.away_score.notna()]
@@ -490,6 +519,7 @@ def main():
     for c in comps:
         if c['id'] == 'nc' and c['status'] == 'live':
             c['sim'] = simulate_nc(c, RES, rank_pts)
+            moves(c)
     rwc = build_rwc(RES, ranks)
     res = RES[(RES.g == 'm') & RES.competition.str.match(RWC['pat'], na=False)]
     known, known_ko = {}, {}

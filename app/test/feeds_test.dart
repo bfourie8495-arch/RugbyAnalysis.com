@@ -79,6 +79,22 @@ void main() {
       expect(t.won + t.drawn + t.lost, greaterThan(0));
     });
 
+    test('upsets, try scorers, seasons and trends', () {
+      expect(feed.men.upsets, isNotEmpty);
+      expect(feed.men.upsets.every((u) => u.isUpset), isTrue);
+      expect(feed.men.upsets.first.winnerChance! <= feed.men.upsets.last.winnerChance!, isTrue, reason: 'biggest upset first');
+      expect(feed.men.hot.first.tries, greaterThanOrEqualTo(feed.men.hot.last.tries));
+      final sa = feed.men.stats['South Africa']!;
+      expect(sa.season, isNotEmpty);
+      expect(sa.season.every((g) => g.chance > 0 && g.chance < 100), isTrue);
+      expect(sa.trend.length, 20);
+      expect(sa.close.length, 3);
+      final withChance = feed.men.results.where((r) => r.winnerChance != null);
+      expect(withChance, isNotEmpty);
+      expect(feed.men.results.any((r) => r.atGround != null), isTrue);
+      expect(feed.men.fixtures.any((f) => f.atGround != null), isTrue);
+    });
+
     test('team numbers and the latest results’ details', () {
       final sa = feed.men.stats['South Africa']!;
       expect(sa.allTime.length, 3);
@@ -98,6 +114,14 @@ void main() {
 
   group('tournaments feed', () {
     final feed = TournamentsFeed.fromJson(readFeed('tournaments'));
+
+    test('the title race moves with the latest results', () {
+      final nc = feed.byId('nc')!;
+      final m = nc.moves!;
+      expect(m.results, isNotEmpty);
+      expect(m.changes, isNotEmpty);
+      expect(m.includes(m.results.first), isTrue);
+    });
 
     test('tournaments carry their numbers', () {
       final six = feed.byId('6n')!;

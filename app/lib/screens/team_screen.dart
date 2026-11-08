@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/common.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/standings.dart';
+import '../widgets/insights.dart';
 import '../widgets/stats.dart';
 import 'tournament_screen.dart';
 import 'tournaments_screen.dart';
@@ -83,6 +84,8 @@ class TeamScreen extends StatelessWidget {
         if (side.stats[team] case final s?) ...[
           const SectionTitle('By the numbers'),
           TeamNumbers(s),
+          SeasonSection(gender: gender, team: team, stats: s),
+          TrendSection(stats: s),
         ],
         if (next.isNotEmpty) ...[
           const SectionTitle('Next up'),

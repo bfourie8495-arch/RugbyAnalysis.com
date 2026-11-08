@@ -5,8 +5,10 @@ import '../models/format.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
+import '../widgets/insights.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/stats.dart';
+import 'insights_screen.dart';
 import 'team_screen.dart';
 
 /// One Test. Before it: both teams, kick-off in your time, the model's pick and a kick-off reminder.
@@ -78,13 +80,17 @@ class MatchScreen extends StatelessWidget {
               const SizedBox(height: 6),
               const Text('RugbyAnalysis model · chance of winning', style: TextStyle(fontSize: 11, color: RaColors.faint)),
             ],
+            if (r != null) UpsetLine(result: r),
           ]),
         ),
         if (f != null) ...[const SizedBox(height: 12), _ReminderButton(gender: gender, fixture: f)],
         if (r != null) MatchStatsSection(result: r),
+        if (r == null ? null : tournamentMovedBy(c, gender, r) case final t?) TitleMovesSection(tournament: t, title: 'What this round did'),
         HeadToHeadSection(gender: gender, first: home, second: away, skip: r),
         OppositionSection(gender: gender, first: home, second: away),
         FormNumbersSection(gender: gender, first: home, second: away),
+        GroundAndRefereeSection(
+            gender: gender, home: home, away: away, ground: f?.atGround ?? r?.atGround, referee: r?.withReferee, past: r != null),
         if (f?.pick != null) ...[
           const SizedBox(height: 12),
           const Text(

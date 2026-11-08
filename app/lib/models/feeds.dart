@@ -86,8 +86,26 @@ class Nation {
   String get flag => flagEmoji(iso);
 }
 
+/// Both sides' won-drawn-lost at a ground or with a referee (before the Test in question). [name] is the
+/// ground ('Twickenham', whatever its sponsor calls it now) or the referee.
+class PairRecord {
+  PairRecord(this.name, this.home, this.away);
+
+  static PairRecord? fromJson(Object? x) {
+    if (x is! Map) return null;
+    List<int> wdl(Object? y) => [for (final v in _list(y)) _int(v)];
+    final h = wdl(x['h']), a = wdl(x['a']);
+    if (h.length < 3 || a.length < 3) return null;
+    return PairRecord(_str(x['k']), h, a);
+  }
+
+  final String name;
+  final List<int> home; // won, drawn, lost
+  final List<int> away;
+}
+
 class Fixture {
-  Fixture({required this.date, required this.home, required this.away, this.kickOff, this.comp = '', this.venue = '', this.pick, this.live = false});
+  Fixture({required this.date, required this.home, required this.away, this.kickOff, this.comp = '', this.venue = '', this.pick, this.live = false, this.atGround});
 
   factory Fixture.fromJson(Map<String, dynamic> j, {String comp = ''}) => Fixture(
         date: _str(j['d']),
@@ -98,7 +116,11 @@ class Fixture {
         venue: _str(j['v']),
         pick: _dblOrNull(j['p']),
         live: j['live'] == 1 || j['live'] == true,
+        atGround: PairRecord.fromJson(j['gv']),
       );
+
+  /// Both teams' records at this ground (the matchday feed only).
+  final PairRecord? atGround;
 
   final String date; // yyyy-mm-dd
 
@@ -118,7 +140,17 @@ class Fixture {
 }
 
 class Result {
-  Result({required this.date, required this.home, required this.away, required this.homeScore, required this.awayScore, this.comp = '', this.detail});
+  Result(
+      {required this.date,
+      required this.home,
+      required this.away,
+      required this.homeScore,
+      required this.awayScore,
+      this.comp = '',
+      this.detail,
+      this.winnerChance,
+      this.atGround,
+      this.withReferee});
 
   factory Result.fromJson(Map<String, dynamic> j) => Result(
         date: _str(j['d']),
@@ -128,6 +160,9 @@ class Result {
         awayScore: _int(j['as']),
         comp: _str(j['c']),
         detail: MatchDetail.fromJson(j),
+        winnerChance: j['pw'] is num ? _int(j['pw']) : null,
+        atGround: PairRecord.fromJson(j['gv']),
+        withReferee: PairRecord.fromJson(j['rv']),
       );
 
   /// A result from a compact [date, home, away, home score, away score] list.
@@ -143,6 +178,14 @@ class Result {
 
   /// Tries, kicks, cards and so on, for the latest results (empty when the record has none).
   final MatchDetail? detail;
+
+  /// The winner's chance beforehand, in %, from a replay of the World Rugby ratings (null for a draw).
+  final int? winnerChance;
+  final PairRecord? atGround; // both sides' records at the ground before this Test
+  final PairRecord? withReferee; // and with the referee
+
+  /// An upset: the winner had less than a 40% chance.
+  bool get isUpset => winnerChance != null && winnerChance! < 40;
 
   bool involves(String team) => home == team || away == team;
   String get key => '$date|$home|$away';
@@ -302,6 +345,13 @@ class TeamStats {
             : null,
         pointsFromTries = j['tryPts'] is num ? _int(j['tryPts']) : null,
         scorers = [for (final x in _list(j['scorers'])) if (x is List && x.length >= 2) (player: _str(x[0]), tries: _int(x[1]))],
+        season = [
+          for (final r in _list(j['season']))
+            if (r is List && r.length >= 6)
+              (date: _str(r[0]), opponent: _str(r[1]), score: _int(r[2]), against: _int(r[3]), where: _str(r[4]), chance: _int(r[5]))
+        ],
+        trend = [for (final r in _list(j['trend'])) if (r is List && r.length >= 2) (scored: _int(r[0]), conceded: _int(r[1]))],
+        close = [for (final x in _list(j['close'])) _int(x)],
         recent = [
           for (final r in _list(j['recent']))
             if (r is List && r.length >= 6)
@@ -324,7 +374,16 @@ class TeamStats {
   final ({int made, int tried})? kicking; // conversions and penalty goals
   final ({int yellow, int red, int games})? cards;
   final int? pointsFromTries; // % of points from tries and their conversions
-  final List<({String player, int tries})> scorers; // the top three
+  final List<({String player, int tries})> scorers; // the top five
+
+  /// The last twelve months, oldest first, with this team's chance beforehand (%).
+  final List<({String date, String opponent, int score, int against, String where, int chance})> season;
+
+  /// Scores over the last twenty Tests, oldest first.
+  final List<({int scored, int conceded})> trend;
+
+  /// Won, drawn, lost in Tests decided by 7 points or fewer, over three years (empty if none).
+  final List<int> close;
 
   double? get kickingRate => kicking == null || kicking!.tried == 0 ? null : 100 * kicking!.made / kicking!.tried;
   double? get cardsAGame => cards == null || cards!.games == 0 ? null : (cards!.yellow + cards!.red) / cards!.games;
@@ -352,7 +411,18 @@ class Ranked {
 
 /// One side (men's or women's) of the matchday feed.
 class MatchdaySide {
-  MatchdaySide({required this.ranked, required this.fixtures, required this.results, required this.form, this.h2h = const {}, this.stats = const {}, this.common = const {}});
+  MatchdaySide(
+      {required this.ranked,
+      required this.fixtures,
+      required this.results,
+      required this.form,
+      this.h2h = const {},
+      this.stats = const {},
+      this.common = const {},
+      this.upsets = const [],
+      this.hot = const [],
+      this.hotFrom = 0,
+      this.hotOf = 0});
 
   factory MatchdaySide.fromJson(Map<String, dynamic> j) => MatchdaySide(
         ranked: [for (final r in _list(j['ranked'])) if (r is List && r.length >= 3) Ranked(_str(r[0]), _int(r[1]), _dbl(r[2]))],
@@ -362,6 +432,17 @@ class MatchdaySide {
         h2h: _map(j['h2h']).map((k, v) => MapEntry(k, HeadToHead.fromJson(_map(v)))),
         stats: _map(j['stats']).map((k, v) => MapEntry(k, TeamStats.fromJson(_map(v)))),
         common: _map(j['common']).map((k, v) => MapEntry(k, CommonOpponents.fromJson(_map(v)))),
+        upsets: [
+          for (final u in _list(j['upsets']))
+            if (u is List && u.length >= 6)
+              Result(date: _str(u[0]), home: _str(u[1]), away: _str(u[2]), homeScore: _int(u[3]), awayScore: _int(u[4]), winnerChance: _int(u[5]))
+        ],
+        hot: [
+          for (final h in _list(j['hot']))
+            if (h is List && h.length >= 4) (player: _str(h[0]), team: _str(h[1]), tries: _int(h[2]), tests: _int(h[3]))
+        ],
+        hotFrom: _list(j['hotFrom']).isEmpty ? 0 : _int(_list(j['hotFrom'])[0]),
+        hotOf: _list(j['hotFrom']).length < 2 ? 0 : _int(_list(j['hotFrom'])[1]),
       );
 
   final List<Ranked> ranked;
@@ -371,6 +452,16 @@ class MatchdaySide {
   final Map<String, HeadToHead> h2h; // 'Italy|South Africa' (alphabetical)
   final Map<String, TeamStats> stats;
   final Map<String, CommonOpponents> common; // 'Italy|South Africa' (alphabetical)
+
+  /// The last twelve months' biggest upsets among ranked nations, biggest first.
+  final List<Result> upsets;
+
+  /// The leading try scorers in all Tests over the last twelve months, from [hotFrom] of the [hotOf] Tests that
+  /// name their scorers.
+  final List<({String player, String team, int tries, int tests})> hot;
+  final int hotFrom;
+  final int hotOf;
+
 
   /// How [first] and [second] have each done against the teams they've both played, [first]'s numbers first.
   CommonOpponents? sharedOpponents(String first, String second) {
@@ -515,7 +606,8 @@ class Tournament {
         fixtures = [for (final f in _list(j['fixtures'])) Fixture.fromJson(_map(f), comp: _str(j['name']))],
         results = [for (final r in _list(j['results'])) Result.fromJson(_map(r))],
         sim = j['sim'] is Map ? GroupSim.fromJson(_map(j['sim'])) : null,
-        stats = j['stats'] is Map ? CompStats.fromJson(_map(j['stats'])) : null;
+        stats = j['stats'] is Map ? CompStats.fromJson(_map(j['stats'])) : null,
+        moves = j['moves'] is Map ? TitleMoves.fromJson(_map(j['moves'])) : null;
 
   final String id;
   final Gender gender;
@@ -532,6 +624,7 @@ class Tournament {
   final List<Result> results; // oldest first
   final GroupSim? sim;
   final CompStats? stats;
+  final TitleMoves? moves;
 
   /// Every team's played, points for and against, from the tables or the series records.
   List<({String team, int played, int pointsFor, int pointsAgainst})> get scoring => isSeries
@@ -788,4 +881,19 @@ class TournamentsFeed {
   }
 
   List<TeamEntry> entriesFor(Gender g, String team) => _index[g]?[team] ?? const [];
+}
+
+/// What the latest results did to each team's chance of winning the tournament.
+class TitleMoves {
+  TitleMoves.fromJson(Map<String, dynamic> j)
+      : results = [for (final r in _list(j['res'])) Result.fromJson(_map(r))],
+        changes = [
+          for (final c in _list(j['chg']))
+            if (c is List && c.length >= 3) (team: _str(c[0]), before: _dbl(c[1]), after: _dbl(c[2]))
+        ];
+
+  final List<Result> results; // the results since the previous simulation
+  final List<({String team, double before, double after})> changes; // biggest change first
+
+  bool includes(Result r) => results.any((x) => x.date == r.date && x.home == r.home && x.away == r.away);
 }

@@ -6,6 +6,7 @@ import '../screens/match_screen.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import 'common.dart';
+import 'insights.dart';
 import 'stats.dart';
 
 /// An upcoming Test: both teams with their form, kick-off in your time, and the model's pick.
@@ -138,6 +139,7 @@ class ResultTile extends StatelessWidget {
             width: 92,
             child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text(shortDate(r.date), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: RaColors.faint)),
+              if (r.isUpset) const Padding(padding: EdgeInsets.symmetric(vertical: 2), child: UpsetTag()),
               Text(r.comp, textAlign: TextAlign.right, maxLines: 2, overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 11, color: RaColors.faint, height: 1.25)),
             ]),

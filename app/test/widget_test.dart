@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rugby_analysis/main.dart';
 import 'package:rugby_analysis/models/feeds.dart';
+import 'package:rugby_analysis/screens/insights_screen.dart';
 import 'package:rugby_analysis/screens/match_screen.dart';
 import 'package:rugby_analysis/screens/matchday_screen.dart';
 import 'package:rugby_analysis/screens/me_screen.dart';
+import 'package:rugby_analysis/screens/team_screen.dart';
 import 'package:rugby_analysis/screens/tournament_screen.dart';
 import 'package:rugby_analysis/screens/tournaments_screen.dart';
 import 'package:rugby_analysis/screens/world_cup_screen.dart';
@@ -104,6 +106,33 @@ void main() {
     expect(find.text('${r.homeScore}–${r.awayScore}'), findsWidgets);
     expect(find.text('Match stats'), findsOneWidget);
     expect(find.text('Tries'), findsOneWidget);
+  });
+
+  testWidgets('A team page shows the season so far and the scoring trend', (tester) async {
+    final c = await startApp(tester);
+    await tester.pumpWidget(AppScope(controller: c, child: const MaterialApp(home: TeamScreen(gender: Gender.men, team: 'South Africa'))));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Season so far'), 300, scrollable: listOf(TeamScreen));
+    expect(find.text('Season so far'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Scoring trend'), 300, scrollable: listOf(TeamScreen));
+    expect(find.text('Scoring trend'), findsOneWidget);
+  });
+
+  testWidgets('Talking points lists the title race, upsets and try scorers', (tester) async {
+    final c = await startApp(tester);
+    await tester.pumpWidget(AppScope(controller: c, child: const MaterialApp(home: InsightsScreen(gender: Gender.men))));
+    await tester.pumpAndSettle();
+    expect(find.text('Nations Championship 2026'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Upsets of the year'), 300, scrollable: listOf(InsightsScreen));
+    expect(find.text('Upsets of the year'), findsOneWidget);
+  });
+
+  testWidgets('An upset says so on its result', (tester) async {
+    final c = await startApp(tester);
+    final r = c.matchday!.men.upsets.first;
+    await tester.pumpWidget(AppScope(controller: c, child: MaterialApp(home: MatchScreen.result(gender: Gender.men, result: r))));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('chance beforehand', findRichText: true), findsOneWidget);
   });
 
   testWidgets('A tournament shows its stats and top try scorers', (tester) async {

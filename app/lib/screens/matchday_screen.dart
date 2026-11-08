@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/common.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/world_cup_strip.dart';
+import 'insights_screen.dart';
 import 'me_screen.dart';
 
 /// The first tab: the World Cup strip, this weekend's games worth watching,
@@ -122,6 +123,7 @@ class MatchdayScreen extends StatelessWidget {
           hidden: hidden,
           onTap: () => c.setShowAllTests(!c.showAllTests),
         ),
+      TalkingPointsCard(gender: g),
       const SectionTitle('Latest results'),
       TileList(children: [for (final r in results.take(10)) ResultTile(gender: g, result: r)]),
       const FooterLinks(),
