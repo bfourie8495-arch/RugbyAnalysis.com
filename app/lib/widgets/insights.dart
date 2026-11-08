@@ -168,7 +168,7 @@ class SeasonSection extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Row(children: [
-                      SizedBox(width: 50, child: Text(shortDate(g.date), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.faint))),
+                      SizedBox(width: 62, child: Text(shortDate(g.date), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.faint))),
                       TeamBadge(feed.nation(g.opponent), size: 22),
                       const SizedBox(width: 8),
                       Expanded(
@@ -270,12 +270,10 @@ class TrendSection extends StatelessWidget {
             child: SizedBox(height: 140, child: CustomPaint(painter: _TrendPainter(t))),
           ),
           const SizedBox(height: 6),
-          const Row(children: [
+          const Wrap(spacing: 14, runSpacing: 4, children: [
             _Key(colour: RaColors.gold, label: 'Scored'),
-            SizedBox(width: 14),
             _Key(colour: RaColors.away, label: 'Conceded'),
-            Spacer(),
-            Text('Oldest → newest', style: _small),
+            Text('Oldest on the left', style: _small),
           ]),
           const Divider(height: 22),
           Text(direction, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -415,7 +413,7 @@ class HotScorersSection extends StatelessWidget {
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                     Text(h.player, style: const TextStyle(fontWeight: FontWeight.w700)),
-                    Text('${h.team} · in ${h.tests} ${h.tests == 1 ? 'Test' : 'Tests'}', style: _small),
+                    Text('${h.team} · scored in ${h.tests} ${h.tests == 1 ? 'Test' : 'Tests'}', style: _small),
                   ]),
                 ),
                 Text('${h.tries}', style: displayStyle(18, color: RaColors.gold, weight: FontWeight.w800)),
