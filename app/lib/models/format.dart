@@ -7,6 +7,28 @@ const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 
 /// 'Sat 7 Nov'
 String dayLabel(DateTime t) => '${_days[t.weekday - 1]} ${t.day} ${_months[t.month - 1]}';
 
+/// 'Today', 'Tomorrow' or 'Sat 7 Nov', for a kick-off in the phone's time.
+String kickOffDay(DateTime k, {DateTime? now}) {
+  final n = (now ?? DateTime.now()).toLocal(), t = k.toLocal();
+  final days = DateTime(t.year, t.month, t.day).difference(DateTime(n.year, n.month, n.day)).inDays;
+  return days == 0 ? 'Today' : days == 1 ? 'Tomorrow' : days == -1 ? 'Yesterday' : dayLabel(t);
+}
+
+/// Where a kick-off stands: 'In 3h 20m' (within a day), 'Live' (being played), 'Result soon' (after full time,
+/// until the result reaches the feed), or null when it's further off.
+String? kickOffNote(DateTime k, {DateTime? now, bool live = false}) {
+  final n = now ?? DateTime.now();
+  final d = k.difference(n);
+  if (!d.isNegative) {
+    if (d.inHours >= 24) return null;
+    if (d.inMinutes < 1) return 'Kicking off';
+    if (d.inMinutes < 60) return 'In ${d.inMinutes} min';
+    final m = d.inMinutes % 60;
+    return 'In ${d.inHours}h${m == 0 ? '' : ' ${m}m'}';
+  }
+  return -d.inMinutes < (live ? 130 : 100) ? 'Live' : 'Result soon';
+}
+
 /// '14:10'
 String clock(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 

@@ -5,8 +5,10 @@ https://rugbyanalysis.com/app/matchday.json for the RugbyAnalysis app.
 
 Runs from build_all.py after update.py. If anything goes wrong, the previous file is kept and the run shows a
 yellow warning instead of stopping the rest of the site build."""
-import json, os, re, datetime
+import collections, json, os, re, datetime
 import pandas as pd
+
+import insights as I
 
 OUT = os.path.join('..', 'site', 'app', 'matchday.json')
 TODAY = datetime.date.today().isoformat()
@@ -127,7 +129,114 @@ def h2h(df, a, b):
             'big': big, 'last': [meeting(r) for r in reversed(rows[-6:])]}
 
 
-def team_stats(df, t):
+def common_opponents(df, a, b, years=3):
+    """How a and b have each done against the teams they've both played in the last few years (not each other):
+    per opponent, each side's won/drawn/lost, points for and against, and its latest result against them."""
+    since = str(int(TODAY[:4]) - years) + TODAY[4:]
+    rec = df[df.date >= since]
+    def games(t):
+        g = {}
+        for r in rec[(rec.home_team == t) | (rec.away_team == t)].itertuples():
+            o = r.away_team if r.home_team == t else r.home_team
+            my, op = (int(r.home_score), int(r.away_score)) if r.home_team == t else (int(r.away_score), int(r.home_score))
+            g.setdefault(o, []).append((r.date, my, op))
+        return g
+    ga, gb = games(a), games(b)
+    shared = [o for o in ga if o in gb and o not in (a, b)]
+    if not shared: return None
+    def side(gs):
+        return [sum(m > o for _, m, o in gs), sum(m == o for _, m, o in gs), sum(m < o for _, m, o in gs),
+                sum(m for _, m, _ in gs), sum(o for _, _, o in gs), list(gs[-1])]
+    rows = [[o, side(ga[o]), side(gb[o])] for o in shared]
+    rows.sort(key=lambda x: -(sum(x[1][:3]) + sum(x[2][:3])))  # most-played first
+    return {'since': since, 'opp': rows[:10]}
+
+
+def kicking_and_more(rows, t):
+    """Goal-kicking, discipline, how the points come and the leading try scorers, over the given Tests."""
+    out = {}
+    def side(r): return 'home' if r.home_team == t else 'away'
+    made = att = 0
+    for r in rows:
+        s = side(r)
+        c, ca, p, pa = (num(getattr(r, s + k)) for k in ('_cons', '_cons_att', '_pens', '_pens_att'))
+        if None in (c, ca, p, pa) or ca < c or pa < p or ca + pa == 0 or tries_of(r, s) is None: continue
+        made += c + p; att += ca + pa
+    if att >= 15: out['kick'] = [made, att]
+    cards = [(num(getattr(r, side(r) + '_yellow')), num(getattr(r, side(r) + '_red'))) for r in rows]
+    cards = [(y, rd or 0) for y, rd in cards if y is not None]
+    if len(cards) >= 3: out['cards'] = [sum(y for y, _ in cards), sum(x for _, x in cards), len(cards)]
+    tp = sp = 0
+    for r in rows:
+        s = side(r); t_ = tries_of(r, s); c = num(getattr(r, s + '_cons'))
+        if t_ is None or c is None: continue
+        tp += 5 * t_ + 2 * c; sp += int(getattr(r, s + '_score'))
+    if sp >= 60: out['tryPts'] = round(100 * min(tp, sp) / sp)
+    S = collections.Counter()
+    for r in rows:
+        col = getattr(r, side(r) + '_try_scorers')
+        if not isinstance(col, str): continue
+        for part in col.split(';'):
+            m = re.match(r'\s*(.+?)\s*(?:\((\d+)\))?\s*$', part)
+            if m and m.group(1) and m.group(1).lower() != 'penalty try':
+                S[m.group(1)] += int(m.group(2) or 1)
+    if S: out['scorers'] = [[p, n] for p, n in sorted(S.items(), key=lambda x: (-x[1], x[0]))[:5]]
+    return out
+
+
+def running_records(df):
+    """Each team's record at each ground and under each referee, as it stood before every Test, and at the end."""
+    G, Rf, grounds, refs = {}, {}, {}, {}
+    for r in df.itertuples():
+        k = I.ground_key(r.stadium, r.city)
+        ref = r.referee.strip() if isinstance(r.referee, str) and r.referee.strip() else None
+        if k: grounds[r.Index] = (k, list(G.get((k, r.home_team), [0, 0, 0])), list(G.get((k, r.away_team), [0, 0, 0])))
+        if ref: refs[r.Index] = (ref, list(Rf.get((ref, r.home_team), [0, 0, 0])), list(Rf.get((ref, r.away_team), [0, 0, 0])))
+        res = 0 if r.home_score > r.away_score else 1 if r.home_score == r.away_score else 2
+        for team, i in ((r.home_team, res), (r.away_team, 2 - res)):
+            for key, store in ((k, G), (ref, Rf)):
+                if key:
+                    x = store.setdefault((key, team), [0, 0, 0]); x[i] += 1
+    return grounds, refs, G
+
+
+def extras(r, P, grounds, refs):
+    """For a finished Test: the winner's chance beforehand, and both sides' records at the ground and with the
+    referee before it."""
+    out = {}
+    w = I.winner_chance(r, P[r.Index])
+    if w is not None: out['pw'] = round(100 * w)
+    if r.Index in grounds:
+        k, h, a = grounds[r.Index]
+        if sum(h) + sum(a): out['gv'] = {'k': k, 'h': h, 'a': a}
+    if r.Index in refs:
+        k, h, a = refs[r.Index]
+        if sum(h) + sum(a) >= 2: out['rv'] = {'k': k, 'h': h, 'a': a}
+    return out
+
+
+def talking_points(df, P, ranked):
+    """The year's biggest upsets (among ranked nations) and the leading try scorers across all Tests."""
+    year_ago = str(int(TODAY[:4]) - 1) + TODAY[4:]
+    rec = df[df.date >= year_ago]
+    ups = []
+    for r in rec.itertuples():
+        w = I.winner_chance(r, P[r.Index])
+        if w is None or w >= 0.42 or r.home_team not in ranked or r.away_team not in ranked: continue
+        ups.append([r.date, r.home_team, r.away_team, int(r.home_score), int(r.away_score), round(100 * w)])
+    ups.sort(key=lambda x: (x[5], x[0]))
+    S = collections.Counter()
+    games = collections.Counter()
+    for r in rec.itertuples():
+        for team, col in ((r.home_team, r.home_try_scorers), (r.away_team, r.away_try_scorers)):
+            for p, n in I.scorers(col):
+                S[(p, team)] += n; games[(p, team)] += 1
+    hot = [[p, t, n, games[(p, t)]] for (p, t), n in sorted(S.items(), key=lambda x: (-x[1], x[0][0]))[:15]]
+    named = sum(1 for r in rec.itertuples() if isinstance(r.home_try_scorers, str) or isinstance(r.away_try_scorers, str))
+    return {'upsets': ups[:10], 'hot': hot, 'hotFrom': [named, len(rec)]}
+
+
+def team_stats(df, t, P=None):
     """A nation's numbers: all-time record, this year, the last ten Tests' averages, its streak and latest results."""
     rows = list(df[(df.home_team == t) | (df.away_team == t)].itertuples())
     if not rows: return None
@@ -152,6 +261,20 @@ def team_stats(df, t):
            'recent': [[r.date, r.away_team if side(r) == 'home' else r.home_team, int(getattr(r, side(r) + '_score')),
                        int(getattr(r, other(r) + '_score')), 'n' if str(r.neutral).upper() == 'TRUE' else side(r)[0],
                        re.sub(r'^\d{4}(–\d{2,4})? ', '', str(r.competition))] for r in reversed(rows[-6:])]}
+    # Kicking, discipline and try scorers over the last twelve months (at least the last ten Tests).
+    year_ago = str(int(TODAY[:4]) - 1) + TODAY[4:]
+    recent12 = [r for r in rows if r.date >= year_ago]
+    out.update(kicking_and_more(recent12 if len(recent12) >= len(last) else last, t))
+    # The last twelve months Test by Test, with this team's chance beforehand (the "season so far").
+    if P is not None:
+        out['season'] = [[r.date, r.away_team if side(r) == 'home' else r.home_team, int(getattr(r, side(r) + '_score')),
+                          int(getattr(r, other(r) + '_score')), 'n' if I.is_neutral(r) else side(r)[0],
+                          round(100 * (P[r.Index] if side(r) == 'home' else 1 - P[r.Index]))] for r in recent12]
+    # Scores over the last twenty Tests, oldest first, and close games (decided by 7 or fewer) over three years.
+    out['trend'] = [[int(getattr(r, side(r) + '_score')), int(getattr(r, other(r) + '_score'))] for r in rows[-20:]]
+    three = str(int(TODAY[:4]) - 3) + TODAY[4:]
+    close = [r for r in rows if r.date >= three and abs(int(r.home_score) - int(r.away_score)) <= 7]
+    if close: out['close'] = wdl(close)
     if len(tf) >= 3:
         out['tf'] = round(sum(x for x, _ in tf) / len(tf), 1)
         out['ta'] = round(sum(y for _, y in tf) / len(tf), 1)
@@ -202,20 +325,29 @@ def main():
         for f in fx_all:
             if f.get('g', 'm') != g or f['d'] < TODAY: continue
             fixtures.append({'ko': f.get('ko'), 'd': f['d'], 'h': name(f['h']), 'a': name(f['a']), 'c': f['c'],
-                             'v': f.get('v', ''), 'p': f.get('p')})
+                             'v': f.get('v', ''), 'p': f.get('p'), **({'live': 1} if f.get('live') else {})})
         fixtures.sort(key=lambda f: (f['d'], f['ko'] or ''))
         df = res[g]
+        P = I.replay(df)
+        grounds, refs, G = running_records(df)
         latest = df.tail(RESULTS).iloc[::-1]
         results = [{'d': r.date, 'h': r.home_team, 'a': r.away_team, 'hs': int(r.home_score), 'as': int(r.away_score),
-                    'c': re.sub(r'^\d{4}(–\d{2,4})? ', '', str(r.competition)), **details(r)} for r in latest.itertuples()]
+                    'c': re.sub(r'^\d{4}(–\d{2,4})? ', '', str(r.competition)), **details(r),
+                    **extras(r, P, grounds, refs)} for r in latest.itertuples()]
+        for f in fixtures:
+            k = I.ground_key(f['v'])
+            if k and (G.get((k, f['h'])) or G.get((k, f['a']))):
+                f['gv'] = {'k': k, 'h': G.get((k, f['h']), [0, 0, 0]), 'a': G.get((k, f['a']), [0, 0, 0])}
         teams = {t for t, _, _ in ranked} | {f['h'] for f in fixtures} | {f['a'] for f in fixtures} | \
                 {r['h'] for r in results} | {r['a'] for r in results}
         # Head-to-heads for every pair in the fixtures and latest results, keyed by the two names in alphabetical order.
         pairs = {tuple(sorted((x['h'], x['a']))) for x in fixtures + results}
         meets = {'%s|%s' % p: h for p in sorted(pairs) if (h := h2h(df, *p))}
+        common = {'%s|%s' % p: x for p in sorted(pairs) if (x := common_opponents(df, *p))}
         out[g] = {'ranked': ranked, 'fixtures': fixtures, 'results': results,
-                  'form': {t: form(df, t) for t in sorted(teams)}, 'h2h': meets,
-                  'stats': {t: s for t in sorted(teams) if (s := team_stats(df, t))}}
+                  'form': {t: form(df, t) for t in sorted(teams)}, 'h2h': meets, 'common': common,
+                  'stats': {t: s for t in sorted(teams) if (s := team_stats(df, t, P))},
+                  **talking_points(df, P, {t for t, _, _ in ranked})}
         for t in teams:
             out['nations'].setdefault(t, nation(t, others))
     s = json.dumps(out, separators=(',', ':'), ensure_ascii=False, sort_keys=True)

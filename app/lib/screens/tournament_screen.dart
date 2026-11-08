@@ -7,6 +7,7 @@ import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import '../widgets/standings.dart';
+import '../widgets/insights.dart';
 import '../widgets/stats.dart';
 import 'match_screen.dart';
 import 'team_screen.dart';
@@ -50,6 +51,7 @@ class TournamentScreen extends StatelessWidget {
                 ]),
               ),
               if (t.isSeries) ..._series(context, t) else ..._tables(t),
+              TitleMovesSection(tournament: t),
               if (t.sim != null) ..._predictions(context, c, t),
               TournamentStatsSection(tournament: t),
               if (t.fixtures.isNotEmpty) ...[

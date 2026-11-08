@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/common.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/world_cup_strip.dart';
+import 'insights_screen.dart';
 import 'me_screen.dart';
 
 /// The first tab: the World Cup strip, this weekend's games worth watching,
@@ -53,7 +54,9 @@ class MatchdayScreen extends StatelessWidget {
     final results = [for (final r in side.results) if (c.showAllTests || !c.isMinorTest(g, r.home, r.away)) r];
     final groups = <String, List<Fixture>>{};
     for (final f in fixtures.take(30)) {
-      final label = f.kickOff == null ? dateLabel(f.date) : dayLabel(f.kickOff!.toLocal());
+      final k = f.kickOff?.toLocal();
+      final day = k == null ? dateLabel(f.date) : kickOffDay(k);
+      final label = k == null || day == dayLabel(k) ? day : '$day · ${dayLabel(k)}';
       (groups[label] ??= []).add(f);
     }
     return [
@@ -105,7 +108,11 @@ class MatchdayScreen extends StatelessWidget {
         for (final e in groups.entries) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(2, 6, 0, 8),
-            child: Text(e.key, style: const TextStyle(fontWeight: FontWeight.w700, color: RaColors.muted)),
+            child: Text(e.key,
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: e.key.startsWith('Today') ? RaColors.gold : RaColors.ink)),
           ),
           TileList(children: [for (final f in e.value) FixtureTile(gender: g, fixture: f)]),
           const SizedBox(height: 8),
@@ -116,6 +123,7 @@ class MatchdayScreen extends StatelessWidget {
           hidden: hidden,
           onTap: () => c.setShowAllTests(!c.showAllTests),
         ),
+      TalkingPointsCard(gender: g),
       const SectionTitle('Latest results'),
       TileList(children: [for (final r in results.take(10)) ResultTile(gender: g, result: r)]),
       const FooterLinks(),
