@@ -31,5 +31,9 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
-          # static-assets-only Workers (no "main" script) need Wrangler 4; the action defaults to 3
           wranglerVersion: "4"
+          # The results watch in worker/index.js needs a GitHub token to start the data refresh; it's
+          # passed on only once the GH_DISPATCH_TOKEN repository secret exists.
+          secrets: ${{ secrets.GH_DISPATCH_TOKEN != '' && 'GH_DISPATCH_TOKEN' || '' }}
+        env:
+          GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
