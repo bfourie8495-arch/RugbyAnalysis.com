@@ -43,6 +43,7 @@ void main() {
     tester.view.physicalSize = const Size(1080, 3600);
     tester.view.devicePixelRatio = 2.7;
     addTearDown(tester.view.reset);
+    // ignore: invalid_use_of_visible_for_testing_member
     SharedPreferences.setMockInitialValues({});
     final c = AppController(source: _Feeds());
     await tester.pumpWidget(RugbyApp(controller: c));
