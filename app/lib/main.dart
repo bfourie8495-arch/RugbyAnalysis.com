@@ -58,7 +58,7 @@ class _RugbyAppState extends State<RugbyApp> {
   /// arrives as the route '/join/CODE' and opens the join screen with the code filled in.
   static Route<void>? _route(RouteSettings s) {
     final code = joinCodeFromRoute(s.name);
-    if (code == null) return null;
+    if (code == null) return s.name == '/' ? MaterialPageRoute(builder: (_) => const HomeShell(), settings: s) : null;
     return MaterialPageRoute(builder: (_) => JoinRoomScreen(initialCode: code), settings: s);
   }
 
@@ -71,12 +71,12 @@ class _RugbyAppState extends State<RugbyApp> {
         title: 'RugbyAnalysis',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
-        home: const HomeShell(),
+        // No `home:` (Flutter doesn't allow it with onGenerateInitialRoutes): HomeShell is the first route.
         onGenerateRoute: _route,
         // Started from an invite link: home underneath, the join screen on top.
         onGenerateInitialRoutes: (name) => [
-          MaterialPageRoute(builder: (_) => const HomeShell()),
-          if (_route(RouteSettings(name: name)) case final r?) r,
+          MaterialPageRoute(builder: (_) => const HomeShell(), settings: const RouteSettings(name: '/')),
+          if (joinCodeFromRoute(name) != null) _route(RouteSettings(name: name))!,
         ],
       ),
     );
