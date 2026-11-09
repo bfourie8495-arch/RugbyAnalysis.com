@@ -189,7 +189,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.follows, contains('m|South Africa'));
     expect(find.text('Following'), findsOneWidget);
-    await tester.pageBack();
+    await tester.pageBack(); // the team page
+    await tester.pumpAndSettle();
+    await tester.pageBack(); // the World Cup
     await tester.pumpAndSettle();
     await tester.tap(tab('Me'));
     await tester.pumpAndSettle();
@@ -256,11 +258,13 @@ void main() {
     await tester.pumpAndSettle();
     // First time: your name.
     await tester.enterText(find.byType(TextField), 'Brendon');
+    await tester.pump(); // Save switches on once there's a name
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(c.myName, 'Brendon');
     // Then the room's name.
     await tester.enterText(find.byType(TextField), 'Saturday rugby');
+    await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'OK'));
     await tester.pumpAndSettle();
     expect(find.byType(RoomScreen), findsOneWidget);
