@@ -38,5 +38,5 @@ jobs:
           git add store/screenshots
           git diff --cached --quiet && exit 0
           git commit -m "Store screenshots from ${GITHUB_SHA::7}"
-          git pull --rebase origin "$GITHUB_REF_NAME"
+          git pull --rebase --autostash origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
