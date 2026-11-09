@@ -3,7 +3,9 @@ name: App APK
 # Builds the Android app:
 #  - RugbyAnalysis.apk, published as the "app-latest" release, so a phone can install it from
 #    https://github.com/bfourie8495-arch/RugbyAnalysis.com/releases/download/app-latest/RugbyAnalysis.apk
-#  - RugbyAnalysis.aab, the bundle for Google Play, kept as a (private) download on the run's page.
+#  - RugbyAnalysis.aab, the bundle for Google Play, kept as a (private) download on the run's page,
+#    and on the draft release "play-bundle" (drafts are visible only to the repo's owners), named
+#    RugbyAnalysis-<build>.aab, so it can be fetched with the REST API for uploading to Play Console.
 # Both are signed with the upload key from the repo's secrets (made by app/make-upload-key.ps1),
 # so each new APK installs over the last. Until those secrets exist, a throwaway key is used.
 # The build number goes up by one each run, as Google Play requires.
@@ -73,6 +75,15 @@ jobs:
           gh release create app-latest RugbyAnalysis.apk --prerelease --target "$GITHUB_SHA" \
             --title "RugbyAnalysis app (latest test build)" \
             --notes "Build ${BUILD}, from ${GITHUB_REF_NAME} at ${GITHUB_SHA::7}. Open this page on your Android phone, tap RugbyAnalysis.apk and allow installs from your browser when asked."
+      - name: Keep the Play bundle on a draft release
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp RugbyAnalysis.aab "RugbyAnalysis-${BUILD}.aab"
+          gh release delete play-bundle --yes || true
+          gh release create play-bundle "RugbyAnalysis-${BUILD}.aab" --draft --target "$GITHUB_SHA" \
+            --title "Play bundle (build ${BUILD})" --notes "For uploading to Play Console. Draft: not public."
       - name: Forget the key
         if: always()
         run: rm -f "$RUNNER_TEMP/upload.jks" android/key.properties
