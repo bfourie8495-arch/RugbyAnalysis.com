@@ -1,0 +1,29 @@
+name: App review shots (temporary)
+permissions:
+  contents: write
+on:
+  push:
+    branches: [app-114-clubs-chat]
+    paths: ["app/tool/review_shots_test.dart", ".github/workflows/app-review-shots.yml"]
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: |
+          mkdir -p tool/fonts
+          curl -fsSL https://raw.githubusercontent.com/google/fonts/main/ofl/notocoloremoji/NotoColorEmoji-Regular.ttf -o tool/fonts/NotoColorEmoji.ttf || true
+      - run: flutter test tool/review_shots_test.dart --update-goldens
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tool/review
+          git commit -m "Review shots" && git push origin "HEAD:$GITHUB_REF_NAME"

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'models/chat.dart';
+import 'screens/chat_screen.dart';
 import 'screens/home_shell.dart';
+import 'screens/room_screen.dart';
 import 'services/backend.dart';
 import 'services/feed_service.dart';
 import 'services/notifications.dart';
@@ -35,10 +38,28 @@ class _RugbyAppState extends State<RugbyApp> {
   @override
   void initState() {
     super.initState();
-    // A tapped notification brings you back to Matchday, where this weekend's games are.
-    WidgetsBinding.instance.addPostFrameCallback((_) => widget.notifications?.start((_) {
-          _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+    // A tapped chat notification opens its room; any other brings you back to Matchday,
+    // where this weekend's games are.
+    WidgetsBinding.instance.addPostFrameCallback((_) => widget.notifications?.start((data) {
+          final nav = _navigatorKey.currentState;
+          nav?.popUntil((route) => route.isFirst);
+          final room = data['room'];
+          if (room is String && room.isNotEmpty) {
+            widget.controller.setTab(AppTab.chat);
+            final ctx = _navigatorKey.currentContext;
+            if (ctx != null) openRoom(ctx, room);
+          } else {
+            widget.controller.setTab(AppTab.matchday);
+          }
         }));
+  }
+
+  /// Invite links: rugbyanalysis://app/join/CODE (from the website's join page, see worker/index.js)
+  /// arrives as the route '/join/CODE' and opens the join screen with the code filled in.
+  static Route<void>? _route(RouteSettings s) {
+    final code = joinCodeFromRoute(s.name);
+    if (code == null) return null;
+    return MaterialPageRoute(builder: (_) => JoinRoomScreen(initialCode: code), settings: s);
   }
 
   @override
@@ -51,6 +72,12 @@ class _RugbyAppState extends State<RugbyApp> {
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
         home: const HomeShell(),
+        onGenerateRoute: _route,
+        // Started from an invite link: home underneath, the join screen on top.
+        onGenerateInitialRoutes: (name) => [
+          MaterialPageRoute(builder: (_) => const HomeShell()),
+          if (_route(RouteSettings(name: name)) case final r?) r,
+        ],
       ),
     );
   }

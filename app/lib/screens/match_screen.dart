@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../models/feeds.dart';
+import '../models/chat.dart' show PinnedMatch;
 import '../models/format.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
+import '../widgets/chat_widgets.dart' show watchWithFriends;
 import '../widgets/common.dart';
 import '../widgets/insights.dart';
 import '../widgets/match_tiles.dart';
@@ -83,7 +85,19 @@ class MatchScreen extends StatelessWidget {
             if (r != null) UpsetLine(result: r),
           ]),
         ),
-        if (f != null) ...[const SizedBox(height: 12), _ReminderButton(gender: gender, fixture: f)],
+        if (f != null) ...[
+          const SizedBox(height: 12),
+          _ReminderButton(gender: gender, fixture: f),
+          if (c.chatAvailable) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46), side: const BorderSide(color: RaColors.line2)),
+              onPressed: () => watchWithFriends(context, PinnedMatch.test(gender, f)),
+              icon: const Icon(Icons.forum_outlined),
+              label: const Text('Watch with friends', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ],
         if (r != null) MatchStatsSection(result: r),
         if (r == null ? null : tournamentMovedBy(c, gender, r) case final t?) TitleMovesSection(tournament: t, title: 'What this round did'),
         HeadToHeadSection(gender: gender, first: home, second: away, skip: r),

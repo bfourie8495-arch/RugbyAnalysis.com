@@ -5,7 +5,7 @@ for step in ['build_stats.py', 'build_players.py', 'build_clubs.py', 'build.py',
     print(f'--- {step}', flush=True)
     runpy.run_path(step, run_name='__main__')
 # The app's feeds are extra: if one fails, warn and keep its previous file rather than stop the site build.
-for step in ['build_matchday.py', 'build_analysis.py', 'build_tournaments.py']:
+for step in ['build_matchday.py', 'build_analysis.py', 'build_tournaments.py', 'build_app_clubs.py']:
     print(f'--- {step}', flush=True)
     try:
         runpy.run_path(step, run_name='__main__')

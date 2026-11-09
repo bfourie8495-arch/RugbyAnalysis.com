@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../models/alerts.dart';
+import '../models/clubs.dart';
 import '../models/feeds.dart';
 import '../models/format.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
+import '../widgets/club_tiles.dart';
 import '../widgets/common.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/world_cup_strip.dart';
@@ -15,6 +17,21 @@ import 'me_screen.dart';
 /// every upcoming Test with the model's pick, and the latest results.
 class MatchdayScreen extends StatelessWidget {
   const MatchdayScreen({super.key});
+
+  /// The next game of each club you follow, in the next eight days, soonest first.
+  static List<ClubGame> _clubGames(AppController c) {
+    final feed = c.clubs;
+    if (feed == null) return const [];
+    final until = DateTime.now().add(const Duration(days: 8)).toIso8601String().substring(0, 10);
+    final seen = <String>{};
+    final out = <ClubGame>[];
+    for (final id in c.clubFollows) {
+      final next = feed.clubs[id]?.fixtures.firstOrNull;
+      if (next != null && next.date.compareTo(until) <= 0 && seen.add(next.key)) out.add(next);
+    }
+    out.sort((a, b) => (a.kickOff?.toIso8601String() ?? a.date).compareTo(b.kickOff?.toIso8601String() ?? b.date));
+    return out;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +117,10 @@ class MatchdayScreen extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(ok ? 'Alerts on. Your heads-up comes on Thursday evening.' : 'Alerts are blocked in your phone’s settings.')));
         }),
+      ],
+      if (_clubGames(c) case final games when games.isNotEmpty) ...[
+        const SectionTitle('Your clubs', eyebrow: 'Next games', note: 'Your time'),
+        TileList(children: [for (final g in games) ClubGameTile(game: g)]),
       ],
       SectionTitle('Up next', eyebrow: 'Matchday', note: fixtures.isEmpty ? null : '${fixtures.length} scheduled'),
       if (groups.isEmpty)

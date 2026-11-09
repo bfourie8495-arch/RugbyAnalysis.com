@@ -69,7 +69,7 @@ RugbyAnalysis is independent and not affiliated with World Rugby, any union or a
 - **Privacy policy:** `https://rugbyanalysis.com/privacy`
 - **Ads:** No, the app doesn't contain ads.
 - **App access:** All functionality is available without special access (no sign-in).
-- **Content rating:** Category "All other app types". Answer No to violence, sexual content, language, controlled substances, crude humour and gambling (the model's picks are predictions, with no betting, odds from bookmakers or real or simulated gambling). Users can't interact or share content with each other, the app doesn't share the user's location, and there are no purchases.
+- **Content rating:** Category "All other app types". Answer No to violence, sexual content, language, controlled substances, crude humour and gambling (the model's picks are predictions, with no betting, odds from bookmakers or real or simulated gambling). **Users can interact: Yes** (private chat rooms with friends they invite; there's in-app reporting and hiding of messages). The app doesn't share the user's location, and there are no purchases. *Changed in 114: redo the questionnaire when 114 goes to a track.*
 - **Target audience:** 13 and over (13 to 15, 16 to 17, 18 and over). Not "appeals to children". This keeps it out of the Families programme.
 - **News app:** No. **COVID-19, health, financial features, government app:** No / none.
 - **Data deletion:** Yes, users can ask for their data to be deleted: `https://rugbyanalysis.com/delete-data` (in the app: Me > Your data > Delete my data).
@@ -86,8 +86,10 @@ RugbyAnalysis is independent and not affiliated with World Rugby, any union or a
 | Personal info: User IDs (the anonymous sign-in ID) | Yes | No | No | Required | App functionality |
 | App activity: Other user-generated content (teams followed, alert settings, match reminders) | Yes | No | No | Optional (works without following anyone) | App functionality, Personalisation |
 | Device or other IDs (the notification token, only with alerts on) | Yes | No | No | Optional | App functionality |
+| Personal info: Name (the display name picked for chat; can be a nickname) | Yes | No | No | Optional | App functionality |
+| Messages: Other in-app messages (chat messages, deleted after 30 days) | Yes | No | No | Optional | App functionality |
 
-Everything else (location, name, email, contacts, photos, app usage analytics, crash logs): **not collected**.
+From 114 (chat): add the last two rows in Play Console before 114 goes to any track. Everything else (location, email, contacts, photos, app usage analytics, crash logs): **not collected**.
 "Shared" means given to another company for its own use. Google Firebase is a service provider, so it doesn't count as sharing.
 
 ## Closed testing (needed before production on a personal account)
