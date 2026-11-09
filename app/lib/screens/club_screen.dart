@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/clubs.dart';
 import '../models/format.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';

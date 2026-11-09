@@ -66,7 +66,7 @@ class FirestoreChat implements ChatService {
       .limit(limit)
       .snapshots(includeMetadataChanges: false)
       .map((s) => [
-            for (final d in s.docs.reversed) ChatMessage.fromMap(d.id, d.data(serverTimestamps: ServerTimestampBehavior.estimate), _date)
+            for (final d in s.docs.reversed) ChatMessage.fromMap(d.id, d.data(), _date)
           ]);
 
   @override

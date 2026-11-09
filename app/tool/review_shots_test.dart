@@ -45,6 +45,7 @@ void main() {
     tester.view.physicalSize = Size(1080, tall ? 3600 : 2340);
     tester.view.devicePixelRatio = 2.7;
     addTearDown(tester.view.reset);
+    // ignore: invalid_use_of_visible_for_testing_member
     SharedPreferences.setMockInitialValues({});
     final now = DateTime.now();
     final chat = MemoryChat();
