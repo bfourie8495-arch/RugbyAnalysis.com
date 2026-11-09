@@ -4,7 +4,9 @@ import '../models/alerts.dart';
 import '../models/feeds.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
+import '../widgets/club_tiles.dart';
 import '../widgets/common.dart';
+import 'chat_screen.dart' show askForName;
 
 /// Your teams and your alerts.
 class MeScreen extends StatelessWidget {
@@ -40,6 +42,27 @@ class MeScreen extends StatelessWidget {
         icon: const Icon(Icons.add),
         label: const Text('Add teams', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
+      if (c.clubFollows.isNotEmpty && c.clubs != null) ...[
+        const SectionTitle('Clubs you follow'),
+        Container(
+          decoration: cardDecoration(),
+          clipBehavior: Clip.antiAlias,
+          child: Material(
+            color: Colors.transparent,
+            child: Column(children: [
+              for (final id in c.clubFollows)
+                ListTile(
+                  minTileHeight: 52,
+                  leading: ClubBadge(c.clubs!.club(id), size: 30),
+                  title: Text(c.clubs!.club(id).name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(c.clubs!.league(c.clubs!.club(id).league)?.short ?? '', style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+                  trailing: IconButton(tooltip: 'Stop following', onPressed: () => c.toggleClub(id), icon: const Icon(Icons.close, color: RaColors.faint)),
+                  onTap: () => openClub(context, id),
+                ),
+            ]),
+          ),
+        ),
+      ],
       const SectionTitle('Alerts'),
       if (!a.on)
         RaCard(
@@ -137,13 +160,40 @@ class MeScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: RaColors.faint)),
           ),
       ],
+      if (c.chatAvailable && (c.myName != null || c.blocked.isNotEmpty)) ...[
+        const SectionTitle('Chat'),
+        Container(
+          decoration: cardDecoration(),
+          clipBehavior: Clip.antiAlias,
+          child: Material(
+            color: Colors.transparent,
+            child: Column(children: [
+              ListTile(
+                minTileHeight: 52,
+                title: const Text('Your name in chat', style: TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Text(c.myName ?? 'Not chosen yet', style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+                trailing: const Icon(Icons.edit_outlined, color: RaColors.faint),
+                onTap: () => askForName(context, change: true),
+              ),
+              for (final uid in c.blocked)
+                ListTile(
+                  minTileHeight: 52,
+                  title: const Text('Someone you hid', style: TextStyle(fontWeight: FontWeight.w700)),
+                  subtitle: Text(_hiddenName(c, uid), style: const TextStyle(fontSize: 12, color: RaColors.faint)),
+                  trailing: TextButton(onPressed: () => c.unblock(uid), child: const Text('Show again')),
+                ),
+            ]),
+          ),
+        ),
+      ],
       const SectionTitle('Your data'),
       RaCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(
               c.backend == null
                   ? 'Your teams and alert settings are kept on this phone only.'
-                  : 'The app keeps your teams, alert settings and this phone’s alert token, under an anonymous ID. No name, email or location.',
+                  : 'The app keeps your teams, clubs, alert settings and this phone’s alert token under an anonymous ID, plus your chat name '
+                      'and messages if you use chat (messages go after 30 days). No email or location.',
               style: const TextStyle(color: RaColors.muted)),
           const SizedBox(height: 4),
           TextButton(
@@ -162,6 +212,15 @@ class MeScreen extends StatelessWidget {
     ]);
     if (!standalone) return list;
     return Scaffold(appBar: AppBar(title: const Text('Your teams and alerts')), body: list);
+  }
+
+  /// The name of someone you hid, from any room you share with them.
+  static String _hiddenName(AppController c, String uid) {
+    for (final r in c.rooms) {
+      final n = r.names[uid];
+      if (n != null) return n;
+    }
+    return 'No longer in your rooms';
   }
 
   Widget _followRow(BuildContext context, AppController c, Gender g, String team) {
@@ -224,7 +283,8 @@ class MeScreen extends StatelessWidget {
       context: context,
       builder: (d) => AlertDialog(
         title: const Text('Delete your data?'),
-        content: const Text('This removes your teams, alert settings and reminders from the app and its server, and turns alerts off. It can’t be undone.'),
+        content: const Text('This removes your teams, clubs, alert settings and reminders from the app and its server, and turns alerts off. '
+            'It also takes you out of your chat rooms, deletes your messages and deletes the rooms you made. It can’t be undone.'),
         actions: [
           TextButton(onPressed: () => Navigator.of(d).pop(false), child: const Text('Cancel')),
           TextButton(onPressed: () => Navigator.of(d).pop(true), child: const Text('Delete')),

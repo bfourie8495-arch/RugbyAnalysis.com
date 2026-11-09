@@ -1,4 +1,4 @@
-"""RugbyAnalysis app alerts: three scheduled Cloud Functions that read the website's matchday feed and send
+"""RugbyAnalysis app alerts: three scheduled Cloud Functions (plus on_chat_message, below) that read the website's matchday feed and send
 push notifications through Firebase Cloud Messaging. The decisions (who, when, what it says) are in
 alerts.py; this file only reads Firestore, fetches the feed and sends.
 
@@ -13,10 +13,11 @@ import logging
 
 import requests
 from firebase_admin import firestore, initialize_app, messaging
-from firebase_functions import scheduler_fn
+from firebase_functions import firestore_fn, scheduler_fn
 from firebase_functions.options import set_global_options
 
 import alerts
+import chat
 
 initialize_app()
 set_global_options(max_instances=2)
@@ -45,7 +46,7 @@ def _users_with_alerts(db):
         yield snap.id, snap.to_dict() or {}
 
 
-def _send(db, uid: str, kind: str, title: str, body: str, data: dict | None = None) -> bool:
+def _send(db, uid: str, kind: str, title: str, body: str, data: dict | None = None, tag: str | None = None) -> bool:
     """Send to the phone saved for uid. Never raises; removes tokens Firebase says are dead."""
     try:
         ref = db.collection("devices").document(uid)
@@ -57,7 +58,11 @@ def _send(db, uid: str, kind: str, title: str, body: str, data: dict | None = No
             token=token,
             notification=messaging.Notification(title=title, body=body),
             data={"type": kind, **{k: str(v) for k, v in (data or {}).items()}},
-            android=messaging.AndroidConfig(priority="high"),
+            android=messaging.AndroidConfig(
+                priority="high",
+                # A tag replaces the last notification with the same tag (one per chat room).
+                notification=messaging.AndroidNotification(tag=tag) if tag else None,
+            ),
         )
         try:
             messaging.send(msg)
@@ -116,3 +121,26 @@ def full_time_scores(_event: scheduler_fn.ScheduledEvent) -> None:
     since = (now.date() - dt.timedelta(days=3)).isoformat()
     keep = sorted(k for k in already | {alerts.result_key(g, r) for g, r in fresh} if k.split("|")[1] >= since)
     log_ref.set({"keys": keep, "updatedAt": firestore.SERVER_TIMESTAMP})
+
+
+@firestore_fn.on_document_created(document="rooms/{room}/messages/{message}", database=DATABASE, region=REGION)
+def on_chat_message(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
+    """A new chat message: alert the room's other members (not those who muted it). Rules in chat.py."""
+    if event.data is None:
+        return
+    message = event.data.to_dict() or {}
+    room_id = event.params["room"]
+    db = _db()
+    snap = db.collection("rooms").document(room_id).get()
+    if not snap.exists:
+        return
+    room = snap.to_dict() or {}
+    title, body = chat.message_alert(room, message)
+    sent = 0
+    for uid in chat.recipients(room, str(message.get("uid") or "")):
+        user = db.collection("users").document(uid).get()
+        if not chat.wants_chat_alerts(user.to_dict() if user.exists else None):
+            continue
+        if _send(db, uid, "chat", title, body, {"room": room_id}, tag="room-" + room_id):
+            sent += 1
+    log.info("Chat message in %s: %d alerts", room_id, sent)

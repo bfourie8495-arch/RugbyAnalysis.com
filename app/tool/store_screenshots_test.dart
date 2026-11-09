@@ -117,7 +117,9 @@ void main() {
 
   testWidgets('3 world cup predictions', (tester) async {
     await start(tester);
-    await tapTab(tester, 'World Cup');
+    await tapTab(tester, 'Tournaments');
+    await tester.tap(find.descendant(of: find.byType(TournamentsScreen), matching: find.text('Rugby World Cup 2027')));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ChoiceChip, 'Predictions'));
     await tester.pumpAndSettle();
     await scrollToTop(tester, WorldCupScreen, find.descendant(of: find.byType(WorldCupScreen), matching: find.text('Who wins it?')));

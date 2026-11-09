@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 
 import '../firebase_options.dart';
+import 'chat_service.dart';
 
 /// The same Firebase project as Smack Bang (middle-509820), with this app's
 /// own Firestore database, so the two apps never see each other's data.
@@ -11,8 +12,8 @@ import '../firebase_options.dart';
 const firestoreDatabaseId = 'rugbydb';
 
 /// Everything that talks to Firebase, in one place (as in Smack Bang):
-/// anonymous sign-in, your teams and alert settings at users/{uid}, and this
-/// phone's notification token at devices/{uid}. The server reads both to send
+/// anonymous sign-in, your teams, clubs, chat name and alert settings at users/{uid}, and this
+/// phone's notification token at devices/{uid} (chat itself is in chat_service.dart). The server reads both to send
 /// the weekend heads-up and kick-off reminders (functions/main.py).
 /// Records unused for this long are deleted by a Firestore TTL policy on `deleteAt`
 /// (users and devices in rugbydb). The date moves forward every time the app opens.
@@ -41,6 +42,9 @@ class Backend {
     }
   }
 
+  /// Chat rooms and messages (chat_service.dart), in the same database.
+  late final ChatService chat = FirestoreChat(_db, uid);
+
   DocumentReference<Map<String, dynamic>> get _user => _db.collection('users').doc(uid);
 
   /// Your saved teams and alert settings, or null if you have none yet.
@@ -49,9 +53,11 @@ class Backend {
   /// [utcOffsetMinutes] is the phone's clock offset (60 for UK summer time),
   /// so the server can write kick-off times in your time. It's re-saved each
   /// time the app opens, which keeps it right across clock changes.
-  Future<void> saveProfile({required List<String> follows, required Map<String, Object?> alerts, required int utcOffsetMinutes}) =>
+  Future<void> saveProfile({required List<String> follows, List<String> clubs = const [], String? name, required Map<String, Object?> alerts, required int utcOffsetMinutes}) =>
       _user.set({
         'follows': follows,
+        'clubs': clubs,
+        if (name != null) 'name': name,
         'alerts': alerts,
         'utcOffsetMinutes': utcOffsetMinutes,
         'updatedAt': FieldValue.serverTimestamp(),

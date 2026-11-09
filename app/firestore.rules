@@ -7,18 +7,35 @@ rules_version = '2';
 // users/{uid}: your teams and alert settings. Only you can read or write yours.
 // devices/{uid}: this phone's notification token. Only you can write yours.
 // sent/*: the server's record of results already announced. No app access.
+// rooms/{code}: a chat room for friends. Its id is the invite code (12 characters, so it can't be
+//   guessed): anyone signed in can read one room by its code (to join it), but only members can
+//   list rooms, read the messages or write. People join by adding only themselves.
+// rooms/{code}/messages/{id}: members only; you post as yourself; no edits; you delete your own
+//   (the room's owner can delete any). deleteAt is 30 days ahead (TTL on the messages group).
+// reports/{id}: a reported message, for the server to look at. Create only.
 // deleteAt (optional, a year ahead, renewed whenever the app opens): a Firestore
-// TTL policy on users.deleteAt and devices.deleteAt removes records nobody uses.
+// TTL policy on users.deleteAt and devices.deleteAt removes records nobody uses
+// (and on rooms.deleteAt, 90 days after a room's last message, and messages.deleteAt).
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function shortText(x, max) {
+      return x is string && x.size() > 0 && x.size() <= max;
+    }
+
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['follows', 'alerts', 'utcOffsetMinutes', 'updatedAt', 'deleteAt'])
+        && request.resource.data.keys().hasOnly(['follows', 'clubs', 'name', 'alerts', 'utcOffsetMinutes', 'updatedAt', 'deleteAt'])
+        && (!('clubs' in request.resource.data) || (request.resource.data.clubs is list && request.resource.data.clubs.size() <= 60))
+        && (!('name' in request.resource.data) || shortText(request.resource.data.name, 24))
         && (!('deleteAt' in request.resource.data) || request.resource.data.deleteAt is timestamp)
         && request.resource.data.follows is list
         && request.resource.data.follows.size() <= 60
@@ -36,6 +53,93 @@ service cloud.firestore {
         && request.resource.data.token is string
         && request.resource.data.token.size() < 4096
         && request.resource.data.platform in ['android', 'web'];
+    }
+
+    match /rooms/{code} {
+      function members() { return resource.data.members; }
+      function isMember() { return signedIn() && request.auth.uid in resource.data.members; }
+      function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+      function me() { return request.auth.uid; }
+      // Only your own entry in names and muted may change.
+      function onlyMyName() {
+        return !('names' in changed()) || request.resource.data.names.diff(resource.data.names).affectedKeys().hasOnly([me()]);
+      }
+      function onlyMyMute() {
+        return !('muted' in changed())
+          || (request.resource.data.muted.toSet().difference(resource.data.muted.toSet()).hasOnly([me()])
+              && resource.data.muted.toSet().difference(request.resource.data.muted.toSet()).hasOnly([me()]));
+      }
+
+      // One room by its code (to join it); a list only of rooms you're in.
+      allow get: if signedIn();
+      allow list: if signedIn() && request.auth.uid in resource.data.members;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['name', 'ownerUid', 'members', 'names', 'muted', 'match', 'createdAt', 'deleteAt'])
+        && shortText(request.resource.data.name, 40)
+        && request.resource.data.ownerUid == me()
+        && request.resource.data.members == [me()]
+        && request.resource.data.names.keys().hasOnly([me()])
+        && shortText(request.resource.data.names[me()], 24)
+        && request.resource.data.muted == []
+        && (!('match' in request.resource.data) || request.resource.data.match is map)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.deleteAt is timestamp;
+
+      // Joining: someone with the code adds only themselves (and their name), while there's room.
+      allow update: if signedIn()
+        && !(me() in members())
+        && members().size() < 50
+        && changed().hasOnly(['members', 'names'])
+        && request.resource.data.members.toSet() == members().toSet().union([me()].toSet())
+        && request.resource.data.members.size() == members().size() + 1
+        && request.resource.data.names.diff(resource.data.names).affectedKeys().hasOnly([me()])
+        && shortText(request.resource.data.names[me()], 24);
+
+      // Members: the name, the pinned match, the last message line, their own name and alerts,
+      // or leaving (taking only themselves out).
+      allow update: if isMember()
+        && changed().hasOnly(['name', 'match', 'lastAt', 'lastText', 'lastName', 'lastUid', 'names', 'muted', 'members', 'deleteAt'])
+        && shortText(request.resource.data.name, 40)
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && (!('match' in request.resource.data) || request.resource.data.match is map)
+        && (!('lastText' in changed()) || (request.resource.data.lastText is string && request.resource.data.lastText.size() <= 130
+              && request.resource.data.lastUid == me() && request.resource.data.lastAt == request.time))
+        && (!('members' in changed()) || request.resource.data.members.toSet() == members().toSet().difference([me()].toSet()))
+        && onlyMyName()
+        && onlyMyMute()
+        && (!('deleteAt' in changed()) || request.resource.data.deleteAt is timestamp);
+
+      allow delete: if signedIn() && resource.data.ownerUid == me();
+
+      match /messages/{id} {
+        function room() { return get(/databases/$(database)/documents/rooms/$(code)).data; }
+
+        allow read: if signedIn() && request.auth.uid in room().members;
+        allow create: if signedIn()
+          && request.auth.uid in room().members
+          && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'at', 'deleteAt'])
+          && request.resource.data.uid == request.auth.uid
+          && shortText(request.resource.data.name, 24)
+          && shortText(request.resource.data.text, 500)
+          && request.resource.data.at == request.time
+          && request.resource.data.deleteAt is timestamp;
+        // Your own messages; the room's owner can remove any. Also allowed once the room has gone,
+        // so a deleted room's last messages can still be tidied up.
+        allow delete: if signedIn()
+          && (resource.data.uid == request.auth.uid
+              || !exists(/databases/$(database)/documents/rooms/$(code))
+              || room().ownerUid == request.auth.uid);
+      }
+    }
+
+    match /reports/{id} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['by', 'room', 'message', 'uid', 'name', 'text', 'reason', 'at'])
+        && request.resource.data.by == request.auth.uid
+        && shortText(request.resource.data.reason, 60)
+        && request.resource.data.text is string && request.resource.data.text.size() <= 500
+        && request.resource.data.at == request.time;
     }
   }
 }
