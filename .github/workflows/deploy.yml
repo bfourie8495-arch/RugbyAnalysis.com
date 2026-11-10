@@ -32,8 +32,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
           wranglerVersion: "4"
-          # The results watch in worker/index.js needs a GitHub token to start the data refresh; it's
-          # passed on only once the GH_DISPATCH_TOKEN repository secret exists.
-          secrets: ${{ secrets.GH_DISPATCH_TOKEN != '' && 'GH_DISPATCH_TOKEN' || '' }}
-        env:
-          GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
+          # No secrets here. The Worker's GH_DISPATCH_TOKEN (for the results watch in worker/index.js) is
+          # stored on the Worker and kept across deploys. Uploading it on every deploy failed whenever
+          # Cloudflare's own build of the same commit (Workers Builds) had a newer version not yet live.
+          # To change it: Cloudflare dashboard > Workers > dry-limit-ba4f > Settings > Variables and secrets.
