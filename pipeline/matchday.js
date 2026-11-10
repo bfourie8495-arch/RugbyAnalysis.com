@@ -101,7 +101,7 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(M,hi,ai),V=G.map(m=>view
     <section class="mct"><h3>What's on the line</h3>${st.length?`<ul class="mdst">${st.map(s=>`<li>${s}</li>`).join("")}</ul>`:`<p class="hint">Nothing beyond the result.</p>`}</section>
     <section class="mct"><h3>Players to watch</h3><div class="mdpw"><div><div class="mdpt">${fl(hi)} ${f.h}</div>${watchHTML(hi)}</div><div><div class="mdpt">${fl(ai)} ${f.a}</div>${watchHTML(ai)}</div></div></section>
   </div>
-  <div class="mcft"><span class="hint">${esc(f.v)}</span><a class="mcgo" href="${h2hHref(hi,ai)}">Full head-to-head stats: ${f.h} v ${f.a} →</a></div>
+  <div class="mcft"><span class="hint">${esc(f.v)}</span><span class="mclinks"><a class="mcapp" href="/getapp">Kick-off alert in the app</a><a class="mcgo" href="${h2hHref(hi,ai)}">Full head-to-head stats: ${f.h} v ${f.a} →</a></span></div>
 </article>`}
 
 function renderMatchday(){const now=Date.now(),items=upcoming(),Wm=WOMEN();

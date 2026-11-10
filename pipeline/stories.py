@@ -1,4 +1,6 @@
-"""Adds the social banner, the "The data in 60 seconds" strip and footer social links to site/index.html.
+"""Adds the social banner, the "The data in 60 seconds" strip and footer social links to site/index.html,
+the banner and footer links to the club and sevens pages, and builds site/go.html: the one link in the
+Instagram bio (rugbyanalysis.com/go), with this week's Tests, the app, the latest video and the follow buttons.
 
 Runs last in build_all.py, after the main page is built. Content lives in pipeline/stories.json:
 each item names a video in site/stories/<id>.mp4 (with a <id>.jpg poster) and the date it goes out
@@ -18,6 +20,7 @@ SHOW = 8  # newest items shown in the strip
 
 IG_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>'
 FB_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1z"/></svg>'
+APP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 18h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
 PLAY_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13l11-6.5z"/></svg>'
 
 CSS = """
@@ -29,6 +32,7 @@ CSS = """
 .sx-btn{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px/1 var(--body);text-decoration:none;white-space:nowrap}
 .sx-btn:hover{border-color:var(--ink2)}
 .sx-btn svg{width:16px;height:16px}
+.sx-btn.sx-app{background:#10213A;border-color:#10213A;color:#F4EFE4}.sx-btn.sx-app svg{color:#C9A24B}.sx-btn.sx-app:hover{border-color:#C9A24B}
 .sx-x{margin-left:auto;background:none;border:0;color:var(--ink2);font-size:20px;line-height:1;padding:4px 6px;cursor:pointer}
 .sx{padding-block:28px 24px}
 .nx,.sx{min-width:0;max-width:100%;width:100%;box-sizing:border-box}
@@ -303,21 +307,140 @@ def teamfix(today):
     return block, js
 
 
+def bar_parts(cfg):
+    """The banner and the footer links, the same on every page."""
+    ig, fb, app = cfg['instagram'], cfg['facebook'], cfg.get('app', '/getapp')
+    btns = (f'<a class="sx-btn" href="{ig}" target="_blank" rel="noopener">{IG_SVG}Instagram</a>'
+            f'<a class="sx-btn" href="{fb}" target="_blank" rel="noopener">{FB_SVG}Facebook</a>'
+            f'<a class="sx-btn sx-app" href="{app}">{APP_SVG}Get the app</a>')
+    bar = (f'<div class="sx-bar" id="sxBar"><div class="wrap"><p><b>New here?</b> We turn these numbers into '
+           f'60-second videos and quick reads every day, and our app sends kick-off alerts for your teams.</p>'
+           f'<div class="sx-btns">{btns}</div>'
+           f'<button class="sx-x" id="sxX" aria-label="Hide this message">&times;</button></div></div>')
+    foot = f'<div class="wrap sx-foot" id="sxFoot"><span>Follow RugbyAnalysis:</span><div class="sx-btns">{btns}</div></div>'
+    return btns, bar, foot
+
+
+def add_bar(path, cfg):
+    """The banner under the top bar and the footer links, on the club and sevens pages."""
+    if not os.path.exists(path):
+        return
+    _, bar, foot = bar_parts(cfg)
+    page = open(path, encoding='utf-8').read()
+    page = re.sub(r'<!--sx:start-->.*?<!--sx:end-->', '', page, flags=re.S)
+    wrap = lambda s: f'<!--sx:start-->{s}<!--sx:end-->'
+    css = CSS.split('.sx{padding-block')[0]  # only the banner and button styles
+    page = page.replace('</head>', wrap(f'<style>{css}.sx-foot{{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding-block:14px 22px;font-size:14px;color:var(--ink2)}}</style>') + '</head>', 1)
+    page = page.replace('</nav>', '</nav>' + wrap(bar), 1)
+    page = re.sub(r'(<footer\b[^>]*>.*?</footer>)', lambda m: m.group(1) + wrap(foot), page, count=1, flags=re.S)
+    dismiss = JS.split("  var nd=")[0] + '})();'
+    page = page.replace('</body>', wrap(f'<script>{dismiss}</script>') + '</body>', 1)
+    open(path, 'w', encoding='utf-8').write(page)
+
+
+def slug(name):
+    return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+
+
+GO_PAGE = """<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RugbyAnalysis: this week</title>
+<meta name="description" content="This week's Tests with the model's pick, the RugbyAnalysis app and the latest videos.">
+<meta property="og:title" content="RugbyAnalysis: this week"><meta property="og:image" content="https://rugbyanalysis.com/logo/icon-512.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/logo/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#10213A;--gold:#C9A24B;--gold-ink:#A07524;--cream:#F4EFE4;--ink:#10213A;--ink2:#4A5568;--line:#E2DCCD;--card:#FFFDF8}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+a{color:inherit}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 20px/1 Poppins,sans-serif}
+.brand img{width:40px;height:40px;border-radius:10px}
+.k{display:flex;align-items:center;gap:10px;margin:28px 0 8px;color:var(--gold-ink);font:700 12px/1 Poppins,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.k:before{content:"";width:22px;height:2px;background:var(--gold)}
+h1{font:700 28px/1.15 Poppins,sans-serif;margin:18px 0 6px;letter-spacing:-.01em}
+.lede{margin:0;color:var(--ink2)}
+.fx{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:8px}
+.fx .t{font:600 16px/1.3 Poppins,sans-serif}.fx .m{font-size:14px;color:var(--ink2);margin-top:3px}
+.fx .bar{height:6px;border-radius:3px;background:#D8D2C2;margin-top:8px;overflow:hidden}.fx .bar i{display:block;height:100%;background:var(--navy)}
+.btn{display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;border-radius:14px;padding:14px 16px;margin-top:10px;font:600 16px/1.3 Poppins,sans-serif;border:1px solid var(--line);background:var(--card)}
+.btn small{display:block;font:400 14px/1.4 Figtree,sans-serif;color:var(--ink2);margin-top:2px}
+.btn.app{background:var(--navy);border-color:var(--navy);color:var(--cream)}.btn.app small{color:#C8D0DE}.btn.app b{color:var(--gold)}
+.vid{display:flex;gap:12px;align-items:center;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px}
+.vid img{width:64px;height:114px;object-fit:cover;border-radius:8px;flex:none}.vid .t{font:600 16px/1.3 Poppins,sans-serif}.vid .m{font-size:14px;color:var(--ink2)}
+.follow{display:flex;gap:10px;margin-top:10px}.follow a{flex:1;text-align:center;text-decoration:none;padding:12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:600}
+footer{margin-top:32px;font-size:13px;color:var(--ink2)}
+</style></head><body><main>
+<a class="brand" href="/"><img src="/logo/icon-180.png" alt="">RugbyAnalysis</a>
+<h1>Rugby by the numbers</h1>
+<p class="lede">The model's pick for every Test, the full history behind it, and alerts for your teams.</p>
+__FIXTURES__
+<div class="k">Go further</div>
+<a class="btn app" href="__APP__"><span>Get the app<small>Kick-off alerts, live tables, club rugby and chat with friends. <b>Android, now in testing.</b></small></span><span aria-hidden="true">&rarr;</span></a>
+<a class="btn" href="/clubs.html"><span>Club rugby<small>Tables, fixtures and form for ten competitions</small></span><span aria-hidden="true">&rarr;</span></a>
+<a class="btn" href="/"><span>Every Test since 1871<small>Head to heads, team records and the Match Centre</small></span><span aria-hidden="true">&rarr;</span></a>
+__VIDEO__
+<div class="k">Follow</div>
+<div class="follow"><a href="__IG__">Instagram</a><a href="__FB__">Facebook</a></div>
+<footer>Model picks are estimates from World Rugby ratings with home advantage, not betting advice. <a href="/privacy">Privacy</a></footer>
+</main>
+<script>
+// Kick-off times in the reader's own time zone.
+document.querySelectorAll('[data-ko]').forEach(function(e){try{var d=new Date(e.dataset.ko);
+e.textContent=d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}catch(x){}});
+</script></body></html>
+"""
+
+
+def build_go(today, cfg, items):
+    """site/go.html: the link in the Instagram bio. Rebuilt with the data, so it always shows this week."""
+    import datetime as _dt
+    fx = json.load(open(os.path.join(HERE, 'fixtures.json'), encoding='utf-8'))
+    soon = []
+    for f in fx:
+        try:
+            ko = _dt.datetime.fromisoformat(f['ko'].replace('Z', '+00:00'))
+        except (KeyError, ValueError):
+            continue
+        # skip Tests whose kick-off time isn't known yet (stored as midnight UTC)
+        if f['ko'].endswith('T00:00:00Z'):
+            continue
+        if today <= ko.date() <= today + _dt.timedelta(days=8):
+            soon.append((ko, f))
+    soon.sort(key=lambda x: x[0])
+    rows = []
+    for ko, f in soon[:10]:
+        h, a, p = f['h'], f['a'], f.get('p')
+        pick = ''
+        if isinstance(p, (int, float)):
+            who, pc = (h, p) if p >= .5 else (a, 1 - p)
+            pick = (f'<div class="m">Model: <b>{html.escape(who)}</b> {round(pc * 100)}%</div>'
+                    f'<div class="bar" aria-hidden="true"><i style="width:{round(p * 100)}%"></i></div>')
+        when = ko.strftime('%a %d %b, %H:%M UTC')
+        rows.append(f'<a class="fx" href="/#h2h/{slug(h)}-v-{slug(a)}"><div class="t">{html.escape(h)} v {html.escape(a)}</div>'
+                    f'<div class="m"><span data-ko="{f["ko"]}">{when}</span> · {html.escape(f.get("c", ""))}</div>{pick}</a>')
+    fixtures = ('<div class="k">This week</div>' + ''.join(rows)) if rows else ''
+    video = ''
+    if items:
+        i = items[0]
+        video = (f'<div class="k">Latest video</div><a class="vid" href="/#sx"><img src="/stories/{i["id"]}.jpg" alt="" loading="lazy">'
+                 f'<div><div class="t">{html.escape(i["title"])}</div><div class="m">{html.escape(i["line"])}</div></div></a>')
+    page = (GO_PAGE.replace('__FIXTURES__', fixtures).replace('__VIDEO__', video)
+            .replace('__APP__', cfg.get('app', '/getapp')).replace('__IG__', cfg['instagram']).replace('__FB__', cfg['facebook']))
+    open(os.path.join(SITE, 'go.html'), 'w', encoding='utf-8').write(page)
+    print(f'go.html: {len(rows)} fixtures')
+
+
 def build(today=None):
     today = today or dt.date.today()
     cfg = json.load(open(os.path.join(HERE, 'stories.json'), encoding='utf-8'))
-    ig, fb = cfg['instagram'], cfg['facebook']
     items = [i for i in cfg['items']
              if dt.date.fromisoformat(i['date']) <= today and os.path.exists(os.path.join(SITE, 'stories', i['id'] + '.mp4'))]
     items.sort(key=lambda i: i['date'], reverse=True)
     items = items[:SHOW]
 
-    btns = (f'<a class="sx-btn" href="{ig}" target="_blank" rel="noopener">{IG_SVG}Instagram</a>'
-            f'<a class="sx-btn" href="{fb}" target="_blank" rel="noopener">{FB_SVG}Facebook</a>')
-    bar = (f'<div class="sx-bar" id="sxBar"><div class="wrap"><p><b>New here?</b> We turn these numbers into '
-           f'60-second videos and quick reads every day.</p><div class="sx-btns">{btns}</div>'
-           f'<button class="sx-x" id="sxX" aria-label="Hide this message">&times;</button></div></div>')
-
+    btns, bar, foot = bar_parts(cfg)
     cards = []
     for i in items:
         d = dt.date.fromisoformat(i['date'])
@@ -334,7 +457,6 @@ def build(today=None):
                f'<section class="sx" id="sx" aria-labelledby="sxH"><div class="sx-hd"><div><h2 id="sxH">The data in 60 seconds</h2>'
                f'<p>Short videos on the stories hiding in the numbers. Tap to play.</p></div></div>'
                f'<div class="sx-row">{"".join(cards)}</div></section>')
-    foot = f'<div class="wrap sx-foot" id="sxFoot"><span>Follow Rugby Analysis:</span><div class="sx-btns">{btns}</div></div>'
 
     path = os.path.join(SITE, 'index.html')
     page = open(path, encoding='utf-8').read()
@@ -357,6 +479,11 @@ def build(today=None):
         page = page.replace(bad, good)
     open(path, 'w', encoding='utf-8').write(page)
     print(f'stories: {len(items)} shown ({", ".join(i["id"] for i in items)})')
+    for other in ('clubs.html', 'sevens.html'):
+        add_bar(os.path.join(SITE, other), cfg)
+    build_go(today, cfg, items)
+
+
 
 
 if __name__ == '__main__':

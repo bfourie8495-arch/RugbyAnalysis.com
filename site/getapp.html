@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get the RugbyAnalysis app</title>
+<meta name="description" content="Kick-off alerts for your teams, the model's pick for every Test, live tables, club rugby and private chat with friends. Android, now in testing.">
+<meta property="og:title" content="Get the RugbyAnalysis app">
+<meta property="og:description" content="Kick-off alerts for your teams, the model's pick for every Test, club rugby and chat with friends.">
+<meta property="og:image" content="https://rugbyanalysis.com/logo/icon-512.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/logo/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<!--
+  The app's page: rugbyanalysis.com/getapp. Linked from the "Get the app" buttons on every page, the Match
+  Centre cards and rugbyanalysis.com/go (pipeline/stories.py).
+  While the app is in closed testing, people join by sending the Google account on their phone.
+  WHEN THE APP IS ON GOOGLE PLAY: replace the #join card with the Play badge, linking to
+  https://play.google.com/store/apps/details?id=com.rugbyanalysis.app&referrer=utm_source%3Dwebsite%26utm_medium%3Dgetapp
+-->
+<style>
+:root{--navy:#10213A;--navy2:#14243D;--gold:#C9A24B;--gold-ink:#A07524;--cream:#F4EFE4;--ink:#10213A;--ink2:#4A5568;--line:#E2DCCD;--card:#FFFDF8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.55 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+header{background:var(--navy);color:var(--cream)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 19px/1 Poppins,sans-serif}
+.brand img{width:36px;height:36px;border-radius:9px}
+header nav a{color:#C8D0DE;text-decoration:none;font-size:15px;margin-left:16px}
+.hero{background:var(--navy);color:var(--cream);padding:28px 0 40px}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.k{display:flex;align-items:center;gap:10px;color:var(--gold);font:700 12px/1 Poppins,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.k:before{content:"";width:22px;height:2px;background:var(--gold)}
+h1{font:700 clamp(30px,5vw,46px)/1.08 Poppins,sans-serif;letter-spacing:-.02em;margin:14px 0 12px}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{font-size:18px;color:#D9DEE8;margin:0 0 22px;max-width:46ch}
+#join{background:var(--card);color:var(--ink);border-radius:18px;padding:18px;max-width:460px}
+#join .st{display:inline-flex;align-items:center;gap:8px;font:600 13px/1 Poppins,sans-serif;color:var(--gold-ink);letter-spacing:.04em}
+#join .st:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold)}
+#join h2{font:700 20px/1.25 Poppins,sans-serif;margin:10px 0 6px}
+#join p{margin:0 0 14px;color:var(--ink2);font-size:15px}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:999px;font:600 15px/1 Poppins,sans-serif;text-decoration:none;border:1px solid var(--line);background:#fff}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+#join .note{margin:12px 0 0;font-size:13px}
+.shots{display:flex;gap:12px;justify-content:center}
+.shots img{width:31%;max-width:200px;border-radius:18px;border:1px solid #2A4066;box-shadow:0 12px 32px rgba(0,0,0,.25)}
+.shots img:nth-child(2){transform:translateY(-14px)}
+section.feat{padding:36px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px;margin-top:16px}
+.f{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.f h3{font:600 17px/1.3 Poppins,sans-serif;margin:0 0 6px}
+.f p{margin:0;color:var(--ink2);font-size:15px}
+.k.dark{color:var(--gold-ink)}
+h2.sec{font:700 26px/1.2 Poppins,sans-serif;margin:12px 0 0;letter-spacing:-.01em}
+footer{padding:32px 0 40px;color:var(--ink2);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 18px}
+@media (max-width:760px){
+  .hero .wrap{grid-template-columns:1fr}
+  .shots img{max-width:150px}
+  header nav a:not(:last-child){display:none}
+}
+</style></head>
+<body>
+<header><div class="wrap"><a class="brand" href="/"><img src="/logo/icon-180.png" alt="">RugbyAnalysis</a>
+<nav><a href="/">Tests</a><a href="/clubs.html">Clubs</a><a href="/go">This week</a></nav></div></header>
+
+<section class="hero"><div class="wrap">
+<div>
+  <div class="k">The RugbyAnalysis app</div>
+  <h1>Every Test, <em>in your pocket</em></h1>
+  <p class="lede">Kick-off alerts for your teams, the model's pick for every match, live tables, club rugby and private chat rooms to watch with your friends.</p>
+  <div id="join">
+    <span class="st">Android · now in testing</span>
+    <h2>Join the testers before launch</h2>
+    <p>Send us the Google account you use on your Android phone. We'll add you and send the link to install it from Google Play.</p>
+    <div class="btns">
+      <a class="btn primary" href="mailto:hello@rugbyanalysis.com?subject=Add%20me%20to%20the%20app%20testers&amp;body=My%20Google%20account%20(the%20one%20on%20my%20Android%20phone)%3A%20">Email us to join</a>
+      <a class="btn" href="https://ig.me/m/rugby_analysis_stats" target="_blank" rel="noopener">Message us on Instagram</a>
+    </div>
+    <p class="note">On an iPhone? Not yet. <a href="https://www.instagram.com/rugby_analysis_stats/" target="_blank" rel="noopener">Follow us</a> to hear first.</p>
+  </div>
+</div>
+<div class="shots">
+  <img src="/app-shots/matchday.jpg" alt="Matchday: this weekend's Tests with the model's pick and each side's form" width="540" height="960">
+  <img src="/app-shots/match.jpg" alt="A match: head to head, pick and kick-off in your time" width="540" height="960">
+  <img src="/app-shots/clubs.jpg" alt="Clubs: tables and fixtures for ten competitions" width="540" height="960">
+</div>
+</div></section>
+
+<section class="feat"><div class="wrap">
+  <div class="k dark">What's in it</div>
+  <h2 class="sec">The website's numbers, built for match day</h2>
+  <div class="grid">
+    <div class="f"><h3>Alerts for your teams</h3><p>A reminder before kick-off and the score at full time, for the teams you follow. Quiet overnight.</p></div>
+    <div class="f"><h3>The model's pick</h3><p>Every Test with each side's chance, form and head to head, and kick-offs in your own time.</p></div>
+    <div class="f"><h3>Tournaments and the World Cup</h3><p>Live tables, title chances from 20,000 simulations and the road to Rugby World Cup 2027.</p></div>
+    <div class="f"><h3>Club rugby</h3><p>Ten competitions, from the URC and Premiership to Super Rugby and the Champions Cup. Follow your club.</p></div>
+    <div class="f"><h3>Chat with friends</h3><p>Private rooms you share by invite. Pin the match you're watching and see the score together.</p></div>
+    <div class="f"><h3>No account needed</h3><p>No email, no password. Pick a name if you use chat. <a href="/privacy">Privacy</a></p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap"><a href="/">rugbyanalysis.com</a><a href="https://www.instagram.com/rugby_analysis_stats/" target="_blank" rel="noopener">Instagram</a><a href="https://www.facebook.com/profile.php?id=61595081338465" target="_blank" rel="noopener">Facebook</a><a href="/privacy">Privacy</a><span>RugbyAnalysis is independent and not affiliated with World Rugby, any union or any tournament.</span></div></footer>
+</body></html>
