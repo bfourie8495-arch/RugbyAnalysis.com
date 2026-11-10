@@ -7,6 +7,8 @@ The name is **RugbyAnalysis**, one word, everywhere.
 
 1. **One accent.** Gold (`#C9A24B`) marks the point: the pick, the leader. Everything else is grey
    (`#B9BDC7` on light, `#5D6A80` on navy). Team colours appear on flags only.
+   **Exception, the website:** each team's page keeps that team's colour as its one accent (already one
+   accent plus grey). Do not recolour the site's team pages gold. Posts, reels and the app follow rule 1.
 2. **Green and red only mean right and wrong**, and always with a tick or a cross, never colour alone.
 3. **Titles state the finding** ("New Zealand have won 94%"), never the topic ("Head to head").
 4. **Bars start at zero.** A bar's length is the number. For values that sit close together (ranking
