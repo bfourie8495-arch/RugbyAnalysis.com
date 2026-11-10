@@ -14,23 +14,32 @@ and the phone screenshots in `screenshots/` (1080 x 1920), made on GitHub by
 
 ## Main store listing
 
-**Short description** (80/80)
+**Short description** (79/80)
 
 ```
-Every rugby Test with the model's pick, tournament tables and World Cup chances.
+Every Test with the model's pick, club tables, World Cup odds and private chat.
 ```
 
-**Full description** (1710/4000)
+**Full description** (about 2,300/4000; Play Console shows the exact count)
 
 ```
 International rugby, explained by the numbers.
 
-RugbyAnalysis follows every men's and women's Test: when they're on, who's likely to win and why, and where every team stands. It's built on the same model as rugbyanalysis.com, which updates daily.
+RugbyAnalysis follows every men's and women's Test, and the main club competitions: when they're on, who's likely to win and why, and where every team stands. It's built on the same model as rugbyanalysis.com, which updates daily.
 
 Matchday
 • Every upcoming Test with the model's pick and win chance, and both teams' recent form.
 • Kick-off times in your own time zone.
 • The latest results, and the world rankings.
+
+Clubs
+• Tables, results and fixtures for the URC, Premiership, Top 14, Super Rugby, Premiership Women's Rugby and more.
+• Follow your clubs: their form, their next games and their latest results, and a heads-up on Matchday.
+
+Chat with friends
+• Private rooms, joined by an invite link or code. Only people you invite can read them.
+• Pin a Test to a room and watch it together; the score appears in the chat once it's in.
+• Pick a chat name (a nickname is fine), mute a room, hide someone or report a message. Messages are deleted after 30 days.
 
 Tournaments
 • Tables for the Nations Championship, Six Nations, Rugby Championship, Pacific Four, WXV and more.
@@ -51,7 +60,7 @@ Don't follow rugby closely enough to know when the games are on? Follow your tea
 No pings between 10pm and 7am.
 
 Private by design
-No account, no ads and no tracking. The app keeps only the teams you follow and your alert settings, under an anonymous ID, and you can delete them at any time in the app.
+No account, no ads and no tracking. The app keeps only the teams and clubs you follow, your alert settings and, if you use chat, your chat name and messages, under an anonymous ID. You can delete all of it at any time in the app.
 
 RugbyAnalysis is independent and not affiliated with World Rugby, any union or any tournament.
 ```
@@ -69,7 +78,7 @@ RugbyAnalysis is independent and not affiliated with World Rugby, any union or a
 - **Privacy policy:** `https://rugbyanalysis.com/privacy`
 - **Ads:** No, the app doesn't contain ads.
 - **App access:** All functionality is available without special access (no sign-in).
-- **Content rating:** Category "All other app types". Answer No to violence, sexual content, language, controlled substances, crude humour and gambling (the model's picks are predictions, with no betting, odds from bookmakers or real or simulated gambling). **Users can interact: Yes** (private chat rooms with friends they invite; there's in-app reporting and hiding of messages). The app doesn't share the user's location, and there are no purchases. *Changed in 114: redo the questionnaire when 114 goes to a track.*
+- **Content rating:** Category "All other app types". Answer No to violence, sexual content, language, controlled substances, crude humour and gambling (the model's picks are predictions, with no betting, odds from bookmakers or real or simulated gambling). **Users can interact: Yes** (private chat rooms with friends they invite; there's in-app reporting and hiding of messages). The app doesn't share the user's location, and there are no purchases. *Chat arrived in 114: the questionnaire was redone for it. Keep "users can interact: Yes" while chat is in the app.*
 - **Target audience:** 13 and over (13 to 15, 16 to 17, 18 and over). Not "appeals to children". This keeps it out of the Families programme.
 - **News app:** No. **COVID-19, health, financial features, government app:** No / none.
 - **Data deletion:** Yes, users can ask for their data to be deleted: `https://rugbyanalysis.com/delete-data` (in the app: Me > Your data > Delete my data).
@@ -84,12 +93,12 @@ RugbyAnalysis is independent and not affiliated with World Rugby, any union or a
 | Data type | Collected | Shared | Processed ephemerally? | Required or optional | Why |
 |---|---|---|---|---|---|
 | Personal info: User IDs (the anonymous sign-in ID) | Yes | No | No | Required | App functionality |
-| App activity: Other user-generated content (teams followed, alert settings, match reminders) | Yes | No | No | Optional (works without following anyone) | App functionality, Personalisation |
+| App activity: Other user-generated content (teams and clubs followed, alert settings, match reminders) | Yes | No | No | Optional (works without following anyone) | App functionality, Personalisation |
 | Device or other IDs (the notification token, only with alerts on) | Yes | No | No | Optional | App functionality |
 | Personal info: Name (the display name picked for chat; can be a nickname) | Yes | No | No | Optional | App functionality |
-| Messages: Other in-app messages (chat messages, deleted after 30 days) | Yes | No | No | Optional | App functionality |
+| Messages: Other in-app messages (chat messages, deleted after 30 days; a message someone reports is also copied to a private reports list for moderation) | Yes | No | No | Optional | App functionality |
 
-From 114 (chat): add the last two rows in Play Console before 114 goes to any track. Everything else (location, email, contacts, photos, app usage analytics, crash logs): **not collected**.
+The last two rows come from chat (114 onwards) and must be in Play Console before a chat build goes to any track. Everything else (location, email, contacts, photos, app usage analytics, crash logs): **not collected**.
 "Shared" means given to another company for its own use. Google Firebase is a service provider, so it doesn't count as sharing.
 
 ## Closed testing (needed before production on a personal account)
@@ -99,12 +108,12 @@ Google needs at least 12 testers opted in for 14 days in a row before it lets a 
 1. **Test and release > Testing > Closed testing > Create track** (or use the default "Closed testing - Alpha").
 2. **Testers:** tick the same email list you use for Smack Bang. Copy the opt-in link for the track and send it to them; each tester must open it and tap *Become a tester* (the same Google account as on their phone).
 3. **Countries / regions:** United Kingdom and South Africa at least; International rugby works anywhere, so "All countries" is fine.
-4. **Create release:** upload `RugbyAnalysis.aab`, from the latest **App APK** run on GitHub (Actions > App APK > the run > Artifacts). Use Play App Signing (Google's default).
+4. **Create release:** upload the signed bundle from the latest **App APK** run. The workflow keeps it as an asset on the draft release `play-bundle` (the Actions artifact download can be blocked). Use Play App Signing (Google's default).
 5. **Release notes:**
 
 ```
 <en-GB>
-First test release: matchday picks, tournament tables and predictions, Rugby World Cup 2027 scenarios, and alerts for your teams.
+New: club tables and fixtures, and private chat rooms for watching a Test with friends. Plus matchday picks, tournament predictions, Rugby World Cup 2027 scenarios and alerts for your teams.
 </en-GB>
 ```
 
