@@ -92,8 +92,8 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(M,hi,ai),V=G.map(m=>view
   <div class="mchd"><span class="mcc">${esc(f.c)}</span><span class="mcw">${when}</span>${cd}</div>
   <div class="mcteams">${side(hi,"h")}<div class="mcv">v</div>${side(ai,"a")}</div>
   <div class="mcpick"><div class="mcpl">Model pick</div><div class="mcpv"><b>${pick[0]}</b> ${Math.round(pick[1]*100)}%</div>
-    <div class="mcbar" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div>
-    <div class="mcbl"><span>${f.h} ${Math.round(f.p*100)}%</span><span>${f.a} ${Math.round((1-f.p)*100)}%</span></div></div>
+    <div class="mcbar${f.p>=.5?"":" aw"}" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div>
+    <div class="mcbl"><span${f.p>=.5?' class="pk"':""}>${f.h} ${Math.round(f.p*100)}%</span><span${f.p>=.5?"":' class="pk"'}>${f.a} ${Math.round((1-f.p)*100)}%</span></div></div>
   <div class="mcgrid">
     ${sto?`<section class="mct mcsto"><h3>The rivalry</h3><p class="mdp">${esc(sto)}</p></section>`:""}
     <section class="mct"><h3>Head to head</h3>${hist}</section>
@@ -123,24 +123,41 @@ function renderMatchday(){const now=Date.now(),items=upcoming(),Wm=WOMEN();
 
 // ===== Two-team head-to-head =====
 {const n=upcoming()[0];state.pair=state.pair||(n?[n.hi,n.ai]:[idx("New Zealand"),idx("Australia")]);}state.pvAll=false;
+// The one sentence a visitor should take away from a head-to-head page.
+function pairIdea(A,B,V,r){const n=r.p,T=n===1?"Test":"Tests";
+  if(r.w===r.l)return `${A} and ${B} are level: ${r.w} win${r.w===1?"":"s"} each from ${n} ${T}${r.d?`, with ${r.d} drawn`:""}.`;
+  const lead=r.w>r.l?"W":"L",LN=lead==="W"?A:B,ON=lead==="W"?B:A,lw=Math.max(r.w,r.l);
+  let run=0;for(let i=V.length-1;i>=0&&V[i].res===V[V.length-1].res;i--)run++;
+  const last=V[V.length-1].res,lo=V.filter(x=>x.res!=="D"&&x.res!==lead).pop(),num=["","","two","three","four","five","six","seven","eight","nine","ten"][run]||run;
+  let s=`${LN} have won ${lw} of the ${n} ${T}`;
+  if(run>=2&&last===lead)s+=`, including the last ${num}`;
+  else if(run>=2&&last!=="D")s+=`, but ${ON} have won the last ${num}`;
+  else if(last!=="D"&&last!==lead&&n>1)s+=`, but ${ON} won the latest`;
+  s+=".";
+  if(last===lead&&lo)s+=` ${ON} last won in ${lo.y}.`;else if(!lo&&n>2)s+=` ${ON} have never won.`;
+  return s}
 function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===state.era),Gall=meetings(M,a,b),G=Gall.filter(m=>m.y>=era.from),V=G.map(m=>view(m,a)),r=rec(V),A=tname(a),B=tname(b);
   $("union").textContent=`Head to head · ${Wm?"women's ":""}Tests`;$("teamName").textContent=`${A} v ${B}`;
   const opts=ALL.map((t,i)=>i).filter(i=>M.some(m=>m.h===i||m.a===i)).sort((x,y)=>tname(x).localeCompare(tname(y)));
   $("pvA").innerHTML=opts.map(i=>`<option value="${i}"${i===a?" selected":""}>${tname(i)}</option>`).join("");$("pvB").innerHTML=opts.map(i=>`<option value="${i}"${i===b?" selected":""}>${tname(i)}</option>`).join("");
-  $("heroSub").textContent=Gall.length?`${Gall.length} ${Wm?"women's ":""}Tests since ${Gall[0].y}${era.from?`, ${G.length} of them in the ${era.label.toLowerCase()} window`:""}. Pick a different pairing below, or change the era above.`:`No ${Wm?"women's ":""}Tests between ${A} and ${B} in the dataset.`;
+  $("heroSub").textContent=Gall.length?(G.length?pairIdea(A,B,V,r)+" ":"")+`${Gall.length} ${Wm?"women's ":""}Tests since ${Gall[0].y}${era.from?`, ${G.length} of them in the ${era.label.toLowerCase()} window`:""}.`:`No ${Wm?"women's ":""}Tests between ${A} and ${B} in the dataset.`;
   const now=Date.now(),nx=upcoming().find(f=>(f.hi===a&&f.ai===b)||(f.hi===b&&f.ai===a));
   $("rank").innerHTML=nx?`<div><div class="lbl">Next meeting</div><div class="holder" style="font-size:20px">${nx.h} v ${nx.a}</div><div class="pts">${nx.tbc?fmtDate(nx.d):fD.format(nx.t)} · pick: ${nx.p>=.5?nx.h:nx.a} ${Math.round(Math.max(nx.p,1-nx.p)*100)}%</div></div>`:`<div><div class="lbl">Next meeting</div><div class="pts">None scheduled</div></div>`;
   $("pvEmpty").hidden=!!G.length;$("pvBody").hidden=!G.length;if(!G.length)return;
   const pf=V.reduce((s,x)=>s+x.pf,0),pa=V.reduce((s,x)=>s+x.pa,0),L=V[V.length-1],big=(res)=>V.filter(x=>x.res===res).sort((x,y)=>Math.abs(y.pf-y.pa)-Math.abs(x.pf-x.pa))[0];
   const ba=big("W"),bb=big("L");
-  const K=[[`${A} wins`,r.w,`${pct(r.w,r.p)}% of ${r.p} Tests`,1],["Draws",r.d,r.d?`last ${fmtDate(V.filter(x=>x.res==="D").pop().date)}`:"none"],[`${B} wins`,r.l,`${pct(r.l,r.p)}%`],["Average score",`${(pf/r.p).toFixed(1)}–${(pa/r.p).toFixed(1)}`,`${A} first`],[`Biggest ${A} win`,ba?`${ba.pf}–${ba.pa}`:"–",ba?fmtDate(ba.date):""],[`Biggest ${B} win`,bb?`${bb.pa}–${bb.pf}`:"–",bb?fmtDate(bb.date):""]];
+  const K=[[`${A} wins`,r.w,`${pct(r.w,r.p)}% of ${r.p} Tests`,r.w>r.l],["Draws",r.d,r.d?`last ${fmtDate(V.filter(x=>x.res==="D").pop().date)}`:"none"],[`${B} wins`,r.l,`${pct(r.l,r.p)}% of ${r.p} Tests`,r.l>r.w],["Average score",`${(pf/r.p).toFixed(1)}–${(pa/r.p).toFixed(1)}`,`${A} first`],[`Biggest ${A} win`,ba?`${ba.pf}–${ba.pa}`:"–",ba?fmtDate(ba.date):""],[`Biggest ${B} win`,bb?`${bb.pa}–${bb.pf}`:"–",bb?fmtDate(bb.date):""]];
   $("pvKpis").innerHTML=K.map(([k,v,n,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${esc(k)}</div><div class="v">${v}</div><div class="n">${esc(n)}</div></div>`).join("");
   // decades
   const dec={};V.forEach(x=>{const d=Math.floor(x.y/10)*10;(dec[d]=dec[d]||[]).push(x)});
+  {const ds=Object.keys(dec).map(d=>rec(dec[d])),da=ds.filter(q=>q.w>q.l).length,db=ds.filter(q=>q.l>q.w).length,n=ds.length;
+   $("pvDecH").textContent=n<2?"Decade by decade":da===db?`Honours even: ${da} decade${da===1?"":"s"} each`:`${da>db?A:B} had the better of ${Math.max(da,db)} of the ${n} decades`}
   $("pvDec").innerHTML=`<div class="legend"><span><i style="background:var(--acc)"></i>${A} won</span><span><i style="background:var(--draw)"></i>Drawn</span><span><i style="background:var(--loss)"></i>${B} won</span></div>`+Object.keys(dec).map(Number).sort((x,y)=>x-y).map(d=>{const q=rec(dec[d]);return `<div class="pvd"><span class="pvdy">${d}s</span><div class="bar"><i class="w" style="flex:${q.w}"></i><i class="d" style="flex:${q.d}"></i><i class="l" style="flex:${q.l}"></i></div><span class="pvdn">${q.w}–${q.d}–${q.l}</span></div>`}).join("");
   // where
   const sp=[[`In ${A}`,V.filter(x=>x.where==="Home")],[`In ${B}`,V.filter(x=>x.where==="Away")],["Neutral venues",V.filter(x=>x.where==="Neutral")]].filter(x=>x[1].length);
   let run={res:null,n:0},best={W:0,L:0};V.forEach(x=>{run=x.res===run.res?{res:x.res,n:run.n+1}:{res:x.res,n:1};if(x.res!=="D")best[x.res]=Math.max(best[x.res],run.n)});
+  {const ha=rec(V.filter(x=>x.where==="Home")),hb=rec(V.filter(x=>x.where==="Away"));
+   $("pvVenH").textContent=ha.p&&hb.p?`At home, ${A} won ${ha.w} of ${ha.p}, ${B} ${hb.l} of ${hb.p}`:"Where they have met"}
   $("pvVen").innerHTML=sp.map(([lab,g])=>{const q=rec(g);return `<div class="pvd"><span class="pvdy">${lab}</span><div class="bar"><i class="w" style="flex:${q.w}"></i><i class="d" style="flex:${q.d}"></i><i class="l" style="flex:${q.l}"></i></div><span class="pvdn">${q.w}–${q.d}–${q.l}</span></div>`}).join("")+
     `<div class="pvfacts"><div><span class="k">Longest ${esc(A)} run</span><b>${best.W}</b> wins</div><div><span class="k">Longest ${esc(B)} run</span><b>${best.L}</b> wins</div><div><span class="k">Current run</span><b>${run.n}</b> ${run.res==="D"?"draw":run.res==="W"?esc(A)+" win":esc(B)+" win"}${run.n>1?"s":""}</div></div>`;
   // margins chart
@@ -148,10 +165,12 @@ function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===
    let s=`<svg viewBox="0 0 ${w} ${h+18}" class="pvsvg" role="img" aria-label="Winning margin in every meeting"><line x1="0" x2="${w}" y1="${mid}" y2="${mid}" stroke="var(--line)"/>`;
    V.forEach((x,k)=>{const d=x.pf-x.pa,bh=Math.max(2,Math.abs(d)/mx*(mid-6));s+=`<rect x="${k*bw+bw*.12}" width="${Math.max(1,bw*.76)}" y="${d>=0?mid-bh:mid}" height="${bh}" rx="1.5" fill="${d>0?"var(--acc)":d<0?"var(--loss)":"var(--draw)"}" data-tip="<b>${x.res==="D"?"Drawn":x.res==="W"?esc(A)+" won":esc(B)+" won"} ${Math.max(x.pf,x.pa)}–${Math.min(x.pf,x.pa)}</b><br>${fmtDate(x.date)} · ${esc(x.venue[1]||x.venue[0])}<br>${esc(x.comp||"Test")}"/>`});
    const step=Math.max(1,Math.ceil(n/Math.max(3,Math.floor(w/80))));V.forEach((x,k)=>{if(k%step===0)s+=`<text x="${k*bw+bw/2}" y="${h+14}" text-anchor="${k?"middle":"start"}">${x.y}</text>`});
+   {const t=V.slice(-10),c=t.filter(x=>Math.abs(x.pf-x.pa)<=7).length;
+    $("pvMarH").textContent=t.length<4?"Every meeting":c===0?`None of the last ${t.length} were within a score`:`${c===t.length?"All":c} of the last ${t.length} ${c===1?"was":"were"} settled by seven points or fewer`}
    $("pvMargin").innerHTML=s+`</svg><div class="legend" style="margin-top:6px"><span><i style="background:var(--acc)"></i>${A} won (bar height = margin, up to ${mx})</span><span><i style="background:var(--loss)"></i>${B} won</span></div>`;bindTips($("pvMargin"))}
   // ESPN match stats averaged over meetings that have them
-  const S=G.filter(m=>m.ms);$("pvSheetWrap").hidden=!S.length;
-  if(S.length){const mean=side=>SK.map((k,j)=>{const v=S.map(m=>m.ms[(m.h===a)===(side===0)?0:1][j]).filter(x=>x!=null);return v.length?Math.round(avg(v)*(k==="possession"||k==="territory"?100:10))/(k==="possession"||k==="territory"?100:10):null});
+  const S=G.filter(m=>m.ms),sheetOk=S.length>=5;$("pvSheetWrap").hidden=!sheetOk; // under five Tests an average says little
+  if(sheetOk){const mean=side=>SK.map((k,j)=>{const v=S.map(m=>m.ms[(m.h===a)===(side===0)?0:1][j]).filter(x=>x!=null);return v.length?Math.round(avg(v)*(k==="possession"||k==="territory"?100:10))/(k==="possession"||k==="territory"?100:10):null});
     $("pvSheetHint").textContent=`Average per Test across the ${S.length} meeting${S.length>1?"s":""} with full match stats (since ${S[0].y}). ${A} on the left.`;
     $("pvSheet").innerHTML=sheetHTML({ms:[mean(0),mean(1)]}).replace("<b>Match stats</b>",`<b>${esc(A)} v ${esc(B)}</b>`)}
   // records

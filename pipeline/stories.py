@@ -363,7 +363,8 @@ h1{font:700 28px/1.15 Poppins,sans-serif;margin:18px 0 6px;letter-spacing:-.01em
 .lede{margin:0;color:var(--ink2)}
 .fx{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:8px}
 .fx .t{font:600 16px/1.3 Poppins,sans-serif}.fx .m{font-size:14px;color:var(--ink2);margin-top:3px}
-.fx .bar{height:6px;border-radius:3px;background:#D8D2C2;margin-top:8px;overflow:hidden}.fx .bar i{display:block;height:100%;background:var(--navy)}
+.fx .bar{height:6px;border-radius:3px;background:#B9BDC7;margin-top:8px;overflow:hidden}.fx .bar i{display:block;height:100%;background:var(--gold);border-right:2px solid var(--card)}
+.fx .bar.aw{background:var(--gold)}.fx .bar.aw i{background:#B9BDC7}
 .btn{display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;border-radius:14px;padding:14px 16px;margin-top:10px;font:600 16px/1.3 Poppins,sans-serif;border:1px solid var(--line);background:var(--card)}
 .btn small{display:block;font:400 14px/1.4 Figtree,sans-serif;color:var(--ink2);margin-top:2px}
 .btn.app{background:var(--navy);border-color:var(--navy);color:var(--cream)}.btn.app small{color:#C8D0DE}.btn.app b{color:var(--gold)}
@@ -416,7 +417,7 @@ def build_go(today, cfg, items):
         if isinstance(p, (int, float)):
             who, pc = (h, p) if p >= .5 else (a, 1 - p)
             pick = (f'<div class="m">Model: <b>{html.escape(who)}</b> {round(pc * 100)}%</div>'
-                    f'<div class="bar" aria-hidden="true"><i style="width:{round(p * 100)}%"></i></div>')
+                    f'<div class="bar{"" if p >= .5 else " aw"}" aria-hidden="true"><i style="width:{round(p * 100)}%"></i></div>')
         when = ko.strftime('%a %d %b, %H:%M UTC')
         rows.append(f'<a class="fx" href="/#h2h/{slug(h)}-v-{slug(a)}"><div class="t">{html.escape(h)} v {html.escape(a)}</div>'
                     f'<div class="m"><span data-ko="{f["ko"]}">{when}</span> · {html.escape(f.get("c", ""))}</div>{pick}</a>')

@@ -152,7 +152,8 @@ class Tag extends StatelessWidget {
   }
 }
 
-/// The model's pick as a bar: gold for the home side's chance.
+/// The model's pick as a bar. Gold is always the side the model picks and the other side is grey, the same
+/// on the website and in the posts; the home side stays on the left.
 class PickBar extends StatelessWidget {
   const PickBar({super.key, required this.home, required this.away, required this.homeChance});
 
@@ -179,8 +180,15 @@ class PickBar extends StatelessWidget {
           child: SizedBox(
             height: 6,
             child: Row(children: [
-              Expanded(flex: (homeChance * 100).round().clamp(1, 99), child: Container(color: RaColors.gold)),
-              Expanded(flex: (100 - (homeChance * 100).round()).clamp(1, 99), child: Container(color: RaColors.away)),
+              Expanded(
+                flex: (homeChance * 100).round().clamp(1, 99),
+                child: Container(color: homeChance >= 0.5 ? RaColors.gold : RaColors.line2),
+              ),
+              const SizedBox(width: 2),
+              Expanded(
+                flex: (100 - (homeChance * 100).round()).clamp(1, 99),
+                child: Container(color: homeChance >= 0.5 ? RaColors.line2 : RaColors.gold),
+              ),
             ]),
           ),
         ),
