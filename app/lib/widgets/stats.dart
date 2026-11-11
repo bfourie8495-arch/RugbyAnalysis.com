@@ -496,11 +496,14 @@ class TeamNumbers extends StatelessWidget {
             child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           box(pct(TeamStats.winRate(s.allTime)), 'All-time wins', '$played Tests since ${s.since}'),
           const SizedBox(width: 8),
-          if (sameAsLast && run != null)
-            box(run.big, run.label, 'current run')
-          else
-            box(s.year.every((x) => x == 0) ? '–' : wdl(s.year), 'This year', 'won–drawn–lost'),
-          const SizedBox(width: 8),
+          // a repeat of "Last 10" says nothing: the current run if there is one, otherwise no tile
+          if (sameAsLast && run != null) ...[
+            box(run.big, run.label, 'current run'),
+            const SizedBox(width: 8),
+          ] else if (!sameAsLast) ...[
+            box(wdl(s.year), 'This year', 'won–drawn–lost'),
+            const SizedBox(width: 8),
+          ],
           box(wdl(s.last), 'Last ${s.lastN}', sameAsLast && run != null ? 'won–drawn–lost' : s.streakText, point: true),
         ])),
         const SizedBox(height: 12),

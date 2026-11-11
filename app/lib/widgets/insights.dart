@@ -397,7 +397,8 @@ class HotScorersSection extends StatelessWidget {
                     Text('${h.team} · scored in ${h.tests} ${h.tests == 1 ? 'Test' : 'Tests'}', style: _small),
                   ]),
                 ),
-                Text('${h.tries}', style: displayStyle(18, color: RaColors.gold, weight: FontWeight.w800)),
+                // gold for the leaders only
+                Text('${h.tries}', style: displayStyle(18, color: h.tries == side.hot.first.tries ? RaColors.gold : RaColors.ink, weight: FontWeight.w800)),
               ]),
             ),
         ]),
