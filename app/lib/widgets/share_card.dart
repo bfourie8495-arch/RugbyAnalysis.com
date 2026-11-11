@@ -56,12 +56,12 @@ class PickShareCard extends StatelessWidget {
                   Row(children: [
                     Container(width: 18 * u, height: 2.5 * u, color: RaColors.goldInk),
                     SizedBox(width: 8 * u),
-                    Text(t.kicker, style: word(10, color: RaColors.goldInk, weight: FontWeight.w800).copyWith(letterSpacing: 1.6 * u)),
+                    Flexible(child: Text(t.kicker, maxLines: 1, overflow: TextOverflow.ellipsis, style: word(10, color: RaColors.goldInk, weight: FontWeight.w800).copyWith(letterSpacing: 1.6 * u))),
                   ]),
                   SizedBox(height: 10 * u),
-                  Text(t.matchup, style: word(14, color: RaColors.paperMuted)),
+                  Text(t.matchup, maxLines: 1, overflow: TextOverflow.ellipsis, style: word(14, color: RaColors.paperMuted)),
                   SizedBox(height: 4 * u),
-                  Text(t.headline, maxLines: 2, style: displayStyle(34 * u, color: RaColors.onGold, weight: FontWeight.w800).copyWith(height: 1.05)),
+                  Text(t.headline, maxLines: 2, overflow: TextOverflow.ellipsis, style: displayStyle(34 * u, color: RaColors.onGold, weight: FontWeight.w800).copyWith(height: 1.05)),
                   if (t.figure != null)
                     Text(t.figure!, style: displayStyle(60 * u, color: RaColors.goldInk, weight: FontWeight.w800).copyWith(height: 1.05)),
                   const Spacer(),
@@ -80,9 +80,12 @@ class PickShareCard extends StatelessWidget {
               child: Row(children: [
                 BrandMark(size: 22 * u),
                 SizedBox(width: 8 * u),
-                Text('RugbyAnalysis.com', style: displayStyle(14 * u, color: RaColors.onGold)),
-                const Spacer(),
-                Text('@rugby_analysis_stats', style: word(10, color: RaColors.paperMuted, weight: FontWeight.w500)),
+                Flexible(child: Text('RugbyAnalysis.com', maxLines: 1, overflow: TextOverflow.ellipsis, style: displayStyle(14 * u, color: RaColors.onGold))),
+                SizedBox(width: 8 * u),
+                Expanded(
+                  child: Text('@rugby_analysis_stats',
+                      maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right, style: word(10, color: RaColors.paperMuted, weight: FontWeight.w500)),
+                ),
               ]),
             ),
           ]),
@@ -108,8 +111,9 @@ class _Bar extends StatelessWidget {
         TextStyle(fontFamily: body, fontSize: 11 * u, fontWeight: pick ? FontWeight.w800 : FontWeight.w600, color: pick ? RaColors.onGold : RaColors.paperMuted);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(children: [
-        Expanded(child: Text('$home $h%', style: s(homePick))),
-        Text('${100 - h}% $away', style: s(!homePick)),
+        Expanded(child: Text('$home $h%', maxLines: 1, overflow: TextOverflow.ellipsis, style: s(homePick))),
+        const SizedBox(width: 8),
+        Expanded(child: Text('${100 - h}% $away', maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right, style: s(!homePick))),
       ]),
       SizedBox(height: 5 * u),
       ClipRRect(
