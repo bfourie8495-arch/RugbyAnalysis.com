@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/feeds.dart';
 import '../models/chat.dart' show PinnedMatch;
 import '../models/format.dart';
+import '../models/site_links.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/chat_widgets.dart' show watchWithFriends;
@@ -63,7 +65,15 @@ class MatchScreen extends StatelessWidget {
     final when = f != null ? (k == null ? dateLabel(f.date) : '${dayLabel(k)} · ${clock(k)} your time') : '${dateLabel(r!.date)} ${r.date.substring(0, 4)}';
     final venue = f?.venue ?? r?.detail?.ground ?? '';
     return Scaffold(
-      appBar: AppBar(title: Text(r != null ? 'Result' : 'Match preview')),
+      appBar: AppBar(title: Text(r != null ? 'Result' : 'Match preview'), actions: [
+        // Text only: the pick before the game, the score after it, with a link to the head-to-head.
+        // Kept in the top bar, apart from "Watch with friends" (which invites people into a chat room).
+        IconButton(
+          tooltip: r != null ? 'Share the score' : 'Share the pick',
+          icon: const Icon(Icons.share_outlined),
+          onPressed: () => SharePlus.instance.share(ShareParams(text: shareText(gender, fixture: f, result: r))),
+        ),
+      ]),
       body: ListView(padding: const EdgeInsets.fromLTRB(16, 4, 16, 24), children: [
         RaCard(
           child: Column(children: [
@@ -101,6 +111,8 @@ class MatchScreen extends StatelessWidget {
         if (r != null) MatchStatsSection(result: r),
         if (r == null ? null : tournamentMovedBy(c, gender, r) case final t?) TitleMovesSection(tournament: t, title: 'What this round did'),
         HeadToHeadSection(gender: gender, first: home, second: away, skip: r),
+        const SizedBox(height: 10),
+        WebsiteButton(label: 'Full head to head on the website', url: siteH2hUrl(gender, home, away)),
         OppositionSection(gender: gender, first: home, second: away),
         FormNumbersSection(gender: gender, first: home, second: away),
         GroundAndRefereeSection(

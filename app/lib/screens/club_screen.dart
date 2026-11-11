@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/clubs.dart';
 import '../models/format.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
@@ -46,6 +47,11 @@ class ClubScreen extends StatelessWidget {
                 ]),
               ),
             ]),
+            // the one sentence to take away, as on the website's club page
+            if (clubIdea(club, league) case final idea?) ...[
+              const SizedBox(height: 12),
+              Text(idea, style: TextStyle(color: club.onPrimary, fontWeight: FontWeight.w600, height: 1.35)),
+            ],
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
@@ -72,7 +78,7 @@ class ClubScreen extends StatelessWidget {
                 Row(children: [
                   _stat('${row.won}-${row.drawn}-${row.lost}', 'Won-drawn-lost'),
                   _stat(signed(row.diff), 'Points difference'),
-                  _stat('${row.points}', 'League points'),
+                  _stat('${row.points}', 'League points', point: true),
                 ]),
               ],
             ]),
@@ -99,9 +105,10 @@ class ClubScreen extends StatelessWidget {
     );
   }
 
-  Widget _stat(String value, String label) => Expanded(
+  // gold only for league points, the number the table is decided on
+  Widget _stat(String value, String label, {bool point = false}) => Expanded(
         child: Column(children: [
-          Text(value, style: displayStyle(20, color: RaColors.gold)),
+          Text(value, style: displayStyle(20, color: point ? RaColors.gold : RaColors.ink)),
           const SizedBox(height: 2),
           Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, color: RaColors.faint)),
         ]),

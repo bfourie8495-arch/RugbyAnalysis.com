@@ -152,7 +152,8 @@ class Tag extends StatelessWidget {
   }
 }
 
-/// The model's pick as a bar: gold for the home side's chance.
+/// The model's pick as a bar. Gold is always the side the model picks and the other side is grey, the same
+/// on the website and in the posts; the home side stays on the left.
 class PickBar extends StatelessWidget {
   const PickBar({super.key, required this.home, required this.away, required this.homeChance});
 
@@ -179,8 +180,15 @@ class PickBar extends StatelessWidget {
           child: SizedBox(
             height: 6,
             child: Row(children: [
-              Expanded(flex: (homeChance * 100).round().clamp(1, 99), child: Container(color: RaColors.gold)),
-              Expanded(flex: (100 - (homeChance * 100).round()).clamp(1, 99), child: Container(color: RaColors.away)),
+              Expanded(
+                flex: (homeChance * 100).round().clamp(1, 99),
+                child: Container(color: homeChance >= 0.5 ? RaColors.gold : RaColors.line2),
+              ),
+              const SizedBox(width: 2),
+              Expanded(
+                flex: (100 - (homeChance * 100).round()).clamp(1, 99),
+                child: Container(color: homeChance >= 0.5 ? RaColors.line2 : RaColors.gold),
+              ),
             ]),
           ),
         ),
@@ -241,11 +249,11 @@ class FormDots extends StatelessWidget {
             margin: const EdgeInsets.only(left: 3),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: r == 'W' ? RaColors.gold : r == 'D' ? const Color(0xFF3A4A66) : Colors.transparent,
+              color: r == 'W' ? RaColors.ink : r == 'D' ? RaColors.line2 : Colors.transparent,
               borderRadius: BorderRadius.circular(5),
-              border: r == 'L' ? Border.all(color: const Color(0xFF6C7C99), width: 1.5) : null,
+              border: r == 'L' ? Border.all(color: RaColors.muted, width: 1.5) : null,
             ),
-            child: Text(r, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: r == 'W' ? RaColors.onGold : RaColors.ink)),
+            child: Text(r, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: r == 'W' ? RaColors.page : RaColors.ink)),
           ),
       ]),
     );
@@ -298,6 +306,25 @@ class EmptyNote extends StatelessWidget {
 
 Future<void> openLink(String url) async {
   await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+}
+
+/// A full-width button that opens the matching page on rugbyanalysis.com in the browser.
+/// The website has the longer record (every Test back to the 1800s); the app keeps the recent picture.
+class WebsiteButton extends StatelessWidget {
+  const WebsiteButton({super.key, required this.label, required this.url});
+
+  final String label;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46), side: const BorderSide(color: RaColors.line2)),
+      onPressed: () => openLink(url),
+      icon: const Icon(Icons.open_in_new, size: 18),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+    );
+  }
 }
 
 /// The website and socials, at the bottom of every main tab.

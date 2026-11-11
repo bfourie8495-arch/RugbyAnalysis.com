@@ -5,8 +5,8 @@ b=lambda f:'data:image/png;base64,'+base64.b64encode(open(f,'rb').read()).decode
 ICONS=f'''<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,{urllib.parse.quote(svg)}">
 <link rel="icon" type="image/png" sizes="32x32" href="{b(P+'logo/icon-32.png')}">
 <link rel="apple-touch-icon" sizes="180x180" href="{b(P+'logo/icon-180.png')}">
-<meta name="application-name" content="Rugby Analysis">
-<meta name="apple-mobile-web-app-title" content="Rugby Analysis">'''
+<meta name="application-name" content="RugbyAnalysis">
+<meta name="apple-mobile-web-app-title" content="RugbyAnalysis">'''
 flags={k:b(P+f'flags/{k}.png') for k in ['ireland','scotland','wales','italy','south-africa','england','france','new-zealand','australia']}
 _o=json.load(open(P+'others.json'))
 for nm_,k in [('Fiji','fiji'),('Samoa','samoa'),('Japan','japan'),('Georgia','georgia')]: flags[k]=_o[nm_]['flag']

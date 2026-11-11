@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Club rugby results, league tables, fixtures and club records for the United Rugby Championship and Premiership Rugby.">
 __ICONS__
-<title>Club Rugby | Rugby Analysis</title>
+<title>Club Rugby | RugbyAnalysis</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap">
 <style>
@@ -51,10 +51,12 @@ a.chip{text-decoration:none}
 .cr .w{font-weight:600;display:flex;gap:8px;align-items:center}
 .cr .ru{color:var(--muted);font-size:12.5px}
 .cr .sc{font:700 17px/1 var(--display)}
-.ssn{display:grid;gap:8px}
+.ssn{display:grid;gap:12px}
+.res>div:nth-child(2){min-width:0}
 .sr{display:grid;grid-template-columns:70px 1fr 64px;gap:10px;align-items:center;font-size:14px}
 .sr .yr{font-weight:600}
-.sr .trk{position:relative;height:22px;background:var(--grid);border-radius:5px;overflow:hidden}
+.sr .trw{min-width:0}.sr .trw .lab{display:block;font:500 12.5px/1.3 var(--body);color:var(--ink2);margin-top:4px}
+.sr .trk{position:relative;height:12px;background:var(--grid);border-radius:5px;overflow:hidden}
 .sr .trk i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:5px}
 .sr .trk span{position:absolute;left:8px;top:3px;font:600 12px/16px var(--body);color:var(--card);white-space:nowrap}
 .sr .trk span.out{color:var(--ink)}
@@ -76,7 +78,7 @@ a.chip{text-decoration:none}
 </style>
 </head>
 <body>
-<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>Rugby Analysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" id="intlLink">International</a><a href="clubs.html" aria-current="page">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
+<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>RugbyAnalysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" id="intlLink">International</a><a href="clubs.html" aria-current="page">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
 
 <header class="hero">
   <div class="wrap">
@@ -105,7 +107,8 @@ a.chip{text-decoration:none}
     <div class="howcol"><div class="howlbl">Where it’s at</div><p id="nowAt"></p></div>
     <div class="howcol"><div class="howlbl">How it works</div><p id="howTxt"></p></div>
   </section>
-  <section class="kpis" id="lgKpis" aria-label="Season headline numbers"></section>
+  <section class="kpis k3" id="lgKpis" aria-label="Season headline numbers"></section>
+  <details class="allnum"><summary>All the numbers</summary><section class="kpis k3 more" id="lgKpis2" aria-label="More numbers"></section></details>
   <section class="panel" id="tblWrap">
     <div class="filterbar"><h2 style="flex:1" id="tblH">League table</h2></div>
     <p class="hint" id="tblHint"></p>
@@ -136,27 +139,28 @@ a.chip{text-decoration:none}
       <div id="lgLatest"></div>
     </section>
   </div>
-  <section class="panel">
+  <section class="panel" id="leadWrap">
     <h2>Season leaders</h2>
     <p class="hint" id="leadHint"></p>
     <div class="grid3" style="margin-top:4px">
-      <div><h3 class="sub3">Top try scorers</h3><div id="lgTry"></div></div>
-      <div><h3 class="sub3">Biggest crowds</h3><div id="lgCrowd"></div></div>
+      <div id="lgTryW"><h3 class="sub3">Top try scorers</h3><div id="lgTry"></div></div>
+      <div id="lgCrowdW"><h3 class="sub3">Biggest crowds</h3><div id="lgCrowd"></div></div>
     </div>
     <div class="grid3" style="margin-top:6px">
-      <div><h3 class="sub3">Biggest wins</h3><div id="lgBig"></div></div>
-      <div><h3 class="sub3">Most-used referees</h3><div id="lgRef"></div></div>
+      <div id="lgBigW"><h3 class="sub3">Biggest wins</h3><div id="lgBig"></div></div>
+      <div id="lgRefW"><h3 class="sub3">Most-used referees</h3><div id="lgRef"></div></div>
     </div>
   </section>
   <section class="panel">
     <h2>Club records since 2021–22</h2>
-    <p class="hint" id="atHint">Every league and play-off match in the seasons covered, ranked by win rate. Click a club to open its page.</p>
+    <p class="hint" id="atHint">Every league and play-off match in the seasons covered, ranked by win rate. Tap a club to open its page.</p>
     <div class="tscroll"><table class="lg" id="allTime"></table></div>
   </section>
 </main>
 
 <main class="wrap" id="clubView" hidden>
-  <section class="kpis" id="kpis" aria-label="Headline record"></section>
+  <section class="kpis k3" id="kpis" aria-label="Headline record"></section>
+  <details class="allnum"><summary>All the numbers</summary><section class="kpis k3 more k4" id="kpis2" aria-label="More numbers"></section></details>
   <div class="grid3">
     <section class="panel">
       <h2>Season by season</h2>
@@ -190,8 +194,9 @@ a.chip{text-decoration:none}
   <div class="grid2">
     <section class="panel">
       <h2>Head to head</h2>
-      <p class="hint">Against each opponent across all seasons covered. Click a row to filter the results.</p>
+      <p class="hint">Against each opponent across all seasons covered. Tap a row to filter the results.</p>
       <div class="tscroll"><table class="h2h" id="h2h"></table></div>
+      <button class="showall" id="h2hMore" hidden>Show all</button>
     </section>
     <section class="panel">
       <div class="filterbar"><h2 style="flex:1">Results</h2>
@@ -244,7 +249,7 @@ function moveTip(e){const r=tip.getBoundingClientRect();let x=e.clientX+14,y=e.c
 function hideTip(){tip.classList.remove("on")}
 function bindTips(root){root.querySelectorAll("[data-tip]").forEach(el=>{el.addEventListener("pointerenter",e=>showTip(e,el.dataset.tip));el.addEventListener("pointermove",moveTip);el.addEventListener("pointerleave",hideTip)})}
 const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||"your time zone"}catch(e){return "your time zone"}})();
-const fD=new Intl.DateTimeFormat(undefined,{weekday:"short",day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"});
+const fD=new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"numeric",month:"short"}),fT=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 function tzOff(tz,t){try{const p=new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}).formatToParts(new Date(t)).reduce((o,x)=>(o[x.type]=x.value,o),{});return Date.UTC(+p.year,p.month-1,+p.day,+p.hour%24,+p.minute,+p.second)-t}catch(e){return 0}}
 function koUTC(m){if(!m.time)return null;const[y,mo,d]=m.date.split("-").map(Number),[hh,mm]=m.time.split(":").map(Number);const g=Date.UTC(y,mo-1,d,hh,mm);const tz=C[m.h].tz;return new Date(g-tzOff(tz,g-tzOff(tz,g)))}
 
@@ -295,7 +300,7 @@ function cardHTML(y,r){return (y||r)?`${y?`<i class="yc" title="Yellow cards"></
 function bindExpand(root){root.querySelectorAll("[data-k]").forEach(el=>{el.addEventListener("click",()=>{const nx=el.nextElementSibling;if(nx&&nx.classList.contains("dx")){nx.remove();el.setAttribute("aria-expanded","false");return}el.insertAdjacentHTML("afterend",detHTML(M[+el.dataset.k]));el.setAttribute("aria-expanded","true")});el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();el.click()}})})}
 const resLine=m=>{const hw=m.hs>m.as,aw=m.as>m.hs;return `<div class="lt xp" tabindex="0" role="button" aria-expanded="false" data-k="${m.k}"><div class="dt">${dTxt(m)}</div><div class="hm"><span class="tm ${hw?"win":""}">${nm(m.h)} ${mono(m.h,"sm")}</span></div><div class="sc">${m.hs}–${m.as}</div><div><span class="tm ${aw?"win":""}">${mono(m.a,"sm")} ${nm(m.a)}</span></div><div class="cm">${LEAGUES[m.lg].short} · ${stageTxt(m)}${m.venue?" · "+esc(m.venue):""} · <span class="plus">details ＋</span></div></div>`};
 function fxHTML(list){if(!list.length)return `<p class="hint">No upcoming fixtures listed yet.</p>`;let html="",cur="";list.forEach(m=>{const t=koUTC(m);const day=t?fD.format(t):fD.format(new Date(m.date+"T12:00:00"));if(day!==cur){html+=`<div class="fxday">${day}</div>`;cur=day}
-  html+=`<div class="fx1"><div class="tm">${t?fT.format(t):"TBC"}<small>${stageTxt(m)}</small></div><div class="side h"><button data-c="${m.h}">${nm(m.h)} ${mono(m.h,"sm")}</button></div><div class="v">v</div><div class="side"><button data-c="${m.a}">${mono(m.a,"sm")} ${nm(m.a)}</button></div><div class="meta">${m.venue?esc(m.venue):""}${t&&m.time?` · ${m.time} local`:""}</div></div>`});return html}
+  html+=`<div class="fx1"><div class="tm">${t?fT.format(t):"TBC"}<small>${stageTxt(m)}</small></div><div class="side h"><button data-c="${m.h}">${nm(m.h)} ${mono(m.h,"sm")}</button></div><div class="v">v</div><div class="side"><button data-c="${m.a}">${mono(m.a,"sm")} ${nm(m.a)}</button></div><div class="meta">${m.venue?esc(m.venue):""}${t&&m.time&&m.time!==fT.format(t)?` · ${m.time} local`:""}</div></div>`});return html}
 function bindClubBtns(root){root.querySelectorAll("button[data-c]").forEach(b=>b.addEventListener("click",()=>{state.club=+b.dataset.c;state.opp=-1;go();scrollTo({top:0})}))}
 
 function render(){
@@ -313,12 +318,28 @@ function render(){
   applyTheme(C[cl]);seasonButtons(true);renderClub();
 }
 
+// The one sentence to take away from a competition page: who leads and by how much, or who won it.
+function lgIdea(L,s,G,P,T){
+  const num=n=>["no","one","two","three","four","five","six","seven","eight","nine","ten"][n]||n;
+  const left=G.filter(m=>!played(m)).length,ch=champion(state.lg,s);
+  if(ch&&!left)return `${nm(ch.w)} won the ${S[s]} title, beating ${nm(ch.r)} ${Math.max(ch.m.hs,ch.m.as)}–${Math.min(ch.m.hs,ch.m.as)} in the final.`;
+  if(!P.length)return `The ${S[s]} season hasn't started yet: ${G.length} matches to come.`;
+  if(T.length>1&&T[0].p){const a=T[0],b=T[1],gap=a.pts-b.pts;
+    let t=gap?`${nm(a.i)} top the table, ${gap} point${gap>1?"s":""} clear of ${nm(b.i)}`:`${nm(a.i)} and ${nm(b.i)} are level on ${a.pts} points at the top`;
+    const perfect=T.filter(r=>r.p>=3&&r.w===r.p),pf1=perfect.length===1?perfect[0]:null;
+    const hand=gap&&b.p<a.p;
+    if(hand)t+=`, who have a game in hand`;
+    if(pf1&&pf1.i===b.i){t+=`${hand?" and are the":", the"} only side to have won all ${num(pf1.p)}.`}
+    else{t+=".";if(pf1)t+=` ${nm(pf1.i)} ${pf1.i===a.i?"have":"are the only side to have"} won all ${num(pf1.p)}.`;
+      else if(!perfect.length){const unb=T.filter(r=>r.p>=3&&!r.l);if(unb.length===1)t+=` ${nm(unb[0].i)} are the only side yet to lose.`}}
+    return t+(left?` ${left} matches still to come.`:"")}
+  return `${S[s]} season: ${P.length} matches played${left?`, ${left} still to come`:""}.`}
 function renderLeague(){
   const L=LEAGUES[state.lg],lg=state.lg,s=state.s,G=M.filter(m=>m.lg===lg&&m.s===s),P=G.filter(played),T=tableRows(lg,s);
   $("heroMark").innerHTML=`<div class="mono lg" style="background:${L.onp};color:${L.p};--ring:${L.ad}">${L.mark}</div>`;
   $("union").textContent=`${L.g==="w"?"Women's club rugby":"Club rugby"} · ${L.countries}`;$("teamName").textContent=L.name;
   const left=G.filter(m=>!played(m)).length;
-  $("heroSub").textContent=`${S[s]} season: ${P.length} matches played${left?`, ${left} still to come`:""}. ${T.length||new Set(G.flatMap(m=>[m.h,m.a])).size} clubs.${L.note?" "+L.note:""}`;$("atHint").textContent=`Every league, play-off${L.g==="w"?" and cup":""} match in the seasons covered, ranked by win rate. Click a club to open its page.`;
+  $("heroSub").textContent=lgIdea(L,s,G,P,T)+(L.note?" "+L.note:"");$("atHint").textContent=`Every league, play-off${L.g==="w"?" and cup":""} match in the seasons covered, ranked by win rate. Tap a club to open its page.`;
   const ch=champion(lg,s),lead=T[0];
   // Where it's at: for someone who watches the big games but doesn't follow the competition week to week
   {const byDate=(a,b)=>a.date<b.date?-1:a.date>b.date?1:0,today=new Date().toISOString().slice(0,10),cur=curS(lg);let w;
@@ -334,13 +355,16 @@ function renderLeague(){
   // KPIs
   const pts=P.reduce((a,m)=>a+m.hs+m.as,0),det=P.filter(m=>m.sc),tries=det.reduce((a,m)=>a+m.sc[0][0]+m.sc[0][1],0),hw=P.filter(m=>m.hs>m.as).length,bps=T.length?T.reduce((a,r)=>a+r.tb+r.lb,0):P.reduce((a,m)=>a+m.bp[0]+m.bp[1],0);
   const big=P.length?P.reduce((x,m)=>Math.abs(m.hs-m.as)>Math.abs(x.hs-x.as)?m:x):null;
-  $("lgKpis").innerHTML=[["Matches played",P.length,S[s],1],["Points per match",P.length?(pts/P.length).toFixed(1):"–","both teams combined"],["Tries per match",det.length?(tries/det.length).toFixed(1):"–",`from ${det.length} match reports`],["Home win rate",P.length?pct(hw,P.length)+"%":"–",`${hw} of ${P.length}`],["Bonus points",bps,"try and losing bonuses"],["Biggest win",big?Math.abs(big.hs-big.as)+" pts":"–",big?`${nm(big.hs>big.as?big.h:big.a)} v ${nm(big.hs>big.as?big.a:big.h)}`:""]]
-    .map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join("");
+  const tile=([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`;
+  const lk=[["Home win rate",P.length?pct(hw,P.length)+"%":"–",`${hw} of ${P.length} matches won at home`,1],["Points per match",P.length?(pts/P.length).toFixed(1):"–","both teams combined"],["Biggest win",big?Math.abs(big.hs-big.as)+" pts":"–",big?`${nm(big.hs>big.as?big.h:big.a)} v ${nm(big.hs>big.as?big.a:big.h)}`:""]];
+  const lk2=[["Matches played",P.length,S[s]],det.length?["Tries per match",(tries/det.length).toFixed(1),`from ${det.length} match reports`]:null,["Bonus points",bps,"try and losing bonuses"]].filter(Boolean);
+  $("lgKpis").innerHTML=lk.map(tile).join("");$("lgKpis2").innerHTML=lk2.map(tile).join("");
+  $("lgKpis").hidden=!P.length;$("lgKpis2").parentElement.hidden=!P.length;
   // table
   const po=L.po;$("tblH").textContent=`${S[s]} table`;
   $("tblWrap").hidden=!!L.cup||!T.length;
   const bpRule={top14:"a bonus point for scoring three more tries than the opponent (TB) and for losing by five or fewer (LB)",super:"a bonus point for scoring three more tries than the opponent (TB) and for losing by seven or fewer (LB)",league1:"bonus points for tries and narrow defeats"}[L.id]||"bonus points for four or more tries (TB) and for losing by seven or fewer (LB)";
-  $("tblHint").textContent=`Four points for a win, two for a draw, plus ${bpRule}. The top ${po} reach the play-offs (dashed line).${L.calc?" Calculated from the match results, so it may differ slightly from the official table.":""} Click a club to open its page.`;
+  $("tblHint").textContent=`Four points for a win, two for a draw, plus ${bpRule}. The top ${po} reach the play-offs (dashed line).${L.calc?" Calculated from the match results, so it may differ slightly from the official table.":""} Tap a club to open its page.`;
   const undated=G.some(m=>m.nd&&m.st===0);const form=i=>undated?[]:M.filter(m=>m.lg===lg&&m.s===s&&played(m)&&(m.h===i||m.a===i)).slice(-5).map(m=>view(m,i));
   $("table").innerHTML=`<thead><tr><th>#</th><th>Club</th><th class="x">P</th><th class="x">W</th><th class="x">D</th><th class="x">L</th><th class="x">PF</th><th class="x">PA</th><th>PD</th><th class="x">TB</th><th class="x">LB</th><th>Pts</th><th>Form</th></tr></thead><tbody>`+
     T.map((r,k)=>{const f=form(r.i),cut=k===po-1,c=cut?' class="cut"':"";const tag=ch&&ch.w===r.i?'<span class="ch">CHAMPIONS</span>':"";return `<tr data-i="${r.i}"><td class="pos${cut?" cut":""}">${k+1}</td><td${c}><span class="nm">${mono(r.i,"sm")}${nm(r.i)}${tag}</span><span class="sub">${r.w}–${r.d}–${r.l} · PD ${r.pf-r.pa>0?"+":""}${r.pf-r.pa}</span></td><td class="x${cut?" cut":""}">${r.p}</td><td class="x${cut?" cut":""}">${r.w}</td><td class="x${cut?" cut":""}">${r.d}</td><td class="x${cut?" cut":""}">${r.l}</td><td class="x${cut?" cut":""}">${r.pf}</td><td class="x${cut?" cut":""}">${r.pa}</td><td${c}>${r.pf-r.pa>0?"+":""}${r.pf-r.pa}</td><td class="x${cut?" cut":""}">${r.tb}</td><td class="x${cut?" cut":""}">${r.lb}</td><td class="pts${cut?" cut":""}">${r.pts}</td><td${c}><span class="mini">${f.map(x=>`<i class="${x.res}" title="${x.res} ${x.pf}–${x.pa} v ${nm(x.opp)}">${x.res}</i>`).join("")}</span></td></tr>`}).join("")+`</tbody>`;
@@ -366,6 +390,8 @@ function renderLeague(){
   $("lgBig").innerHTML=P.slice().sort((a,b)=>Math.abs(b.hs-b.as)-Math.abs(a.hs-a.as)).slice(0,5).map((m,k)=>{const w=m.hs>m.as?m.h:m.a,l=m.hs>m.as?m.a:m.h;return `<div class="mli"><span class="r">${k+1}</span><span>${nm(w)} ${Math.max(m.hs,m.as)}–${Math.min(m.hs,m.as)} ${nm(l)} <span class="x">${dTxt(m)}</span></span><b>${Math.abs(m.hs-m.as)}</b></div>`}).join("")||`<p class="hint">No results yet.</p>`;
   const rf={};P.forEach(m=>{if(!m.ref)return;const o=rf[m.ref]||(rf[m.ref]={n:0,c:0,cn:0});o.n++;if(m.cd){o.c+=m.cd[0]+m.cd[1]+m.cd[2]+m.cd[3];o.cn++}});
   $("lgRef").innerHTML=Object.entries(rf).sort((a,b)=>b[1].n-a[1].n).slice(0,5).map(([r,o],k)=>`<div class="mli"><span class="r">${k+1}</span><span>${esc(r)} <span class="x">${o.cn>=3?(o.c/o.cn).toFixed(1)+" cards per match":""}</span></span><b>${o.n}</b></div>`).join("")||`<p class="hint">No data.</p>`;
+  {const box=[["lgTryW","lgTry"],["lgCrowdW","lgCrowd"],["lgBigW","lgBig"],["lgRefW","lgRef"]];let any=0;
+   box.forEach(([w,d])=>{const empty=!$(d).querySelector(".mli");$(w).hidden=empty;if(!empty)any++});$("leadWrap").hidden=!any}
   // all-time
   const A=lgClubs(lg).map(i=>{const g=M.filter(m=>m.lg===lg&&played(m)&&(m.h===i||m.a===i)).map(m=>view(m,i));const r=rec(g);const titles=S.map((_,k)=>champion(lg,k)).filter(c=>c&&c.w===i).length;const finals=S.map((_,k)=>champion(lg,k)).filter(c=>c&&(c.w===i||c.r===i)).length;return{i,...r,pf:g.reduce((a,x)=>a+x.pf,0),pa:g.reduce((a,x)=>a+x.pa,0),titles,finals}}).filter(r=>r.p).sort((a,b)=>b.w/b.p-a.w/a.p);
   $("allTime").innerHTML=`<thead><tr><th>#</th><th>Club</th><th class="x">P</th><th class="x">W</th><th class="x">D</th><th class="x">L</th><th>Win %</th><th class="x">Avg for</th><th class="x">Avg against</th><th>Titles</th><th class="x">Finals</th></tr></thead><tbody>`+A.map((r,k)=>`<tr data-i="${r.i}"><td class="pos">${k+1}</td><td><span class="nm">${mono(r.i,"sm")}${nm(r.i)}</span><span class="sub">${r.w}–${r.d}–${r.l} in ${r.p}${r.titles?` · ${r.titles}× champions`:""}</span></td><td class="x">${r.p}</td><td class="x">${r.w}</td><td class="x">${r.d}</td><td class="x">${r.l}</td><td class="pct">${pct(r.w,r.p)}%</td><td class="x">${(r.pf/r.p).toFixed(1)}</td><td class="x">${(r.pa/r.p).toFixed(1)}</td><td class="cups">${r.titles||"–"}</td><td class="x">${r.finals||"–"}</td></tr>`).join("")+`</tbody>`;
@@ -373,6 +399,14 @@ function renderLeague(){
   bindTips(document.body);
 }
 
+// The one sentence to take away from a club page: where they stand now and how the last ten went.
+function clubIdea(i,all){
+  const hl=LIDX[C[i].lg],HL=LEAGUES[hl],cs=curS(hl),T=tableRows(hl,cs),pos=T.findIndex(r=>r.i===i),t10=all.slice(-10),w10=t10.filter(x=>x.res==="W").length;
+  let t="";
+  if(pos>=0&&T[pos].p){const r=T[pos];t=pos===0?`${C[i].name} top the ${HL.short}`:`${C[i].name} are ${ord(pos+1)} in the ${HL.short}`;t+=` on ${r.pts} points from ${r.p} match${r.p===1?"":"es"}`}
+  else t=`${C[i].name}`;
+  if(t10.length>=5)t+=`${pos>=0&&T[pos].p?", and have":" have"} won ${w10} of their last ${t10.length===10?"10":t10.length}`;
+  return t===C[i].name?"":t+". "}
 function renderClub(){
   const i=state.club,c=C[i],lg=state.lg,s=state.s,all=M.filter(m=>(m.h===i||m.a===i)&&played(m)).map(m=>view(m,i)),g=s<0?all:all.filter(x=>x.s===s);
   if(!M.some(m=>m.lg===state.lg&&(m.h===i||m.a===i))){const cnt={};M.forEach(m=>{if(m.h===i||m.a===i)cnt[m.lg]=(cnt[m.lg]||0)+1});const best=cnt[LIDX[c.lg]]?LIDX[c.lg]:+(Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0]||[state.lg])[0];if(best!==state.lg){state.lg=best;state.g=LEAGUES[best].g;buildPicker();render();return}}
@@ -380,15 +414,16 @@ function renderClub(){
   $("heroMark").innerHTML=mono(i,"lg");
   $("union").innerHTML=`${cflag(i)} ${esc(c.city)} · ${HL.name}`;$("teamName").textContent=c.name;
   const seasons=[...new Set(all.map(x=>x.s))];
-  $("heroSub").textContent=all.length?`${all.length} matches since ${fmtDate(all[0].date)}${(()=>{const n=new Set(all.map(x=>x.lg)).size;return n>1?` in ${n} competitions`:""})()}${s>=0?`; ${g.length} in ${S[s]}`:""}.`:"No matches in the dataset yet.";
+  $("heroSub").textContent=all.length?clubIdea(i,all)+`${all.length} matches since ${fmtDate(all[0].date)}${(()=>{const n=new Set(all.map(x=>x.lg)).size;return n>1?` in ${n} competitions`:""})()}${s>=0?`; ${g.length} in ${S[s]}`:""}.`:"No matches in the dataset yet.";
   const cs=curS(hl),T=tableRows(hl,s>=0&&D.tables[hl+"-"+s]?s:cs),pos=T.findIndex(r=>r.i===i);
   $("rank").innerHTML=pos>=0?`<div class="num"><small>#</small>${pos+1}</div><div><div class="lbl">${S[s>=0&&D.tables[hl+"-"+s]?s:cs]} ${esc(HL.short)}<br>position</div><div class="pts">${T[pos].pts} pts from ${T[pos].p} match${T[pos].p===1?"":"es"}</div></div>`:`<div><div class="lbl">League position</div><div class="pts">Not in the ${esc(HL.short)} table</div></div>`;
   // KPIs
   const r=rec(g),pf=g.reduce((a,x)=>a+x.pf,0),pa=g.reduce((a,x)=>a+x.pa,0),det=g.filter(x=>x.sc),tf=det.reduce((a,x)=>a+x.sc[0][x.side],0),bp=g.reduce((a,x)=>a+x.bp[x.side],0);
-  $("kpis").innerHTML=[["Win rate",r.p?pct(r.w,r.p)+"%":"–",`${r.w} W · ${r.d} D · ${r.l} L`,1],["Matches",r.p,s<0?"all seasons":S[s]],["Avg scored",r.p?(pf/r.p).toFixed(1):"–","points per match"],["Avg conceded",r.p?(pa/r.p).toFixed(1):"–","points per match"],["Tries per match",det.length?(tf/det.length).toFixed(1):"–",`from ${det.length} reports`],["Bonus points",bp,"try and losing bonuses"]]
-    .map(([a,b,n,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${n}</div></div>`).join("");
+  const tile=([a,b,n,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${n}</div></div>`;
+  $("kpis").innerHTML=[["Win rate",r.p?pct(r.w,r.p)+"%":"–",`${r.w} W · ${r.d} D · ${r.l} L`,1],["Matches",r.p,s<0?"all seasons":S[s]],["Avg margin",r.p?((pf-pa)/r.p>0?"+":"")+((pf-pa)/r.p).toFixed(1):"–","points per match"]].map(tile).join("");
+  $("kpis2").innerHTML=[["Avg scored",r.p?(pf/r.p).toFixed(1):"–","points per match"],["Avg conceded",r.p?(pa/r.p).toFixed(1):"–","points per match"],det.length?["Tries per match",(tf/det.length).toFixed(1),`from ${det.length} reports`]:null,["Bonus points",bp,"try and losing bonuses"]].filter(Boolean).map(tile).join("");
   // season by season
-  $("ssn").innerHTML=S.map((_,k)=>k).filter(k=>tableRows(hl,k).some(x=>x.i===i)).map(k=>{const T2=tableRows(hl,k),p=T2.findIndex(x=>x.i===i),row=T2[p],n=T2.length,w=(n-p)/n*100,po=poFinish(i,hl,k),lab=`${row.pts} pts · ${row.w}–${row.d}–${row.l}${po?" · "+po:""}`;return `<div class="sr" data-tip="<b>${S[k]}</b><br>${ord(p+1)} of ${n} · ${lab}"><div class="yr">${sShort(k)}</div><div class="trk"><i style="width:${w.toFixed(1)}%"></i><span class="${w<45?"out":""}" style="${w<45?`left:calc(${w.toFixed(1)}% + 8px)`:""}">${lab}</span></div><div class="pos">${ord(p+1)}<small>of ${n}</small></div></div>`}).reverse().join("")||`<p class="hint">No completed seasons.</p>`;
+  $("ssn").innerHTML=S.map((_,k)=>k).filter(k=>tableRows(hl,k).some(x=>x.i===i)).map(k=>{const T2=tableRows(hl,k),p=T2.findIndex(x=>x.i===i),row=T2[p],n=T2.length,w=(n-p)/n*100,po=poFinish(i,hl,k),lab=`${row.pts} pts · ${row.w}–${row.d}–${row.l}${po?" · "+po:""}`;return `<div class="sr" data-tip="<b>${S[k]}</b><br>${ord(p+1)} of ${n} · ${lab}"><div class="yr">${sShort(k)}</div><div class="trw"><div class="trk"><i style="width:${w.toFixed(1)}%"></i></div><span class="lab">${lab}</span></div><div class="pos">${ord(p+1)}<small>of ${n}</small></div></div>`}).reverse().join("")||`<p class="hint">No completed seasons.</p>`;
   // form
   $("form").innerHTML=all.slice(-10).map(x=>`<div class="fm ${x.res}" data-tip="<b>${x.res==="W"?"Won":x.res==="L"?"Lost":"Drew"} ${x.pf}–${x.pa}</b> v ${esc(nm(x.opp))}<br>${dTxt(x)} · ${x.where}">${x.res}</div>`).join("")||`<p class="hint">No matches yet.</p>`;
   // splits
@@ -406,7 +441,10 @@ function renderClub(){
   const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,10);$("topTry").innerHTML=top.length?`<span style="border:0;padding-left:0;color:var(--muted)">Top try scorers:</span>`+top.map(([n2,k])=>`<span>${esc(n2)}<b>${k}</b></span>`).join(""):"";
   // h2h (all seasons)
   const by={};all.forEach(x=>{(by[x.opp]=by[x.opp]||[]).push(x)});
-  const rows=Object.entries(by).map(([o,gg])=>({o:+o,...rec(gg),pf:gg.reduce((a,x)=>a+x.pf,0),pa:gg.reduce((a,x)=>a+x.pa,0)})).sort((a,b)=>b.p-a.p||b.w/b.p-a.w/a.p);
+  const rowsAll=Object.entries(by).map(([o,gg])=>({o:+o,...rec(gg),pf:gg.reduce((a,x)=>a+x.pf,0),pa:gg.reduce((a,x)=>a+x.pa,0)})).sort((a,b)=>b.p-a.p||b.w/b.p-a.w/a.p);
+  // a 100% bar from one meeting says nothing: opponents met three or more times first, the rest on request
+  const few=rowsAll.filter(x=>x.p<3).length,rows=state.h2hAll||rowsAll.length-few<5?rowsAll:rowsAll.filter(x=>x.p>=3||x.o===state.opp);
+  $("h2hMore").hidden=rows.length===rowsAll.length&&!state.h2hAll;$("h2hMore").textContent=state.h2hAll?"Show fewer":`Show all ${rowsAll.length} (${few} met once or twice)`;
   $("h2h").innerHTML=`<thead><tr><th>Opponent</th><th class="num">P</th><th class="num">W</th><th class="num">D</th><th class="num">L</th><th class="barcell">Win %</th></tr></thead><tbody>`+rows.map(x=>`<tr data-o="${x.o}" class="${x.o===state.opp?"sel":""}"><td><span class="opp">${mono(x.o,"sm")}${nm(x.o)}</span></td><td class="num">${x.p}</td><td class="num">${x.w}</td><td class="num">${x.d}</td><td class="num">${x.l}</td><td class="barcell"><div class="bar"><i class="w" style="flex:${x.w}"></i><i class="d" style="flex:${x.d}"></i><i class="l" style="flex:${x.l}"></i></div></td></tr>`).join("")+`</tbody>`;
   $("h2h").querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{const o=+tr.dataset.o;state.opp=state.opp===o?-1:o;$("oppSel").value=state.opp;renderResults();$("h2h").querySelectorAll("tbody tr").forEach(t=>t.classList.toggle("sel",+t.dataset.o===state.opp))}));
   const opps=[...new Set(all.map(x=>x.opp))].sort((a,b)=>nm(a).localeCompare(nm(b)));
@@ -419,6 +457,7 @@ function renderResults(){const i=state.club,s=state.s;let g=M.filter(m=>(m.h===i
   const lim=state.resAll?999:15;$("resMore").hidden=g.length<=15;$("resMore").textContent=state.resAll?"Show fewer":`Show all ${g.length}`;$("results").innerHTML=g.slice().reverse().slice(0,lim).map(x=>`<div class="res xp" tabindex="0" role="button" aria-expanded="false" data-k="${x.k}"><div class="dt">${dTxt(x)}</div><div><span class="tag ${x.res}">${x.res}</span>${x.where==="Home"?"v":"at"} ${esc(nm(x.opp))}<span class="comp">${LEAGUES[x.lg].short} ${S[x.s]} · ${stageTxt(x)||"League"}${x.venue?" · "+esc(x.venue):""} <span class="plus">＋</span></span></div><div class="sc">${x.pf}–${x.pa}</div></div>`).join("")||`<p class="hint">No results.</p>`;bindExpand($("results"))}
 
 $("resMore").addEventListener("click",()=>{state.resAll=!state.resAll;renderResults()});
+$("h2hMore").addEventListener("click",()=>{state.h2hAll=!state.h2hAll;renderClub()});
 state.s=defSeason(state.lg);buildPicker();render();
 let rt;addEventListener("resize",()=>{clearTimeout(rt)});
 </script>

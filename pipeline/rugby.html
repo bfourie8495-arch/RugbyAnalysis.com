@@ -76,6 +76,8 @@ main.wrap{padding-block:24px 48px;display:grid;gap:18px}
 .kpi.lead .v{color:var(--acc)}
 @media (max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
+/* team page: three headline numbers, the rest one tap away */
+
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .grid3{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
@@ -116,7 +118,7 @@ svg .gl{stroke:var(--grid)}
 .h2h .opp .sw{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
 .h2h tr{cursor:pointer}
 .h2h tbody tr:hover td{background:color-mix(in oklab,var(--acc) 6%,transparent)}
-.h2h .barcell{width:34%}
+.h2h .barcell{width:26%}.h2h td.num,.h2h th.num{padding-left:6px}.h2h td:first-child{max-width:0;width:38%}.h2h .opp{overflow:hidden;text-overflow:ellipsis}.h2h .opp img{flex:none}@media(max-width:560px){.h2h .barcell{display:none}.h2h td:first-child{width:auto;max-width:none}}#pvSheetWrap[hidden]+.panel{grid-column:1/-1}
 .h2h tr.sel td{background:color-mix(in oklab,var(--acc) 10%,transparent)}
 .tscroll{overflow-x:auto}
 .pct{font-weight:600}
@@ -498,6 +500,12 @@ main>.grid2:nth-of-type(even){grid-template-columns:5fr 7fr}
 .kpi.lead .v{font-size:52px;letter-spacing:-.045em;color:var(--ink)}
 @media (max-width:1060px){.kpis{grid-template-columns:repeat(4,1fr)}.kpi.lead{grid-column:span 3}}
 @media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi.lead{grid-column:span 2}.kpi:last-child:nth-child(even){grid-column:span 2}.kpi .v{font-size:26px}.kpi.lead .v{font-size:44px}}
+/* team page: the lead number and two more on one row; the rest under "All the numbers" */
+.kpis.k3{grid-template-columns:2fr 1fr 1fr}
+.kpis.k3 .kpi.lead{grid-column:auto}
+.kpis.more{grid-template-columns:repeat(3,1fr)}
+@media (max-width:560px){.kpis.k3{grid-template-columns:1fr 1fr}.kpis.k3 .kpi.lead{grid-column:span 2}
+  .kpis.more{grid-template-columns:repeat(3,1fr)}.kpis.more .kpi{padding:14px 12px}.kpis.more .kpi .v{font-size:22px}.kpis.more .kpi:last-child{grid-column:auto}}
 
 .stt,.msk,.fxs{gap:10px;background:transparent;border:0;border-radius:0;overflow:visible}
 .stt>div,.msk>div,.fx{border:1px solid var(--line);border-radius:14px;background:var(--card)}
@@ -640,6 +648,13 @@ footer{color:var(--muted)}
 .pcs{align-content:start;align-self:start}
 .pbr .pt2 .me{max-width:100%}
 
+/* "All the numbers": the secondary tiles, one tap away (team, competition and club pages) */
+.allnum{margin-top:10px}
+.allnum summary{cursor:pointer;font-weight:600;color:var(--ink2);font-size:14px;padding:10px 2px;min-height:44px;box-sizing:border-box;list-style-position:inside}
+.allnum[open] summary{margin-bottom:8px}
+.kpis.more.k4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:560px){.kpis.more.k4{grid-template-columns:repeat(2,1fr)}}
+
 /* ===== Match Centre (landing page) and two-team head-to-head ===== */
 #mdCards{display:grid;gap:var(--gut,14px)}
 .mc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-tile,20px);padding:20px;min-width:0}
@@ -663,8 +678,11 @@ footer{color:var(--muted)}
 .mcpick{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;align-items:baseline;background:color-mix(in oklab,var(--acc) 7%,var(--card));border-radius:14px;padding:12px 14px}
 .mcpl{font:600 11px/1.2 var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .mcpv{font-size:15px;color:var(--ink2);text-align:right}.mcpv b{font:750 18px/1 var(--body);color:var(--ink)}
-.mcbar{grid-column:1/3;display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--loss);margin-top:6px}
-.mcbar i{display:block;background:var(--acc)}
+/* the pick bar: gold is always the side the model picks (as in the app and the posts), the other side grey; home on the left */
+.mcbar{grid-column:1/3;display:flex;height:8px;border-radius:4px;overflow:hidden;background:#B9BDC7;margin-top:6px}
+.mcbar i{display:block;background:#C9A24B;border-right:2px solid var(--card)}
+.mcbar.aw{background:#C9A24B}.mcbar.aw i{background:#B9BDC7}
+.mcbl .pk{color:var(--ink);font-weight:700}
 .mcbl{grid-column:1/3;display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
 .mcgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
 .mct{border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
@@ -693,10 +711,10 @@ footer{color:var(--muted)}
 .mcgo,.mdall{font:700 14px/1 var(--body);color:var(--on-p);background:var(--p);border-radius:var(--r-ctl,12px);padding:11px 16px;text-decoration:none}
 .mcgo:hover,.mdall:hover{filter:brightness(1.15)}
 .mdall{font-size:13px;padding:8px 12px}
-.mdlr{display:grid;grid-template-columns:150px 1fr auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--grid);color:inherit;text-decoration:none;font-size:14px}
+.mdlr{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--grid);color:inherit;text-decoration:none;font-size:14px}
 .mdlr:last-child{border-bottom:0}
 .mdlr:hover .go{text-decoration:underline}
-.mdlr .dt{color:var(--muted);font-size:13px}
+.mdlr .dt{color:var(--muted);font-size:13px;grid-column:1/-1}
 .mdlr .tms{font-weight:650;display:flex;align-items:center;gap:6px;min-width:0}
 .mdlr .tms img{width:20px}
 .mdlr .pk{color:var(--ink2);font-size:13px}
@@ -730,9 +748,17 @@ footer{color:var(--muted)}
 .mcapp:before{content:"";width:7px;height:7px;border-radius:50%;background:#C9A24B}
 @media (max-width:760px){.mclinks{width:100%}.mcapp{justify-content:center;width:100%;padding:10px 12px}}
 
+/* head to head: per-meeting stats when there are too few to average */
+table.mini{width:100%;border-collapse:collapse;font-size:14px}
+table.mini th,table.mini td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.mini th{font:600 12px/1.3 var(--body);color:var(--muted)}
+table.mini .num{text-align:right;font-variant-numeric:tabular-nums}
+table.mini .dim{color:var(--muted);font-weight:400;padding:0 2px}
+@media (max-width:560px){table.mini{font-size:13px}table.mini th,table.mini td{padding:8px 4px}table.mini tr>:nth-child(n+4){display:none}}
+
 </style>
 
-<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>Rugby Analysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" aria-current="page">International</a><a href="clubs.html" id="clubLink">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
+<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>RugbyAnalysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" aria-current="page">International</a><a href="clubs.html" id="clubLink">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav>
 
 <header class="hero">
   <div class="wrap">
@@ -781,10 +807,10 @@ footer{color:var(--muted)}
   <div id="pvBody">
     <section class="kpis" id="pvKpis" aria-label="Head-to-head record"></section>
     <div class="grid2">
-      <section class="panel"><h2>Decade by decade</h2><p class="hint">Results in each decade</p><div id="pvDec"></div></section>
-      <section class="panel"><h2>Where they have met</h2><p class="hint">Record by host nation, then the longest winning runs</p><div id="pvVen"></div></section>
+      <section class="panel"><h2 id="pvDecH">Decade by decade</h2><p class="hint">Results in each decade</p><div id="pvDec"></div></section>
+      <section class="panel"><h2 id="pvVenH">Where they have met</h2><p class="hint">Record by host nation, then the longest winning runs</p><div id="pvVen"></div></section>
     </div>
-    <section class="panel"><h2>Every meeting</h2><p class="hint">Winning margin of each Test, oldest to newest. Hover a bar for the score.</p><div id="pvMargin"></div></section>
+    <section class="panel"><h2 id="pvMarH">Every meeting</h2><p class="hint">Winning margin of each Test, oldest to newest. Tap a bar for the score.</p><div id="pvMargin"></div></section>
     <div class="grid2">
       <section class="panel" id="pvSheetWrap"><h2>How the games are played</h2><p class="hint" id="pvSheetHint"></p><div id="pvSheet"></div></section>
       <section class="panel"><h2>Records</h2><p class="hint">Landmark results in the fixture</p><div id="pvRec"></div></section>
@@ -826,7 +852,7 @@ footer{color:var(--muted)}
   </section>
   <section class="panel" id="trRollWrap">
     <h2>Roll of honour</h2>
-    <p class="hint">Champions each year. Hover or tap a flag for the detail<span id="trGsNote">; a dot marks a Grand Slam</span>.</p>
+    <p class="hint">Champions each year. Tap a flag for the detail<span id="trGsNote">; a dot marks a Grand Slam</span>.</p>
     <div class="tscroll"><div class="roll" id="trRoll"></div></div>
   </section>
   <section class="panel" id="trBiWrap">
@@ -915,7 +941,7 @@ footer{color:var(--muted)}
   <section class="panel" id="moneyWrap">
     <div class="filterbar"><h2 style="flex:1">What drives winning?</h2>
       <div class="seg" id="moneyMetric" role="group" aria-label="Measure"><button data-m="win" aria-pressed="true">Win rate</button><button data-m="mar" aria-pressed="false">Points margin</button></div></div>
-    <p class="hint">Pick a factor and see how it lines up with each nation's results in all Tests since 1 January 2021. Hover a flag for details; click it to open that team.</p>
+    <p class="hint">Pick a factor and see how it lines up with each nation's results in all Tests since 1 January 2021. Tap a flag for details; tap again to open that team.</p>
     <div class="drv" id="drvSel" role="group" aria-label="Factor"></div>
     <div id="moneyChart"></div>
     <p class="moneyTake" id="moneyTake"></p>
@@ -977,33 +1003,33 @@ footer{color:var(--muted)}
 <main class="wrap" id="emptyView" hidden><section class="panel emptyv"><h2 id="emptyH">No women's Tests yet</h2><p class="hint" id="emptyP"></p><button class="showall" id="emptyBtn">Show men's record</button></section></main>
 
 <main class="wrap" id="teamView">
-  <section class="kpis" id="kpis" aria-label="Headline record"></section>
+  <section class="kpis k3" id="kpis" aria-label="Headline record"></section>
+  <details class="allnum" id="kpiMore"><summary>All the numbers</summary><section class="kpis k3 more" id="kpis2" aria-label="More numbers"></section></details>
 
   <div class="grid3">
     <section class="panel">
-      <h2>Record by decade</h2>
+      <h2 id="decadeH">Record by decade</h2>
       <p class="hint">Share of Tests won, drawn and lost in each decade</p>
       <div class="legend"><span><i style="background:var(--acc)"></i>Won</span><span><i style="background:var(--draw)"></i>Drawn</span><span><i style="background:var(--loss)"></i>Lost</span></div>
       <div id="decadeChart"></div>
     </section>
     <section class="panel">
-      <h2>Scoring by decade</h2>
-      <p class="hint">Average points per Test, scored vs conceded</p>
-      <div class="legend"><span><i class="ln" style="background:var(--acc)"></i>Scored</span><span><i class="ln" style="background:var(--loss)"></i>Conceded</span></div>
+      <h2 id="pointsH">Scoring by decade</h2>
+      <p class="hint">Average points per Test, scored and conceded</p>
       <div id="pointsChart"></div>
     </section>
   </div>
 
   <section class="panel">
-    <h2>Season by season</h2>
-    <p class="hint">Win rate each calendar year. Darker = more wins. Hover a year for the detail.</p>
+    <h2 id="yearH">Season by season</h2>
+    <p class="hint">Share of Tests won over the five years to each season (the line, where there were 10 or more Tests); dots are single seasons. Tap a year for the detail.</p>
     <div id="yearStrip"></div>
   </section>
 
   <div class="grid3">
     <section class="panel">
       <h2>Head to head</h2>
-      <p class="hint">Record against each opponent, most-played first. Click a row to filter the results list.</p>
+      <p class="hint">Record against each opponent, most-played first. Tap a row to filter the results list.</p>
       <div class="tscroll"><table class="h2h" id="h2h"></table></div>
       <button class="showall" id="h2hMore" hidden>Show all</button>
     </section>
@@ -1577,8 +1603,8 @@ function render(){
   const hf=$("heroFlag");hf.src=FLAGS[t.id];hf.alt="Flag of "+t.name;hf.classList.remove("pop");void hf.offsetWidth;hf.classList.add("pop");
   const rk=RANK[t.id];$("rank").innerHTML=rk?`<div class="num"><small>#</small>${rk.pos}</div><div><div class="lbl">World Rugby<br>${Wm?"women's ranking":"ranking"}</div><div class="pts">${rk.pts.toFixed(2)} pts</div></div>`:`<div><div class="lbl">World Rugby ${Wm?"women's ":""}ranking</div><div class="pts">${Wm?"Outside the top 20":"Outside the top 30"}</div></div>`;
   const opp=state.scope==="all"||other||Wm?"":" against the top 10";
-  if(Wm)$("heroSub").textContent=all.length?`First women's Test in this dataset: ${fmtDate(all[0].date)}. ${all.length} women's Tests, of which ${g.length} fall in the ${era.label.toLowerCase()} window.`:"No women's Tests for this nation in the dataset yet. Switch to Men to see their men's record.";
-  else $("heroSub").textContent=all.length?`First Test in this dataset: ${fmtDate(all[0].date)}. ${all.length} Tests${opp}, of which ${g.length} fall in the ${era.label.toLowerCase()} window.${other?" Results for nations outside the top 10 are only included from 2000.":state.scope==="all"?" Matches against nations outside the top 10 are included from 2000.":""}`:"No Tests in this selection.";
+  {const win=era.from?` ${g.length} of them in the ${era.label.toLowerCase()} window.`:"",W2=Wm?"women's ":"";
+   $("heroSub").textContent=all.length?teamIdea(t.name,g,all)+`${g.length<5||era.from?all.length.toLocaleString()+" ":"All "}${W2}Tests${opp}, going back to ${all[0].y}.${win}${!Wm&&(other||state.scope==="all")?" Opponents outside the top 10 count from 2000.":""}`:Wm?"No women's Tests for this nation in the dataset yet. Switch to Men to see their men's record.":"No Tests in this selection."}
   renderKpis(g);renderDecades(g);renderPoints(g);renderYears(g);renderH2H(g);renderForm(all);renderSplits(g);renderFacts(g);renderMatchStats(g);renderPerf(g);renderSquad(g);
   {const seen=[...new Set(g.map(x=>x.opp))].sort((a,b)=>tname(a).localeCompare(tname(b)));if(state.opp>=0&&!seen.includes(state.opp))state.opp=-1;
    $("oppSel").innerHTML=`<option value="-1">All opponents</option>`+seen.map(i=>`<option value="${i}">${tname(i)}</option>`).join("");}
@@ -1586,6 +1612,9 @@ function render(){
   renderResults(g);
 }
 
+// The one sentence to take away from a team page: the record, then how the last ten went.
+function teamIdea(name,g,all){if(g.length<5)return "";const r=rec(g),t=all.slice(-10),q=rec(t),p=pct(r.w,r.p),p10=q.w*10/q.p*10;
+  return `${name} have won ${p}% of ${r.p.toLocaleString()} Tests${t.length===10?`, and ${q.w} of their last 10${Math.abs(p10-p)>=15?(p10>p?": well above their usual":": well below their usual"):""}`:""}. `}
 function renderKpis(g){
   const r=rec(g),pf=g.reduce((s,x)=>s+x.pf,0),pa=g.reduce((s,x)=>s+x.pa,0);
   const wc=g.filter(x=>x.wc),rw=rec(wc);
@@ -1594,19 +1623,21 @@ function renderKpis(g){
   const k=[
     ["Win rate",pct(r.w,r.p)+"%",r.p<20&&pool.length!==10?"Too few Tests to rank":rank===1?`Best ${poolTxt}`:`${ord(rank)}-best ${poolTxt}`,1],
     ["Tests",r.p,`${r.w} W · ${r.d} D · ${r.l} L`],
+    ["Avg margin",r.p?((pf-pa)/r.p>0?"+":"")+((pf-pa)/r.p).toFixed(1):"–","points per Test"],
+    // the rest sit under "All the numbers"
     ["Avg scored",r.p?(pf/r.p).toFixed(1):"–","points per Test"],
     ["Avg conceded",r.p?(pa/r.p).toFixed(1):"–","points per Test"],
-    ["Avg margin",r.p?((pf-pa)/r.p>0?"+":"")+((pf-pa)/r.p).toFixed(1):"–","points per Test"],
     ["World Cup",rw.p?pct(rw.w,rw.p)+"%":"–",rw.p?`${rw.w} W of ${rw.p} RWC Tests`:"No RWC Tests in this era"]
   ];
-  $("kpis").innerHTML=k.map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join("");
+  const tile=([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`;
+  $("kpis").innerHTML=k.slice(0,3).map(tile).join("");$("kpis2").innerHTML=k.slice(3).map(tile).join("");
 }
 
 function byDecade(g){const d={};g.forEach(x=>{const k=Math.floor(x.y/10)*10;(d[k]=d[k]||[]).push(x)});return Object.keys(d).map(Number).sort((a,b)=>a-b).map(k=>({dec:k,g:d[k]}))}
 function W(id){return Math.max(280,$(id).clientWidth)}
 
 function renderDecades(g){
-  if(!g.length){$("decadeChart").innerHTML='<p class="hint">No Tests in this era.</p>';return}
+  if(!g.length){$("decadeH").textContent="Record by decade";$("decadeChart").innerHTML='<p class="hint">No Tests in this era.</p>';return}
   const data=byDecade(g),w=W("decadeChart"),h=230,m={l:42,r:6,t:8,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
   const n=data.length,bw=Math.min(24,iw/n-2);
   let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Win, draw, loss share by decade">`;
@@ -1619,13 +1650,15 @@ function renderDecades(g){
     const every=Math.ceil(n/Math.max(2,Math.floor(iw/40)));if(i%every===0)s+=`<text x="${x+bw/2}" y="${h-8}" text-anchor="middle">${n>9?"'"+String(d.dec).slice(2):d.dec+"s"}</text>`;
   });
   s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
+  {const L=data[data.length-1],now=rec(L.g),allr=rec(g),a=Math.round(now.w/now.p*100),b=Math.round(allr.w/allr.p*100);
+   $("decadeH").textContent=data.length>1&&now.p>=5?`${L.dec}s: ${a}% won, ${a>b+2?"up on":a<b-2?"down on":"in line with"} ${b}% overall`:"Record by decade"}
   $("decadeChart").innerHTML=s;bindTips($("decadeChart"));
 }
 
 function renderPoints(g){
   if(!g.length){$("pointsChart").innerHTML='<p class="hint">No Tests in this era.</p>';return}
   const data=byDecade(g).map(d=>({dec:d.dec,f:d.g.reduce((s,x)=>s+x.pf,0)/d.g.length,a:d.g.reduce((s,x)=>s+x.pa,0)/d.g.length,n:d.g.length}));
-  const w=W("pointsChart"),h=230,m={l:30,r:10,t:10,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
+  const w=W("pointsChart"),h=230,m={l:30,r:78,t:10,b:26},iw=w-m.l-m.r,ih=h-m.t-m.b;
   const max=Math.max(10,...data.flatMap(d=>[d.f,d.a]));const top=Math.ceil(max/10)*10;
   const X=i=>m.l+(data.length===1?iw/2:iw*i/(data.length-1)),Y=v=>m.t+ih-ih*v/top;
   let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Average points scored and conceded by decade">`;
@@ -1637,6 +1670,9 @@ function renderPoints(g){
   data.forEach((d,i)=>{if(i%step===0&&(data.length-1-i)>=step/2)s+=`<text x="${X(i)}" y="${h-8}" text-anchor="middle">${"'"+String(d.dec).slice(2)}</text>`});
   s+=`<text x="${X(data.length-1)}" y="${h-8}" text-anchor="middle">${"'"+String(data[data.length-1].dec).slice(2)}</text>`;
   const last=data[data.length-1];if(last){s+=`<circle cx="${X(data.length-1)}" cy="${Y(last.f)}" r="4.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/><circle cx="${X(data.length-1)}" cy="${Y(last.a)}" r="4" fill="var(--loss)" stroke="var(--card)" stroke-width="2"/>`}
+  if(last){let yf=Y(last.f)+4,ya=Y(last.a)+4;if(Math.abs(yf-ya)<14){const up=yf<=ya;yf+=up?-7:7;ya+=up?7:-7}
+    s+=`<text x="${X(data.length-1)+9}" y="${yf}" style="fill:var(--ink);font-weight:700">Scored ${last.f.toFixed(0)}</text><text x="${X(data.length-1)+9}" y="${ya}">Conceded ${last.a.toFixed(0)}</text>`;
+    $("pointsH").textContent=`${last.dec}s: scoring ${last.f.toFixed(0)} a Test, conceding ${last.a.toFixed(0)}`}
   const cw=data.length>1?iw/(data.length-1):iw;
   data.forEach((d,i)=>{s+=`<rect data-tip="<b>${d.dec}s</b> · ${d.n} Tests<br>Scored ${d.f.toFixed(1)} per Test<br>Conceded ${d.a.toFixed(1)} per Test" x="${X(i)-cw/2}" y="${m.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
   s+=`<line class="axis" x1="${m.l}" x2="${w-m.r}" y1="${m.t+ih}" y2="${m.t+ih}"/></svg>`;
@@ -1644,17 +1680,27 @@ function renderPoints(g){
 }
 
 function renderYears(g){
+  if(!g.length){$("yearStrip").innerHTML='<p class="hint">No Tests in this era.</p>';$("yearH").textContent="Season by season";return}
   const ys={};g.forEach(x=>{(ys[x.y]=ys[x.y]||[]).push(x)});
-  const y0=g.length?g[0].y:1871,y1=M[M.length-1].y,years=[];for(let y=y0;y<=y1;y++)years.push(y);
-  const w=W("yearStrip"),cell=Math.max(4,Math.min(26,Math.floor((w-2)/Math.min(years.length,80)))),perRow=Math.floor((w)/cell),rows=Math.ceil(years.length/perRow),h=rows*(cell+18);
-  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Win rate by year">`;
-  years.forEach((y,i)=>{const r=Math.floor(i/perRow),c=i%perRow,x=c*cell,yy=r*(cell+18);const gg=ys[y];
-    if(!gg){s+=`<rect x="${x+1}" y="${yy+1}" width="${cell-2}" height="${cell-2}" rx="2" fill="none" stroke="var(--grid)" data-tip="<b>${y}</b><br>No Tests against the top 10"/>`}
-    else{const q=rec(gg),v=q.w/q.p;s+=`<rect x="${x+1}" y="${yy+1}" width="${cell-2}" height="${cell-2}" rx="2" fill="color-mix(in oklab,var(--acc) ${Math.round(8+v*92)}%,var(--card))" data-tip="<b>${y}</b> · ${q.p} Test${q.p>1?"s":""}<br>${q.w} W · ${q.d} D · ${q.l} L (${pct(q.w,q.p)}%)"/>`}
-    if(y%10===0)s+=`<text x="${x+1}" y="${yy+cell+13}">${y}</text>`;
-  });
-  s+=`</svg><div class="legend" style="margin:6px 0 0"><span>0%</span>${[0,.25,.5,.75,1].map(v=>`<i style="background:color-mix(in oklab,var(--acc) ${Math.round(8+v*92)}%,var(--card))"></i>`).join("")}<span>100% won</span><span><i style="border:1px solid var(--grid)"></i>No Tests</span></div>`;
-  $("yearStrip").innerHTML=s;bindTips($("yearStrip"));
+  const y0=g[0].y,y1=M[M.length-1].y,years=[];for(let y=y0;y<=y1;y++)years.push(y);
+  // five-year rolling win rate: one season of two or three Tests jumps about too much to read
+  const roll=years.map(y=>{let w=0,p=0;for(let k=y-4;k<=y;k++)if(ys[k]){const q=rec(ys[k]);w+=q.w;p+=q.p}return p>=10?w/p:null}); // 10+ Tests, or the rate is luck
+  const w=W("yearStrip"),h=210,m={l:34,r:54,t:12,b:24},iw=w-m.l-m.r,ih=h-m.t-m.b,n=years.length;
+  const X=i=>m.l+(n===1?iw/2:iw*i/(n-1)),Y=v=>m.t+ih-ih*v;
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Share of Tests won, five-year rolling, by year">`;
+  [0,.5,1].forEach(v=>{s+=`<line class="${v===.5?"axis":"gl"}" x1="${m.l}" x2="${w-m.r}" y1="${Y(v)}" y2="${Y(v)}"${v===.5?' stroke-dasharray="3 4"':""}/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v*100}%</text>`});
+  years.forEach((y,i)=>{const gg=ys[y];if(gg){const q=rec(gg);s+=`<circle cx="${X(i).toFixed(1)}" cy="${Y(q.w/q.p).toFixed(1)}" r="${n>90?1.6:2.4}" fill="var(--draw)"/>`}});
+  let d="",pen=false;roll.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+X(i).toFixed(1)+","+Y(v).toFixed(1);pen=true});
+  s+=`<path d="${d}" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  let li=n-1;while(li>=0&&roll[li]==null)li--;
+  if(li>=0){s+=`<circle cx="${X(li)}" cy="${Y(roll[li])}" r="4.5" fill="var(--acc)" stroke="var(--card)" stroke-width="2"/><text x="${X(li)+9}" y="${Y(roll[li])+4}" style="fill:var(--ink);font-weight:700">${Math.round(roll[li]*100)}%</text>`;
+    let bi=-1;roll.forEach((v,i)=>{if(v!=null&&(bi<0||v>roll[bi]))bi=i});
+    $("yearH").textContent=bi===li?`Their best five years yet: ${Math.round(roll[li]*100)}% of Tests won`:`${Math.round(roll[li]*100)}% won over the last five years; the peak was ${Math.round(roll[bi]*100)}% to ${years[bi]}`}
+  else $("yearH").textContent="Season by season";
+  const st=Math.max(10,Math.ceil(n/Math.max(2,Math.floor(iw/60))/10)*10);years.forEach((y,i)=>{if(y%st===0&&X(i)<w-m.r-20)s+=`<text x="${X(i)}" y="${h-6}" text-anchor="middle">${y}</text>`});
+  const cw=n>1?iw/(n-1):iw;
+  years.forEach((y,i)=>{const gg=ys[y],q=gg?rec(gg):null;s+=`<rect data-tip="<b>${y}</b>${q?` · ${q.p} Test${q.p>1?"s":""}<br>${q.w} W · ${q.d} D · ${q.l} L (${pct(q.w,q.p)}%)`:"<br>No Tests"}${roll[i]!=null?`<br>Five years to ${y}: ${Math.round(roll[i]*100)}% won`:""}" x="${X(i)-cw/2}" y="${m.t}" width="${cw}" height="${ih}" fill="transparent"/>`});
+  $("yearStrip").innerHTML=s+`</svg>`;bindTips($("yearStrip"));
 }
 
 function renderH2H(g){
@@ -1832,7 +1878,7 @@ function sheetHTML(m){const [H,A]=m.ms;let s=`<div class="sheet"><div class="sh-
   for(const [lab,k,f,tot] of SHEET){const a=sg(H,k),b=sg(A,k);if(isNaN(a)&&isNaN(b))continue;
     const fa=f==="p"?Math.round(a*100)+"%":f==="f"&&!isNaN(sg(H,tot))?`${a}/${sg(H,tot)}`:a,fb=f==="p"?Math.round(b*100)+"%":f==="f"&&!isNaN(sg(A,tot))?`${b}/${sg(A,tot)}`:b;
     const ra=f==="f"?(sg(H,tot)?a/sg(H,tot):0):a,rb=f==="f"?(sg(A,tot)?b/sg(A,tot):0):b,sh=ra+rb?ra/(ra+rb)*100:50;
-    s+=`<div class="shr"><span class="sv">${fa}</span><span class="sl">${lab}<span class="sb"><i style="width:${sh.toFixed(1)}%"></i><i style="width:${(100-sh).toFixed(1)}%"></i></span></span><span class="sv r">${fb}</span></div>`}
+    s+=`<div class="shr"><span class="sv">${fa}</span><span class="sl">${lab}${ra+rb?`<span class="sb"><i style="width:${sh.toFixed(1)}%"></i><i style="width:${(100-sh).toFixed(1)}%"></i></span>`:""}</span><span class="sv r">${fb}</span></div>`}
   return s+`</div>`}
 
 // Overview: leaderboard
@@ -2185,8 +2231,8 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(M,hi,ai),V=G.map(m=>view
   <div class="mchd"><span class="mcc">${esc(f.c)}</span><span class="mcw">${when}</span>${cd}</div>
   <div class="mcteams">${side(hi,"h")}<div class="mcv">v</div>${side(ai,"a")}</div>
   <div class="mcpick"><div class="mcpl">Model pick</div><div class="mcpv"><b>${pick[0]}</b> ${Math.round(pick[1]*100)}%</div>
-    <div class="mcbar" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div>
-    <div class="mcbl"><span>${f.h} ${Math.round(f.p*100)}%</span><span>${f.a} ${Math.round((1-f.p)*100)}%</span></div></div>
+    <div class="mcbar${f.p>=.5?"":" aw"}" title="${f.h} ${Math.round(f.p*100)}% · ${f.a} ${Math.round((1-f.p)*100)}%"><i style="width:${f.p*100}%"></i></div>
+    <div class="mcbl"><span${f.p>=.5?' class="pk"':""}>${f.h} ${Math.round(f.p*100)}%</span><span${f.p>=.5?"":' class="pk"'}>${f.a} ${Math.round((1-f.p)*100)}%</span></div></div>
   <div class="mcgrid">
     ${sto?`<section class="mct mcsto"><h3>The rivalry</h3><p class="mdp">${esc(sto)}</p></section>`:""}
     <section class="mct"><h3>Head to head</h3>${hist}</section>
@@ -2216,24 +2262,41 @@ function renderMatchday(){const now=Date.now(),items=upcoming(),Wm=WOMEN();
 
 // ===== Two-team head-to-head =====
 {const n=upcoming()[0];state.pair=state.pair||(n?[n.hi,n.ai]:[idx("New Zealand"),idx("Australia")]);}state.pvAll=false;
+// The one sentence a visitor should take away from a head-to-head page.
+function pairIdea(A,B,V,r){const n=r.p,T=n===1?"Test":"Tests";
+  if(r.w===r.l)return `${A} and ${B} are level: ${r.w} win${r.w===1?"":"s"} each from ${n} ${T}${r.d?`, with ${r.d} drawn`:""}.`;
+  const lead=r.w>r.l?"W":"L",LN=lead==="W"?A:B,ON=lead==="W"?B:A,lw=Math.max(r.w,r.l);
+  let run=0;for(let i=V.length-1;i>=0&&V[i].res===V[V.length-1].res;i--)run++;
+  const last=V[V.length-1].res,lo=V.filter(x=>x.res!=="D"&&x.res!==lead).pop(),num=["","","two","three","four","five","six","seven","eight","nine","ten"][run]||run;
+  let s=`${LN} have won ${lw} of the ${n} ${T}`;
+  if(run>=2&&last===lead)s+=`, including the last ${num}`;
+  else if(run>=2&&last!=="D")s+=`, but ${ON} have won the last ${num}`;
+  else if(last!=="D"&&last!==lead&&n>1)s+=`, but ${ON} won the latest`;
+  s+=".";
+  if(last===lead&&lo)s+=` ${ON} last won in ${lo.y}.`;else if(!lo&&n>2)s+=` ${ON} have never won.`;
+  return s}
 function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===state.era),Gall=meetings(M,a,b),G=Gall.filter(m=>m.y>=era.from),V=G.map(m=>view(m,a)),r=rec(V),A=tname(a),B=tname(b);
   $("union").textContent=`Head to head · ${Wm?"women's ":""}Tests`;$("teamName").textContent=`${A} v ${B}`;
   const opts=ALL.map((t,i)=>i).filter(i=>M.some(m=>m.h===i||m.a===i)).sort((x,y)=>tname(x).localeCompare(tname(y)));
   $("pvA").innerHTML=opts.map(i=>`<option value="${i}"${i===a?" selected":""}>${tname(i)}</option>`).join("");$("pvB").innerHTML=opts.map(i=>`<option value="${i}"${i===b?" selected":""}>${tname(i)}</option>`).join("");
-  $("heroSub").textContent=Gall.length?`${Gall.length} ${Wm?"women's ":""}Tests since ${Gall[0].y}${era.from?`, ${G.length} of them in the ${era.label.toLowerCase()} window`:""}. Pick a different pairing below, or change the era above.`:`No ${Wm?"women's ":""}Tests between ${A} and ${B} in the dataset.`;
+  $("heroSub").textContent=Gall.length?(G.length?pairIdea(A,B,V,r)+" ":"")+`${Gall.length} ${Wm?"women's ":""}Tests since ${Gall[0].y}${era.from?`, ${G.length} of them in the ${era.label.toLowerCase()} window`:""}.`:`No ${Wm?"women's ":""}Tests between ${A} and ${B} in the dataset.`;
   const now=Date.now(),nx=upcoming().find(f=>(f.hi===a&&f.ai===b)||(f.hi===b&&f.ai===a));
   $("rank").innerHTML=nx?`<div><div class="lbl">Next meeting</div><div class="holder" style="font-size:20px">${nx.h} v ${nx.a}</div><div class="pts">${nx.tbc?fmtDate(nx.d):fD.format(nx.t)} · pick: ${nx.p>=.5?nx.h:nx.a} ${Math.round(Math.max(nx.p,1-nx.p)*100)}%</div></div>`:`<div><div class="lbl">Next meeting</div><div class="pts">None scheduled</div></div>`;
   $("pvEmpty").hidden=!!G.length;$("pvBody").hidden=!G.length;if(!G.length)return;
   const pf=V.reduce((s,x)=>s+x.pf,0),pa=V.reduce((s,x)=>s+x.pa,0),L=V[V.length-1],big=(res)=>V.filter(x=>x.res===res).sort((x,y)=>Math.abs(y.pf-y.pa)-Math.abs(x.pf-x.pa))[0];
   const ba=big("W"),bb=big("L");
-  const K=[[`${A} wins`,r.w,`${pct(r.w,r.p)}% of ${r.p} Tests`,1],["Draws",r.d,r.d?`last ${fmtDate(V.filter(x=>x.res==="D").pop().date)}`:"none"],[`${B} wins`,r.l,`${pct(r.l,r.p)}%`],["Average score",`${(pf/r.p).toFixed(1)}–${(pa/r.p).toFixed(1)}`,`${A} first`],[`Biggest ${A} win`,ba?`${ba.pf}–${ba.pa}`:"–",ba?fmtDate(ba.date):""],[`Biggest ${B} win`,bb?`${bb.pa}–${bb.pf}`:"–",bb?fmtDate(bb.date):""]];
+  const K=[[`${A} wins`,r.w,`${pct(r.w,r.p)}% of ${r.p} Tests`,r.w>r.l],["Draws",r.d,r.d?`last ${fmtDate(V.filter(x=>x.res==="D").pop().date)}`:"none"],[`${B} wins`,r.l,`${pct(r.l,r.p)}% of ${r.p} Tests`,r.l>r.w],["Average score",`${(pf/r.p).toFixed(1)}–${(pa/r.p).toFixed(1)}`,`${A} first`],[`Biggest ${A} win`,ba?`${ba.pf}–${ba.pa}`:"–",ba?fmtDate(ba.date):""],[`Biggest ${B} win`,bb?`${bb.pa}–${bb.pf}`:"–",bb?fmtDate(bb.date):""]];
   $("pvKpis").innerHTML=K.map(([k,v,n,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${esc(k)}</div><div class="v">${v}</div><div class="n">${esc(n)}</div></div>`).join("");
   // decades
   const dec={};V.forEach(x=>{const d=Math.floor(x.y/10)*10;(dec[d]=dec[d]||[]).push(x)});
+  {const ds=Object.keys(dec).map(d=>rec(dec[d])),da=ds.filter(q=>q.w>q.l).length,db=ds.filter(q=>q.l>q.w).length,n=ds.length;
+   $("pvDecH").textContent=n<2?"Decade by decade":da===db?`Honours even: ${da} decade${da===1?"":"s"} each`:`${da>db?A:B} had the better of ${Math.max(da,db)} of the ${n} decades`}
   $("pvDec").innerHTML=`<div class="legend"><span><i style="background:var(--acc)"></i>${A} won</span><span><i style="background:var(--draw)"></i>Drawn</span><span><i style="background:var(--loss)"></i>${B} won</span></div>`+Object.keys(dec).map(Number).sort((x,y)=>x-y).map(d=>{const q=rec(dec[d]);return `<div class="pvd"><span class="pvdy">${d}s</span><div class="bar"><i class="w" style="flex:${q.w}"></i><i class="d" style="flex:${q.d}"></i><i class="l" style="flex:${q.l}"></i></div><span class="pvdn">${q.w}–${q.d}–${q.l}</span></div>`}).join("");
   // where
   const sp=[[`In ${A}`,V.filter(x=>x.where==="Home")],[`In ${B}`,V.filter(x=>x.where==="Away")],["Neutral venues",V.filter(x=>x.where==="Neutral")]].filter(x=>x[1].length);
   let run={res:null,n:0},best={W:0,L:0};V.forEach(x=>{run=x.res===run.res?{res:x.res,n:run.n+1}:{res:x.res,n:1};if(x.res!=="D")best[x.res]=Math.max(best[x.res],run.n)});
+  {const ha=rec(V.filter(x=>x.where==="Home")),hb=rec(V.filter(x=>x.where==="Away"));
+   $("pvVenH").textContent=ha.p&&hb.p?`At home, ${A} won ${ha.w} of ${ha.p}, ${B} ${hb.l} of ${hb.p}`:"Where they have met"}
   $("pvVen").innerHTML=sp.map(([lab,g])=>{const q=rec(g);return `<div class="pvd"><span class="pvdy">${lab}</span><div class="bar"><i class="w" style="flex:${q.w}"></i><i class="d" style="flex:${q.d}"></i><i class="l" style="flex:${q.l}"></i></div><span class="pvdn">${q.w}–${q.d}–${q.l}</span></div>`}).join("")+
     `<div class="pvfacts"><div><span class="k">Longest ${esc(A)} run</span><b>${best.W}</b> wins</div><div><span class="k">Longest ${esc(B)} run</span><b>${best.L}</b> wins</div><div><span class="k">Current run</span><b>${run.n}</b> ${run.res==="D"?"draw":run.res==="W"?esc(A)+" win":esc(B)+" win"}${run.n>1?"s":""}</div></div>`;
   // margins chart
@@ -2241,10 +2304,20 @@ function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===
    let s=`<svg viewBox="0 0 ${w} ${h+18}" class="pvsvg" role="img" aria-label="Winning margin in every meeting"><line x1="0" x2="${w}" y1="${mid}" y2="${mid}" stroke="var(--line)"/>`;
    V.forEach((x,k)=>{const d=x.pf-x.pa,bh=Math.max(2,Math.abs(d)/mx*(mid-6));s+=`<rect x="${k*bw+bw*.12}" width="${Math.max(1,bw*.76)}" y="${d>=0?mid-bh:mid}" height="${bh}" rx="1.5" fill="${d>0?"var(--acc)":d<0?"var(--loss)":"var(--draw)"}" data-tip="<b>${x.res==="D"?"Drawn":x.res==="W"?esc(A)+" won":esc(B)+" won"} ${Math.max(x.pf,x.pa)}–${Math.min(x.pf,x.pa)}</b><br>${fmtDate(x.date)} · ${esc(x.venue[1]||x.venue[0])}<br>${esc(x.comp||"Test")}"/>`});
    const step=Math.max(1,Math.ceil(n/Math.max(3,Math.floor(w/80))));V.forEach((x,k)=>{if(k%step===0)s+=`<text x="${k*bw+bw/2}" y="${h+14}" text-anchor="${k?"middle":"start"}">${x.y}</text>`});
+   {const t=V.slice(-10),c=t.filter(x=>Math.abs(x.pf-x.pa)<=7).length;
+    $("pvMarH").textContent=t.length<4?"Every meeting":c===0?`None of the last ${t.length} were within a score`:`${c===t.length?"All":c} of the last ${t.length} ${c===1?"was":"were"} settled by seven points or fewer`}
    $("pvMargin").innerHTML=s+`</svg><div class="legend" style="margin-top:6px"><span><i style="background:var(--acc)"></i>${A} won (bar height = margin, up to ${mx})</span><span><i style="background:var(--loss)"></i>${B} won</span></div>`;bindTips($("pvMargin"))}
   // ESPN match stats averaged over meetings that have them
-  const S=G.filter(m=>m.ms);$("pvSheetWrap").hidden=!S.length;
-  if(S.length){const mean=side=>SK.map((k,j)=>{const v=S.map(m=>m.ms[(m.h===a)===(side===0)?0:1][j]).filter(x=>x!=null);return v.length?Math.round(avg(v)*(k==="possession"||k==="territory"?100:10))/(k==="possession"||k==="territory"?100:10):null});
+  const S=G.filter(m=>m.ms),sheetOk=S.length>=5;$("pvSheetWrap").hidden=!S.length; // under five Tests an average says little
+  $("pvSheetWrap").querySelector("h2").textContent=sheetOk?"How the games are played":`Only ${S.length===1?"one meeting has":S.length+" meetings have"} full match stats`;
+  if(S.length&&!sheetOk){ // too few to average: show each meeting's own numbers in a small table
+    const KEEP=["possession","territory","metres","cleanBreaks","defendersBeaten","missedTackles","penaltiesConceded","turnoversConceded"];
+    const rows=SHEET.filter(r=>KEEP.includes(r[1])),ms=S.slice(-4).reverse(); // newest first
+    const cell=(m,k,f)=>{const [x,y]=m.h===A?m.ms:[m.ms[1],m.ms[0]],u=sg(x,k),v=sg(y,k);if(isNaN(u)&&isNaN(v))return"–";const fm=q=>isNaN(q)?"–":f==="p"?Math.round(q*100)+"%":q;return `${fm(u)}<span class="dim">–</span>${fm(v)}`};
+    $("pvSheetHint").textContent=`Too few to average, so here are the numbers from each, newest first. ${A} first in each pair.`;
+    $("pvSheet").innerHTML=`<div class="tscroll"><table class="mini"><thead><tr><th></th>${ms.map(m=>`<th class="num">${fmtDate(m.date)}<br><span class="dim">${m.h===A?m.hs+"–"+m.as:m.as+"–"+m.hs}</span></th>`).join("")}</tr></thead><tbody>${
+      rows.map(([lab,k,f])=>`<tr><td>${lab}</td>${ms.map(m=>`<td class="num">${cell(m,k,f)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+  if(sheetOk){const mean=side=>SK.map((k,j)=>{const v=S.map(m=>m.ms[(m.h===a)===(side===0)?0:1][j]).filter(x=>x!=null);return v.length?Math.round(avg(v)*(k==="possession"||k==="territory"?100:10))/(k==="possession"||k==="territory"?100:10):null});
     $("pvSheetHint").textContent=`Average per Test across the ${S.length} meeting${S.length>1?"s":""} with full match stats (since ${S[0].y}). ${A} on the left.`;
     $("pvSheet").innerHTML=sheetHTML({ms:[mean(0),mean(1)]}).replace("<b>Match stats</b>",`<b>${esc(A)} v ${esc(B)}</b>`)}
   // records
