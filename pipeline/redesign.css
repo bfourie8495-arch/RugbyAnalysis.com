@@ -10,7 +10,7 @@
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   --bg:color-mix(in oklab,var(--p) 3%,#F2F3F7);
   --card:#FFFFFF;
-  --ink:#14161D;--ink2:#697086;--muted:#7C8396;
+  --ink:#14161D;--ink2:#697086;--muted:#656C80; /* 5.2:1 on white (was 3.8) */
   --line:#E3E6EF;
   --grid:color-mix(in oklab,#14161D 7%,transparent);
   --loss:#9AA1B5;--draw:#D3D7E2;
