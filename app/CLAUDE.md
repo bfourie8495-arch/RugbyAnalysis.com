@@ -24,6 +24,12 @@ Run all of them after every change; fix every error and warning. GitHub Actions 
 - The in-app logo is `BrandMark` (`common.dart`), painted from the same numbers as `site/logo/icon.svg`; the launcher and store icons come from `tool/make_icons.py`.
 - Flags are emoji from each nation's ISO code (`flagEmoji` in `feeds.dart`; England, Scotland and Wales use tag sequences). Nations without a code show their three-letter code in their colour (`TeamBadge`).
 
+## Links to the website and sharing
+- `lib/models/site_links.dart` (pure, tested in `test/site_links_test.dart`): `siteSlug` is a copy of `slug` in `pipeline/build.py` (lower case, é->e, ç->c, other runs -> one hyphen); change both together. `siteTeamUrl` / `siteH2hUrl` build `https://rugbyanalysis.com/?ref=app#south-africa` and `...#h2h/france-v-south-africa`, `#women/...` for women. **`?ref=` goes before the `#`**: the site reads everything after `#` as the page name, so a `?ref` there sends the visitor to Matchday.
+- `WebsiteButton` (`common.dart`): "Full head to head on the website" (match screen, under the head-to-head) and "Full record on the website" (team screen, under the header), `ref=app`.
+- Share (match screen top bar, `share_plus`): `shareText` sends text only, `ref=share`. Before the game: fixture, kick-off in the sender's time with its zone, the model's pick. Once the result is in: the score only. It is kept apart from "Watch with friends", which invites people into a chat room.
+- The test 'every nation playing in the feed has a page on the site' reads `../pipeline/others.json`. A few nations in `nations` (e.g. 'Bosnia & Herzegovina', "Cote D'Ivoire") have no site page; a link for them lands on the site's Matchday.
+
 ## Structure
 - State: one `AppController` (ChangeNotifier) shared through `AppScope` (InheritedNotifier). `AppScope.of(context)` in `build`, `AppScope.read(context)` in handlers.
 - One screen per file in `lib/screens/`; shared widgets in `lib/widgets/common.dart`, match tiles in `match_tiles.dart`, tables in `standings.dart`.

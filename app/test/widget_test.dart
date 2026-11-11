@@ -112,6 +112,31 @@ void main() {
     expect(find.text('Points scored a game'), findsOneWidget);
   });
 
+  testWidgets('A fixture links to the website and shares the pick; a result shares the score', (tester) async {
+    final c = await startApp(tester);
+    final f = c.matchday!.men.fixtures.first;
+    await tester.pumpWidget(AppScope(controller: c, child: MaterialApp(home: MatchScreen(gender: Gender.men, fixture: f))));
+    await tester.pumpAndSettle();
+    // Sharing sits in the top bar, apart from "Watch with friends".
+    expect(find.descendant(of: find.byType(AppBar), matching: find.byTooltip('Share the pick')), findsOneWidget);
+    await scrollTo(tester, MatchScreen, find.text('Full head to head on the website'));
+    expect(find.text('Full head to head on the website'), findsOneWidget);
+
+    final r = c.matchday!.men.results.first;
+    await tester.pumpWidget(AppScope(controller: c, child: MaterialApp(home: MatchScreen.result(gender: Gender.men, result: r))));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Share the score'), findsOneWidget);
+    expect(find.byTooltip('Share the pick'), findsNothing);
+  });
+
+  testWidgets('A team page links to its full record on the website', (tester) async {
+    final c = await startApp(tester);
+    await tester.pumpWidget(AppScope(controller: c, child: const MaterialApp(home: TeamScreen(gender: Gender.women, team: 'England'))));
+    await tester.pumpAndSettle();
+    await scrollTo(tester, TeamScreen, find.text('Full record on the website'));
+    expect(find.text('Full record on the website'), findsOneWidget);
+  });
+
   testWidgets('A result opens its match stats', (tester) async {
     final c = await startApp(tester);
     final r = c.matchday!.men.results.firstWhere((r) => r.detail?.hasScoring ?? false);

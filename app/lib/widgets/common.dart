@@ -308,6 +308,25 @@ Future<void> openLink(String url) async {
   await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
 }
 
+/// A full-width button that opens the matching page on rugbyanalysis.com in the browser.
+/// The website has the longer record (every Test back to the 1800s); the app keeps the recent picture.
+class WebsiteButton extends StatelessWidget {
+  const WebsiteButton({super.key, required this.label, required this.url});
+
+  final String label;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46), side: const BorderSide(color: RaColors.line2)),
+      onPressed: () => openLink(url),
+      icon: const Icon(Icons.open_in_new, size: 18),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+    );
+  }
+}
+
 /// The website and socials, at the bottom of every main tab.
 class FooterLinks extends StatelessWidget {
   const FooterLinks({super.key});
