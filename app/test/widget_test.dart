@@ -153,8 +153,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Season so far'), 300, scrollable: listOf(TeamScreen));
     expect(find.text('Season so far'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Scoring trend'), 300, scrollable: listOf(TeamScreen));
-    expect(find.text('Scoring trend'), findsOneWidget);
+    // the trend's title is its finding
+    await tester.scrollUntilVisible(find.text('Points scored above the line, conceded below. Oldest on the left.'), 300, scrollable: listOf(TeamScreen));
+    expect(find.textContaining(RegExp(r'^(Holding steady|Up \d+ points a game|Down \d+ points a game)$')), findsOneWidget);
   });
 
   testWidgets('Talking points lists the title race, upsets and try scorers', (tester) async {
@@ -162,8 +163,11 @@ void main() {
     await tester.pumpWidget(AppScope(controller: c, child: const MaterialApp(home: InsightsScreen(gender: Gender.men))));
     await tester.pumpAndSettle();
     expect(find.text('Nations Championship 2026'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Upsets of the year'), 300, scrollable: listOf(InsightsScreen));
-    expect(find.text('Upsets of the year'), findsOneWidget);
+    // section titles are findings, written from the data
+    final u = c.matchday!.men.upsets.first;
+    final title = '${u.winner} at ${u.winnerChance}%: the year’s biggest upset';
+    await tester.scrollUntilVisible(find.text(title), 300, scrollable: listOf(InsightsScreen));
+    expect(find.text(title), findsOneWidget);
   });
 
   testWidgets('An upset says so on its result', (tester) async {

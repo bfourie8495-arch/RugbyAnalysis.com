@@ -249,11 +249,11 @@ class FormDots extends StatelessWidget {
             margin: const EdgeInsets.only(left: 3),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: r == 'W' ? RaColors.gold : r == 'D' ? const Color(0xFF3A4A66) : Colors.transparent,
+              color: r == 'W' ? RaColors.ink : r == 'D' ? RaColors.line2 : Colors.transparent,
               borderRadius: BorderRadius.circular(5),
-              border: r == 'L' ? Border.all(color: const Color(0xFF6C7C99), width: 1.5) : null,
+              border: r == 'L' ? Border.all(color: RaColors.muted, width: 1.5) : null,
             ),
-            child: Text(r, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: r == 'W' ? RaColors.onGold : RaColors.ink)),
+            child: Text(r, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: r == 'W' ? RaColors.page : RaColors.ink)),
           ),
       ]),
     );

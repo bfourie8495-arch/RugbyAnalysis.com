@@ -30,6 +30,11 @@ Run all of them after every change; fix every error and warning. GitHub Actions 
 - Share (match screen top bar, `share_plus`): `shareText` sends text only, `ref=share`. Before the game: fixture, kick-off in the sender's time with its zone, the model's pick. Once the result is in: the score only. It is kept apart from "Watch with friends", which invites people into a chat room.
 - The test 'every nation playing in the feed has a page on the site' reads `../pipeline/others.json`. A few nations in `nations` (e.g. 'Bosnia & Herzegovina', "Cote D'Ivoire") have no site page; a link for them lands on the site's Matchday.
 
+## Story lines (Storytelling with Data, round two)
+- Titles and opening lines are written from the data, so a reader who only reads titles gets the story. Pure functions, pinned in `test/story_lines_test.dart`: `upsetsTitle`, `scorersTitle`, `trendTitle`/`trendSentence` (`lib/models/story_lines.dart`), `leagueIdea`/`clubIdea` (`lib/models/clubs.dart`, the same wording as `lgIdea`/`clubIdea` in `pipeline/clubs_template.html`; the app counts the last 5 games, the site the last 10), `streakTile` (`stats.dart`).
+- Gold is rationed: one number per card (team: Last 10; season: v top-10; club form card: league points; a club table: the highlighted club's position). Club names are bold white, not gold. Form chips: W a cream fill, D a dark fill, L an outline, never gold. An upset result says "UPSET WIN"/"UPSET LOSS" in its gold box.
+- See `design/README.md` for the house rules.
+
 ## Structure
 - State: one `AppController` (ChangeNotifier) shared through `AppScope` (InheritedNotifier). `AppScope.of(context)` in `build`, `AppScope.read(context)` in handlers.
 - One screen per file in `lib/screens/`; shared widgets in `lib/widgets/common.dart`, match tiles in `match_tiles.dart`, tables in `standings.dart`.

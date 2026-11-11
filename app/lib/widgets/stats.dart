@@ -456,6 +456,15 @@ class MatchStatsSection extends StatelessWidget {
 String _thousands(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+$)'), (_) => ',');
 
 /// A nation's record at a glance: all-time, this year, the last ten, and averages.
+/// The current run as a tile: 'W3' -> ('3', 'wins in a row'). Null when there's no run of two or more.
+({String big, String label})? streakTile(String streak) {
+  if (streak.length < 2) return null;
+  final n = int.tryParse(streak.substring(1)) ?? 0;
+  if (n < 2) return null;
+  final what = switch (streak[0]) { 'W' => 'wins', 'L' => 'defeats', _ => 'draws' };
+  return (big: '$n', label: '$what in a row');
+}
+
 class TeamNumbers extends StatelessWidget {
   const TeamNumbers(this.stats, {super.key});
 
@@ -464,12 +473,13 @@ class TeamNumbers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = stats;
-    Widget box(String big, String label, String sub) => Expanded(
+    // Gold marks the one number that matters on this card: current form. The rest are white.
+    Widget box(String big, String label, String sub, {bool point = false}) => Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
             decoration: BoxDecoration(color: RaColors.cardHi, borderRadius: BorderRadius.circular(12)),
             child: Column(children: [
-              Text(big, style: displayStyle(20, color: RaColors.gold, weight: FontWeight.w800)),
+              Text(big, style: displayStyle(20, color: point ? RaColors.gold : RaColors.ink, weight: FontWeight.w800)),
               Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
               Text(sub, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, color: RaColors.faint)),
             ]),
@@ -477,34 +487,56 @@ class TeamNumbers extends StatelessWidget {
         );
     String wdl(List<int> x) => x.length < 3 ? '' : '${x[0]}–${x[1]}–${x[2]}';
     final played = s.allTime.fold(0, (a, b) => a + b);
+    // Most teams play about ten Tests a year, so "this year" usually repeats "last 10": show the current run instead.
+    final sameAsLast = s.year.every((x) => x == 0) || wdl(s.year) == wdl(s.last);
+    final run = streakTile(s.streak);
     return RaCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         IntrinsicHeight(
             child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           box(pct(TeamStats.winRate(s.allTime)), 'All-time wins', '$played Tests since ${s.since}'),
           const SizedBox(width: 8),
-          box(s.year.every((x) => x == 0) ? '–' : wdl(s.year), 'This year', 'won–drawn–lost'),
+          if (sameAsLast && run != null)
+            box(run.big, run.label, 'current run')
+          else
+            box(s.year.every((x) => x == 0) ? '–' : wdl(s.year), 'This year', 'won–drawn–lost'),
           const SizedBox(width: 8),
-          box(wdl(s.last), 'Last ${s.lastN}', s.streakText),
+          box(wdl(s.last), 'Last ${s.lastN}', sameAsLast && run != null ? 'won–drawn–lost' : s.streakText, point: true),
         ])),
         const SizedBox(height: 12),
-        Text('Over the last ${s.lastN} Tests', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.gold)),
+        Text('Over the last ${s.lastN} Tests', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.faint)),
         const SizedBox(height: 4),
         _line('Points a game', '${_num(s.pointsFor)} scored · ${_num(s.pointsAgainst)} conceded'),
         if (s.triesFor != null) _line('Tries a game', '${_num(s.triesFor!)} scored · ${_num(s.triesAgainst!)} conceded'),
         _line('Average margin', signed((s.pointsFor - s.pointsAgainst).round())),
         if (s.kickingRate != null || s.cardsAGame != null || s.pointsFromTries != null || s.scorers.isNotEmpty) ...[
           const SizedBox(height: 12),
-          const Text('Over the last 12 months', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.gold)),
+          const Text('Over the last 12 months', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: RaColors.faint)),
           const SizedBox(height: 4),
           if (s.kickingRate != null) _line('Goal-kicking', '${s.kickingRate!.round()}% (${s.kicking!.made} of ${s.kicking!.tried})'),
           if (s.pointsFromTries != null) _line('Points from tries', '${s.pointsFromTries}%'),
           if (s.cards != null) _line('Cards', '${s.cards!.yellow} yellow, ${s.cards!.red} red in ${s.cards!.games} Tests'),
-          if (s.scorers.isNotEmpty) _line('Top try scorers', [for (final x in s.scorers) '${x.player} ${x.tries}'].join(' · ')),
+          if (s.scorers.isNotEmpty) _scorers(s.scorers),
         ],
       ]),
     );
   }
+
+  /// The top three try scorers, one to a line, so a long name never breaks.
+  Widget _scorers(List<({String player, int tries})> xs) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Expanded(child: Text('Top try scorers', style: TextStyle(color: RaColors.muted))),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              for (final x in xs.take(3))
+                Text('${x.player} ${x.tries}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+            ]),
+          ),
+        ]),
+      );
 
   Widget _line(String label, String value) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
