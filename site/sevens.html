@@ -555,6 +555,12 @@ main>.grid2:nth-of-type(even){grid-template-columns:5fr 7fr}
 .kpi.lead .v{font-size:52px;letter-spacing:-.045em;color:var(--ink)}
 @media (max-width:1060px){.kpis{grid-template-columns:repeat(4,1fr)}.kpi.lead{grid-column:span 3}}
 @media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}.kpi.lead{grid-column:span 2}.kpi:last-child:nth-child(even){grid-column:span 2}.kpi .v{font-size:26px}.kpi.lead .v{font-size:44px}}
+/* team page: the lead number and two more on one row; the rest under "All the numbers" */
+.kpis.k3{grid-template-columns:2fr 1fr 1fr}
+.kpis.k3 .kpi.lead{grid-column:auto}
+#kpis2{grid-template-columns:repeat(3,1fr)}
+@media (max-width:560px){.kpis.k3{grid-template-columns:1fr 1fr}.kpis.k3 .kpi.lead{grid-column:span 2}
+  #kpis2{grid-template-columns:repeat(3,1fr)}#kpis2 .kpi{padding:14px 12px}#kpis2 .kpi .v{font-size:22px}#kpis2 .kpi:last-child{grid-column:auto}}
 
 .stt,.msk,.fxs{gap:10px;background:transparent;border:0;border-radius:0;overflow:visible}
 .stt>div,.msk>div,.fx{border:1px solid var(--line);border-radius:14px;background:var(--card)}

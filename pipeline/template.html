@@ -76,6 +76,11 @@ main.wrap{padding-block:24px 48px;display:grid;gap:18px}
 .kpi.lead .v{color:var(--acc)}
 @media (max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
+/* team page: three headline numbers, the rest one tap away */
+.allnum{margin-top:10px}
+.allnum summary{cursor:pointer;font-weight:600;color:var(--ink2);font-size:14px;padding:10px 2px;min-height:44px;box-sizing:border-box;list-style-position:inside}
+.allnum[open] summary{margin-bottom:8px}
+
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .grid3{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
@@ -628,7 +633,8 @@ body:not(.women) .wonly{display:none}
 <main class="wrap" id="emptyView" hidden><section class="panel emptyv"><h2 id="emptyH">No women's Tests yet</h2><p class="hint" id="emptyP"></p><button class="showall" id="emptyBtn">Show men's record</button></section></main>
 
 <main class="wrap" id="teamView">
-  <section class="kpis" id="kpis" aria-label="Headline record"></section>
+  <section class="kpis k3" id="kpis" aria-label="Headline record"></section>
+  <details class="allnum" id="kpiMore"><summary>All the numbers</summary><section class="kpis k3" id="kpis2" aria-label="More numbers"></section></details>
 
   <div class="grid3">
     <section class="panel">
@@ -1247,12 +1253,14 @@ function renderKpis(g){
   const k=[
     ["Win rate",pct(r.w,r.p)+"%",r.p<20&&pool.length!==10?"Too few Tests to rank":rank===1?`Best ${poolTxt}`:`${ord(rank)}-best ${poolTxt}`,1],
     ["Tests",r.p,`${r.w} W · ${r.d} D · ${r.l} L`],
+    ["Avg margin",r.p?((pf-pa)/r.p>0?"+":"")+((pf-pa)/r.p).toFixed(1):"–","points per Test"],
+    // the rest sit under "All the numbers"
     ["Avg scored",r.p?(pf/r.p).toFixed(1):"–","points per Test"],
     ["Avg conceded",r.p?(pa/r.p).toFixed(1):"–","points per Test"],
-    ["Avg margin",r.p?((pf-pa)/r.p>0?"+":"")+((pf-pa)/r.p).toFixed(1):"–","points per Test"],
     ["World Cup",rw.p?pct(rw.w,rw.p)+"%":"–",rw.p?`${rw.w} W of ${rw.p} RWC Tests`:"No RWC Tests in this era"]
   ];
-  $("kpis").innerHTML=k.map(([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`).join("");
+  const tile=([a,b,c,l])=>`<div class="kpi${l?" lead":""}"><div class="k">${a}</div><div class="v">${b}</div><div class="n">${c}</div></div>`;
+  $("kpis").innerHTML=k.slice(0,3).map(tile).join("");$("kpis2").innerHTML=k.slice(3).map(tile).join("");
 }
 
 function byDecade(g){const d={};g.forEach(x=>{const k=Math.floor(x.y/10)*10;(d[k]=d[k]||[]).push(x)});return Object.keys(d).map(Number).sort((a,b)=>a-b).map(k=>({dec:k,g:d[k]}))}

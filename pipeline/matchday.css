@@ -90,3 +90,11 @@
 .mcapp{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#10213A;color:#F4EFE4;font-weight:600;font-size:13px;text-decoration:none}
 .mcapp:before{content:"";width:7px;height:7px;border-radius:50%;background:#C9A24B}
 @media (max-width:760px){.mclinks{width:100%}.mcapp{justify-content:center;width:100%;padding:10px 12px}}
+
+/* head to head: per-meeting stats when there are too few to average */
+table.mini{width:100%;border-collapse:collapse;font-size:14px}
+table.mini th,table.mini td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.mini th{font:600 12px/1.3 var(--body);color:var(--muted)}
+table.mini .num{text-align:right;font-variant-numeric:tabular-nums}
+table.mini .dim{color:var(--muted);font-weight:400;padding:0 2px}
+@media (max-width:560px){table.mini{font-size:13px}table.mini th,table.mini td{padding:8px 4px}table.mini tr>:nth-child(n+4){display:none}}

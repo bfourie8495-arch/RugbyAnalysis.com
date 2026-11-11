@@ -169,7 +169,15 @@ function renderPair(){const [a,b]=state.pair,Wm=WOMEN(),era=ERAS.find(e=>e.id===
     $("pvMarH").textContent=t.length<4?"Every meeting":c===0?`None of the last ${t.length} were within a score`:`${c===t.length?"All":c} of the last ${t.length} ${c===1?"was":"were"} settled by seven points or fewer`}
    $("pvMargin").innerHTML=s+`</svg><div class="legend" style="margin-top:6px"><span><i style="background:var(--acc)"></i>${A} won (bar height = margin, up to ${mx})</span><span><i style="background:var(--loss)"></i>${B} won</span></div>`;bindTips($("pvMargin"))}
   // ESPN match stats averaged over meetings that have them
-  const S=G.filter(m=>m.ms),sheetOk=S.length>=5;$("pvSheetWrap").hidden=!sheetOk; // under five Tests an average says little
+  const S=G.filter(m=>m.ms),sheetOk=S.length>=5;$("pvSheetWrap").hidden=!S.length; // under five Tests an average says little
+  $("pvSheetWrap").querySelector("h2").textContent=sheetOk?"How the games are played":`Only ${S.length===1?"one meeting has":S.length+" meetings have"} full match stats`;
+  if(S.length&&!sheetOk){ // too few to average: show each meeting's own numbers in a small table
+    const KEEP=["possession","territory","metres","cleanBreaks","defendersBeaten","missedTackles","penaltiesConceded","turnoversConceded"];
+    const rows=SHEET.filter(r=>KEEP.includes(r[1])),ms=S.slice(-4).reverse(); // newest first
+    const cell=(m,k,f)=>{const [x,y]=m.h===A?m.ms:[m.ms[1],m.ms[0]],u=sg(x,k),v=sg(y,k);if(isNaN(u)&&isNaN(v))return"–";const fm=q=>isNaN(q)?"–":f==="p"?Math.round(q*100)+"%":q;return `${fm(u)}<span class="dim">–</span>${fm(v)}`};
+    $("pvSheetHint").textContent=`Too few to average, so here are the numbers from each, newest first. ${A} first in each pair.`;
+    $("pvSheet").innerHTML=`<div class="tscroll"><table class="mini"><thead><tr><th></th>${ms.map(m=>`<th class="num">${fmtDate(m.date)}<br><span class="dim">${m.h===A?m.hs+"–"+m.as:m.as+"–"+m.hs}</span></th>`).join("")}</tr></thead><tbody>${
+      rows.map(([lab,k,f])=>`<tr><td>${lab}</td>${ms.map(m=>`<td class="num">${cell(m,k,f)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
   if(sheetOk){const mean=side=>SK.map((k,j)=>{const v=S.map(m=>m.ms[(m.h===a)===(side===0)?0:1][j]).filter(x=>x!=null);return v.length?Math.round(avg(v)*(k==="possession"||k==="territory"?100:10))/(k==="possession"||k==="territory"?100:10):null});
     $("pvSheetHint").textContent=`Average per Test across the ${S.length} meeting${S.length>1?"s":""} with full match stats (since ${S[0].y}). ${A} on the left.`;
     $("pvSheet").innerHTML=sheetHTML({ms:[mean(0),mean(1)]}).replace("<b>Match stats</b>",`<b>${esc(A)} v ${esc(B)}</b>`)}
