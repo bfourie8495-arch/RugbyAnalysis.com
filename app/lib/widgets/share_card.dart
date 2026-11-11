@@ -61,9 +61,13 @@ class PickShareCard extends StatelessWidget {
                   SizedBox(height: 10 * u),
                   Text(t.matchup, maxLines: 1, overflow: TextOverflow.ellipsis, style: word(14, color: RaColors.paperMuted)),
                   SizedBox(height: 4 * u),
-                  Text(t.headline, maxLines: 2, overflow: TextOverflow.ellipsis, style: displayStyle(34 * u, color: RaColors.onGold, weight: FontWeight.w800).copyWith(height: 1.05)),
+                  SizedBox(height: 6 * u),
+                  Text(t.headline, maxLines: 2, overflow: TextOverflow.ellipsis, style: displayStyle(42 * u, color: RaColors.onGold, weight: FontWeight.w800).copyWith(height: 1.05)),
                   if (t.figure != null)
-                    Text(t.figure!, style: displayStyle(60 * u, color: RaColors.goldInk, weight: FontWeight.w800).copyWith(height: 1.05)),
+                    FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(t.figure!, style: displayStyle(104 * u, color: RaColors.goldInk, weight: FontWeight.w800).copyWith(height: 1.1))),
                   const Spacer(),
                   if (chance != null && result == null) ...[
                     _Bar(home: home, away: away, homeChance: chance, u: u),
@@ -80,7 +84,7 @@ class PickShareCard extends StatelessWidget {
               child: Row(children: [
                 BrandMark(size: 22 * u),
                 SizedBox(width: 8 * u),
-                Flexible(child: Text('RugbyAnalysis.com', maxLines: 1, overflow: TextOverflow.ellipsis, style: displayStyle(14 * u, color: RaColors.onGold))),
+                Text('RugbyAnalysis.com', style: displayStyle(14 * u, color: RaColors.onGold)),
                 SizedBox(width: 8 * u),
                 Expanded(
                   child: Text('@rugby_analysis_stats',
