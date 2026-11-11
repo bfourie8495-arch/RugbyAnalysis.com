@@ -171,9 +171,6 @@ main.wrap{padding-block:24px 48px;display:grid;gap:18px}
 @media (max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
 /* team page: three headline numbers, the rest one tap away */
-.allnum{margin-top:10px}
-.allnum summary{cursor:pointer;font-weight:600;color:var(--ink2);font-size:14px;padding:10px 2px;min-height:44px;box-sizing:border-box;list-style-position:inside}
-.allnum[open] summary{margin-bottom:8px}
 
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -600,9 +597,9 @@ main>.grid2:nth-of-type(even){grid-template-columns:5fr 7fr}
 /* team page: the lead number and two more on one row; the rest under "All the numbers" */
 .kpis.k3{grid-template-columns:2fr 1fr 1fr}
 .kpis.k3 .kpi.lead{grid-column:auto}
-#kpis2{grid-template-columns:repeat(3,1fr)}
+.kpis.more{grid-template-columns:repeat(3,1fr)}
 @media (max-width:560px){.kpis.k3{grid-template-columns:1fr 1fr}.kpis.k3 .kpi.lead{grid-column:span 2}
-  #kpis2{grid-template-columns:repeat(3,1fr)}#kpis2 .kpi{padding:14px 12px}#kpis2 .kpi .v{font-size:22px}#kpis2 .kpi:last-child{grid-column:auto}}
+  .kpis.more{grid-template-columns:repeat(3,1fr)}.kpis.more .kpi{padding:14px 12px}.kpis.more .kpi .v{font-size:22px}.kpis.more .kpi:last-child{grid-column:auto}}
 
 .stt,.msk,.fxs{gap:10px;background:transparent;border:0;border-radius:0;overflow:visible}
 .stt>div,.msk>div,.fx{border:1px solid var(--line);border-radius:14px;background:var(--card)}
@@ -745,6 +742,13 @@ footer{color:var(--muted)}
 .pcs{align-content:start;align-self:start}
 .pbr .pt2 .me{max-width:100%}
 
+/* "All the numbers": the secondary tiles, one tap away (team, competition and club pages) */
+.allnum{margin-top:10px}
+.allnum summary{cursor:pointer;font-weight:600;color:var(--ink2);font-size:14px;padding:10px 2px;min-height:44px;box-sizing:border-box;list-style-position:inside}
+.allnum[open] summary{margin-bottom:8px}
+.kpis.more.k4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:560px){.kpis.more.k4{grid-template-columns:repeat(2,1fr)}}
+
 /* ===== Match Centre (landing page) and two-team head-to-head ===== */
 #mdCards{display:grid;gap:var(--gut,14px)}
 .mc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-tile,20px);padding:20px;min-width:0}
@@ -848,7 +852,7 @@ table.mini .dim{color:var(--muted);font-weight:400;padding:0 2px}
 
 </style>
 
-<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>Rugby Analysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" aria-current="page">International</a><a href="clubs.html" id="clubLink">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav><!--sx:start--><div class="sx-bar" id="sxBar"><div class="wrap"><p><b>New here?</b> We turn these numbers into 60-second videos and quick reads every day, and our app sends kick-off alerts for your teams.</p><div class="sx-btns"><a class="sx-btn" href="https://www.instagram.com/rugby_analysis_stats/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>Instagram</a><a class="sx-btn" href="https://www.facebook.com/profile.php?id=61595081338465" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1z"/></svg>Facebook</a><a class="sx-btn sx-app" href="/getapp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 18h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Get the app</a></div><button class="sx-x" id="sxX" aria-label="Hide this message">&times;</button></div></div><!--sx:end-->
+<nav class="picker" aria-label="Site navigation"><div class="topbar"><div class="wrap tb"><a class="brand" href="./"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#10213A"/><g transform="rotate(-35 32 32)"><ellipse cx="32" cy="32" rx="25" ry="15" fill="#C9A24B"/><ellipse cx="32" cy="32" rx="25" ry="15" fill="none" stroke="#10213A" stroke-width="2.5" stroke-opacity=".35"/><path d="M20 32h24" stroke="#10213A" stroke-width="3" stroke-linecap="round"/><path d="M25 28.5v7M30 28.5v7M35 28.5v7M40 28.5v7" stroke="#10213A" stroke-width="2.4" stroke-linecap="round"/></g></svg><span>RugbyAnalysis</span></a><div class="modes"><div class="seg2" id="gsw" role="group" aria-label="Men's or women's rugby"><button data-g="m" aria-pressed="true">Men</button><button data-g="w" aria-pressed="false">Women</button></div><div class="seg2" id="csw" role="group" aria-label="International or club rugby"><a href="./" aria-current="page">International</a><a href="clubs.html" id="clubLink">Club</a><a href="sevens.html" id="sevLink">Sevens</a></div></div></div></div><div class="wrap" id="picker"></div></nav><!--sx:start--><div class="sx-bar" id="sxBar"><div class="wrap"><p><b>New here?</b> We turn these numbers into 60-second videos and quick reads every day, and our app sends kick-off alerts for your teams.</p><div class="sx-btns"><a class="sx-btn" href="https://www.instagram.com/rugby_analysis_stats/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>Instagram</a><a class="sx-btn" href="https://www.facebook.com/profile.php?id=61595081338465" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1z"/></svg>Facebook</a><a class="sx-btn sx-app" href="/getapp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 18h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Get the app</a></div><button class="sx-x" id="sxX" aria-label="Hide this message">&times;</button></div></div><!--sx:end-->
 
 <header class="hero">
   <div class="wrap">
@@ -1094,7 +1098,7 @@ table.mini .dim{color:var(--muted);font-weight:400;padding:0 2px}
 
 <main class="wrap" id="teamView">
   <section class="kpis k3" id="kpis" aria-label="Headline record"></section>
-  <details class="allnum" id="kpiMore"><summary>All the numbers</summary><section class="kpis k3" id="kpis2" aria-label="More numbers"></section></details>
+  <details class="allnum" id="kpiMore"><summary>All the numbers</summary><section class="kpis k3 more" id="kpis2" aria-label="More numbers"></section></details>
 
   <div class="grid3">
     <section class="panel">
