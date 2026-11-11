@@ -71,8 +71,8 @@ class ClubGameTile extends StatelessWidget {
               child: Text(club.name,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                      fontWeight: won ? FontWeight.w800 : FontWeight.w600,
-                      color: mine ? RaColors.gold : lost ? RaColors.muted : RaColors.ink)),
+                      fontWeight: won || mine ? FontWeight.w800 : FontWeight.w600,
+                      color: lost && !mine ? RaColors.muted : RaColors.ink)),
             ),
             if (score != null) Text('$score', style: displayStyle(17, color: lost ? RaColors.faint : RaColors.ink)),
           ]),
@@ -127,8 +127,8 @@ class _ResultMark extends StatelessWidget {
   }
 }
 
-/// A competition's table. The play-off places sit above a gold line; [highlight] marks one club;
-/// clubs you follow are in gold. Tapping a club opens its page.
+/// A competition's table. The play-off places sit above a gold line; [highlight] marks one club (its row
+/// and a gold position); clubs you follow are in bold. Tapping a club opens its page.
 class ClubTable extends StatelessWidget {
   const ClubTable({super.key, required this.league, this.highlight, this.compact = false});
 
@@ -169,15 +169,18 @@ class ClubTable extends StatelessWidget {
                 ),
               ),
               child: Row(children: [
-                SizedBox(width: 22, child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.w700, color: RaColors.muted))),
+                // gold marks only the position of the club whose page this is
+                SizedBox(
+                    width: 22,
+                    child: Text('${i + 1}',
+                        style: TextStyle(fontWeight: FontWeight.w800, color: r.club == highlight ? RaColors.gold : RaColors.muted))),
                 ClubBadge(feed.club(r.club), size: 22),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(feed.club(r.club).name,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: r.club == highlight || c.isFollowingClub(r.club) ? RaColors.gold : RaColors.ink)),
+                          fontWeight: r.club == highlight || c.isFollowingClub(r.club) ? FontWeight.w800 : FontWeight.w600, color: RaColors.ink)),
                 ),
                 for (final (j, v) in values(r).indexed)
                   cell(v,

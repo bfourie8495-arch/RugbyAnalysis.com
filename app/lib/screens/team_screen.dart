@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/feeds.dart';
 import '../models/format.dart';
+import '../models/site_links.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
@@ -77,6 +78,8 @@ class TeamScreen extends StatelessWidget {
               ),
           ]),
         ),
+        const SizedBox(height: 10),
+        WebsiteButton(label: 'Full record on the website', url: siteTeamUrl(gender, team)),
         if ((side.form[team] ?? '').isNotEmpty) ...[
           const SectionTitle('Form', note: 'Most recent on the right'),
           RaCard(child: Align(alignment: Alignment.centerLeft, child: FormDots(side.form[team]!))),

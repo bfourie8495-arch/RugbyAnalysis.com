@@ -1,6 +1,7 @@
 import 'dart:ui' show Color;
 
 import 'feeds.dart' show Gender;
+import 'format.dart' show ordinal;
 
 // The club feed (rugbyanalysis.com/app/clubs.json, built by pipeline/build_app_clubs.py): ten club
 // competitions with their current table, latest results and next fixtures, and every club's form and games.
@@ -175,4 +176,59 @@ class ClubsFeed {
     }
     return null;
   }
+}
+
+const _clubWords = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+String _cw(int n) => n >= 0 && n < _clubWords.length ? _clubWords[n] : '$n';
+
+/// The one sentence to take away from a competition: who leads and by how much. The same wording as
+/// `lgIdea` in pipeline/clubs_template.html (the website), so the two read alike. [name] turns a club id
+/// into its name. Null for a cup, or when there is no table.
+String? leagueIdea(ClubLeague l, String Function(String id) name) {
+  if (l.isCup || l.table.length < 2) return null;
+  if (!l.started) {
+    return l.tableSeason.isNotEmpty && l.tableSeason != l.season && l.table.first.played > 0
+        ? '${name(l.table.first.club)} finished top last season.'
+        : null;
+  }
+  final a = l.table[0], b = l.table[1], gap = a.points - b.points;
+  var t = gap > 0
+      ? '${name(a.club)} top the table, $gap point${gap == 1 ? '' : 's'} clear of ${name(b.club)}'
+      : '${name(a.club)} and ${name(b.club)} are level on ${a.points} points at the top';
+  final perfect = [for (final r in l.table) if (r.played >= 3 && r.won == r.played) r];
+  final only = perfect.length == 1 ? perfect.first : null;
+  final hand = gap > 0 && b.played < a.played;
+  if (hand) t += ', who have a game in hand';
+  if (only != null && only.club == b.club && gap > 0) {
+    return '$t${hand ? ' and are the' : ', the'} only side to have won all ${_cw(only.played)}.';
+  }
+  t += '.';
+  if (only != null) {
+    t += only.club == a.club
+        ? ' ${name(a.club)} have won all ${_cw(only.played)}.'
+        : ' ${name(only.club)} are the only side to have won all ${_cw(only.played)}.';
+  } else if (perfect.isEmpty) {
+    final unbeaten = [for (final r in l.table) if (r.played >= 3 && r.lost == 0) r];
+    if (unbeaten.length == 1) t += ' ${name(unbeaten.first.club)} are the only side yet to lose.';
+  }
+  return t;
+}
+
+/// The one sentence to take away from a club page: where they stand and how their recent games went
+/// ('Glasgow Warriors top the URC on 19 points from 5 matches, and have won 4 of their last 5.').
+/// Like `clubIdea` on the website, which counts the last 10; the app's feed carries the last 5.
+String? clubIdea(Club c, ClubLeague? home) {
+  final pos = home == null || !home.started ? null : home.positionOf(c.id);
+  final row = pos == null ? null : home!.table[pos - 1];
+  final f = c.form, w = 'W'.allMatches(f).length;
+  var t = '';
+  if (row != null && row.played > 0) {
+    t = pos == 1 ? '${c.name} top the ${home!.short}' : '${c.name} are ${ordinal(pos!)} in the ${home!.short}';
+    t += ' on ${row.points} points from ${row.played} match${row.played == 1 ? '' : 'es'}';
+  }
+  if (f.length >= 3) {
+    final form = w == f.length ? 'won their last ${f.length}' : 'won $w of their last ${f.length}';
+    t = t.isEmpty ? '${c.name} have $form' : '$t, and have $form';
+  }
+  return t.isEmpty ? null : '$t.';
 }

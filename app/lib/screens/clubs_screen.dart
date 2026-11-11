@@ -148,6 +148,11 @@ class LeagueView extends StatelessWidget {
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.8, color: l.light)),
           const SizedBox(height: 4),
           Text(l.name, style: displayStyle(20, color: Colors.white)),
+          // where it's at, in one sentence, before how it works
+          if (leagueIdea(l, (id) => AppScope.of(context).clubs!.club(id).name) case final idea?) ...[
+            const SizedBox(height: 8),
+            Text(idea, style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w700, height: 1.35)),
+          ],
           if (l.how.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(l.how, style: const TextStyle(fontSize: 13, color: Color(0xFFE6E9F0), height: 1.4)),
