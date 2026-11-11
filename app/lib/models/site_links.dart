@@ -1,3 +1,4 @@
+import 'clubs.dart';
 import 'feeds.dart';
 import 'format.dart';
 
@@ -28,6 +29,14 @@ String siteTeamUrl(Gender g, String team, {String ref = 'app'}) => _url(g, siteS
 /// The head-to-head page for two nations, home side first (as the site's own links are).
 String siteH2hUrl(Gender g, String home, String away, {String ref = 'app'}) =>
     _url(g, 'h2h/${siteSlug(home)}-v-${siteSlug(away)}', ref);
+
+/// A competition's page on the club site: `https://rugbyanalysis.com/clubs?ref=app#urc`. The club site reads
+/// its own `#`: the competition's id, then a club's id, with `women/` first for a women's competition.
+String siteLeagueUrl(ClubLeague l, {String ref = 'app'}) =>
+    '$siteHome/clubs?ref=$ref#${l.gender == Gender.women ? 'women/' : ''}${l.id}';
+
+/// A club's page on the club site, within its home competition: `...clubs?ref=app#urc/glasgow`.
+String siteClubUrl(ClubLeague home, String clubId, {String ref = 'app'}) => '${siteLeagueUrl(home, ref: ref)}/$clubId';
 
 /// What the Share button sends. Text only.
 /// - Before the game: the fixture, kick-off in the sender's time (with its zone, since the friend may be

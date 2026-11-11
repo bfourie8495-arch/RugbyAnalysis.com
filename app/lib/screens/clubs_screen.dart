@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/clubs.dart';
 import '../models/format.dart';
+import '../models/site_links.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/club_tiles.dart';
@@ -163,6 +164,9 @@ class LeagueView extends StatelessWidget {
         SectionTitle(lastSeason ? 'Last season’s table' : 'Table', note: lastSeason ? l.tableSeason : null),
         Container(decoration: cardDecoration(), clipBehavior: Clip.antiAlias, child: Material(color: Colors.transparent, child: ClubTable(league: l))),
       ],
+      const SizedBox(height: 10),
+      // the website has every season since 2021–22, records and head-to-heads
+      WebsiteButton(label: 'Full ${l.short} page on the website', url: siteLeagueUrl(l)),
       SectionTitle('Next games', note: l.fixtures.isEmpty ? null : 'Your time'),
       if (l.fixtures.isEmpty)
         EmptyNote('No games to come', l.started ? 'The ${l.season} season is over.' : 'The fixtures aren’t out yet.')

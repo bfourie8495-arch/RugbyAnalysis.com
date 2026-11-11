@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/clubs.dart';
 import '../models/format.dart';
+import '../models/site_links.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/club_tiles.dart';
@@ -64,6 +65,10 @@ class ClubScreen extends StatelessWidget {
             ),
           ]),
         ),
+        if (league != null) ...[
+          const SizedBox(height: 10),
+          WebsiteButton(label: 'Full club page on the website', url: siteClubUrl(league, id)),
+        ],
         if (club.form.isNotEmpty || row != null) ...[
           const SectionTitle('Form'),
           RaCard(
