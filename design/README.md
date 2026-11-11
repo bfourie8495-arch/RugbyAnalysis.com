@@ -17,4 +17,10 @@ The name is **RugbyAnalysis**, one word, everywhere.
 6. **Small samples.** Under five games, show no averages.
 7. **Gold text on light backgrounds** uses `#A07524`, never the fill gold.
 
-Fonts: Poppins for headings and numbers, Figtree for body text.
+Fonts: Poppins for headings and numbers, Figtree for body text, on the website, app and posts alike.
+
+## Rankings
+
+Lead with World Rugby's official rankings in posts, reels and on the site. RugbyAnalysis's own ratings
+(the replay behind the model's chances) appear only to explain a pick, and are always labelled as ours.
+Decided 11 Nov 2026.

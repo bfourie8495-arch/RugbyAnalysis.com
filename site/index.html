@@ -94,7 +94,7 @@
 </style><!--sx:end--></head>
 <body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&family=Poppins:wght@600;700&display=swap">
 <style>
 :root{
   --p:#000;--on-p:#fff;--s:#a7a8aa;--acc-l:#111;--acc-d:#d5d8dc;--stripe:linear-gradient(90deg,#000,#a7a8aa);
@@ -483,7 +483,7 @@ body:not(.women) .wonly{display:none}
    Tokens: ground #F2F3F7 · tile #FFFFFF · ink #14161D · ink2 #697086 · hairline #E3E6EF ·
    indigo #4B5BFF (neutral-context accent) · success #12B981 · warning #FF8A3D */
 :root{
-  --display:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Poppins","Figtree",system-ui,-apple-system,"Segoe UI",sans-serif; /* brand: Poppins for headings and big numbers, as in the app and posts */
   --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
   --bg:color-mix(in oklab,var(--p) 3%,#F2F3F7);
   --card:#FFFFFF;
@@ -521,7 +521,7 @@ body{font-family:var(--body);font-size:15px;line-height:1.55;letter-spacing:-.00
 /* ---------- header ---------- */
 .picker{background:color-mix(in oklab,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
 .topbar{border-bottom:1px solid var(--line)}
-.brand{font:800 19px/1 var(--body);letter-spacing:-.01em;text-transform:none}
+.brand{font:700 19px/1 var(--display);letter-spacing:-.01em;text-transform:none}
 .brand svg{width:30px;height:30px}
 .seg2,.gsw,.lgsw{border:1px solid var(--line);border-radius:var(--r-ctl);padding:3px;gap:2px;background:var(--card)}
 .seg2>*,.gsw button,.lgsw button{border-radius:9px;font:600 13.5px/1 var(--body);padding:8px 13px;transition:background-color .2s,color .2s}
@@ -557,7 +557,7 @@ header.hero{width:min(1140px,calc(100% - 40px));margin:18px auto 0;border-radius
   -webkit-mask:var(--pitch) center/100% 100% no-repeat;mask:var(--pitch) center/100% 100% no-repeat}
 .hero{--pitch:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 100' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath vector-effect='non-scaling-stroke' d='M40 0V100M960 0V100M240 0V100M760 0V100M500 0V100'/%3E%3Cpath vector-effect='non-scaling-stroke' stroke-dasharray='6 6' d='M400 0V100M600 0V100M80 0V100M920 0V100'/%3E%3C/g%3E%3C/svg%3E")}
 @media (max-width:600px){.hero::before{opacity:.05}}
-h1{font:800 clamp(42px,7.4vw,84px)/.92 var(--body);letter-spacing:-.035em;text-transform:none;margin:8px 0 12px}
+h1{font:700 clamp(38px,6.6vw,76px)/.98 var(--display);letter-spacing:-.03em;text-transform:none;margin:8px 0 12px}
 #teamName.long{font-size:clamp(32px,5vw,56px)}
 .eyebrow{font:600 12.5px/1.3 var(--body);letter-spacing:.04em;text-transform:none;opacity:.85}
 .hero .sub{font-size:15.5px;line-height:1.55;opacity:.9}
@@ -565,7 +565,7 @@ h1{font:800 clamp(42px,7.4vw,84px)/.92 var(--body);letter-spacing:-.035em;text-t
 @keyframes pop{from{transform:scale(.85);opacity:.3}to{transform:scale(1);opacity:1}}
 .mosaic{transform:none}
 .rank{border-radius:16px;border-color:color-mix(in oklab,var(--on-p) 22%,transparent);background:color-mix(in oklab,var(--on-p) 9%,transparent)}
-.rank .num{font:800 54px/.85 var(--body);letter-spacing:-.04em}
+.rank .num{font:700 50px/.9 var(--display);letter-spacing:-.03em}
 .rank .lbl{color:inherit;opacity:.8}
 .holder{font:800 26px/1.05 var(--body);letter-spacing:-.02em;text-transform:none}
 .eras,.scope,.seasons{border-radius:var(--r-ctl);background:color-mix(in oklab,var(--on-p) 12%,transparent)}
@@ -581,14 +581,14 @@ main>.grid2:nth-of-type(even){grid-template-columns:5fr 7fr}
 .grid2.one{grid-template-columns:1fr!important}
 @media (max-width:900px){.grid2,.grid3,main>.grid2:nth-of-type(even){grid-template-columns:1fr}}
 .panel{border:1px solid var(--line);border-radius:var(--r-tile);padding:22px 22px 20px;box-shadow:none}
-.panel h2{font:750 21px/1.15 var(--body);letter-spacing:-.02em;text-transform:none}
+.panel h2{font:600 20px/1.2 var(--display);letter-spacing:-.015em;text-transform:none}
 .panel .hint{font-size:13.5px;color:var(--ink2);margin:5px 0 16px;max-width:72ch}
 .sub3{font:700 16px/1.2 var(--body);letter-spacing:-.01em;text-transform:none}
 
 /* stat row: a double-width lead tile, then single tiles */
 .kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--gut);background:transparent;border:0;border-radius:0;overflow:visible}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r-tile);padding:18px 18px 16px;display:flex;flex-direction:column}
-.kpi .v{font:750 30px/1.05 var(--body);letter-spacing:-.035em;margin-top:10px}
+.kpi .v{font:700 28px/1.1 var(--display);letter-spacing:-.025em;margin-top:10px}
 .kpi .n{font-size:12.5px;color:var(--ink2);margin-top:auto;padding-top:6px}
 .kpi.lead{grid-column:span 2;background:color-mix(in oklab,var(--acc) 7%,var(--card));border-color:color-mix(in oklab,var(--acc) 22%,var(--line))}
 .kpi.lead .v{font-size:52px;letter-spacing:-.045em;color:var(--ink)}
