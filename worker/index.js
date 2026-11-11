@@ -99,9 +99,24 @@ export function joinPage(code) {
 </main></body></html>`;
 }
 
+// Counts a visit that arrived from a link we shared: rugbyanalysis.com/go?ref=ig-bio, /?ref=app#..., and so on.
+// Only the tag and the page are written (Workers Analytics Engine), no cookies, IP or device, so the privacy
+// policy stays true. The weekly "Visits report" workflow adds them up.
+const REF = /^[a-z0-9-]{1,32}$/;
+export function countVisit(url, env) {
+  const ref = (url.searchParams.get('ref') || '').toLowerCase();
+  if (!REF.test(ref) || !env.VISITS) return false;
+  try {
+    env.VISITS.writeDataPoint({ blobs: [ref, url.pathname], indexes: [ref] });
+  } catch (e) { /* counting must never break a page */ }
+  return true;
+}
+
 export default {
   fetch: (request, env) => {
-    const m = CODE.exec(new URL(request.url).pathname);
+    const url = new URL(request.url);
+    if (request.method === 'GET') countVisit(url, env);
+    const m = CODE.exec(url.pathname);
     if (m) {
       return new Response(joinPage(m[1].toUpperCase()), {
         headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'no-referrer' },

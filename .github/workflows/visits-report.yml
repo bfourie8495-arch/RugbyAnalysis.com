@@ -1,0 +1,55 @@
+name: Visits report
+
+# Every Monday morning (and on demand): website visits in the last 7 days by source tag (?ref=...),
+# from the Worker's Analytics Engine dataset "rugby_visits" (see countVisit in worker/index.js).
+# The table appears on the run's Summary page.
+# Needs a Cloudflare API token with Account > Account Analytics > Read, saved as the repo secret
+# CF_ANALYTICS_TOKEN (Brendon makes it; the deploy token is tried if it's missing), plus CLOUDFLARE_ACCOUNT_ID.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visits by source, last 7 days
+        env:
+          TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN || secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          q() {
+            curl -sS -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/analytics_engine/sql" \
+              -H "Authorization: Bearer $TOKEN" --data "$1 FORMAT JSON"
+          }
+          by_ref=$(q "SELECT blob1 AS source, SUM(_sample_interval) AS visits FROM rugby_visits WHERE timestamp > NOW() - INTERVAL '7' DAY GROUP BY source ORDER BY visits DESC")
+          by_page=$(q "SELECT blob1 AS source, blob2 AS page, SUM(_sample_interval) AS visits FROM rugby_visits WHERE timestamp > NOW() - INTERVAL '7' DAY GROUP BY source, page ORDER BY visits DESC LIMIT 30")
+          if ! echo "$by_ref" | jq -e '.data' >/dev/null 2>&1; then
+            {
+              echo "## Visits report: could not read the numbers"
+              echo
+              echo "Cloudflare said: \`$(echo "$by_ref" | head -c 400)\`"
+              echo
+              echo "Make a Cloudflare API token with **Account > Account Analytics > Read** and save it as the repo secret **CF_ANALYTICS_TOKEN**."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          {
+            echo "## Website visits by source, last 7 days"
+            echo
+            echo "| Source (?ref=) | Visits |"
+            echo "|---|---:|"
+            echo "$by_ref" | jq -r '.data[] | "| \(.source) | \(.visits) |"'
+            echo
+            echo "### By page"
+            echo
+            echo "| Source | Page | Visits |"
+            echo "|---|---|---:|"
+            echo "$by_page" | jq -r '.data[] | "| \(.source) | \(.page) | \(.visits) |"'
+            echo
+            echo "_Counts only visits that arrived on a tagged link. No cookies; nothing about the visitor is stored._"
+          } >> "$GITHUB_STEP_SUMMARY"
