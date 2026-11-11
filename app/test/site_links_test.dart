@@ -48,7 +48,7 @@ void main() {
 
   group('Club links', () {
     final feed = ClubsFeed.fromJson(jsonDecode(File('test/data/clubs.json').readAsStringSync()) as Map<String, dynamic>);
-    test('competition and club pages on the club site, women's with women/', () {
+    test("competition and club pages on the club site, women's with women/", () {
       expect(siteLeagueUrl(feed.league('URC')!), 'https://rugbyanalysis.com/clubs?ref=app#urc');
       expect(siteClubUrl(feed.league('URC')!, 'glasgow'), 'https://rugbyanalysis.com/clubs?ref=app#urc/glasgow');
       expect(siteLeagueUrl(feed.league('PWR')!), 'https://rugbyanalysis.com/clubs?ref=app#women/pwr');
