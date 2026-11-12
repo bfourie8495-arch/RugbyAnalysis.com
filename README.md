@@ -155,3 +155,8 @@ dataset `rugby_visits`, with no cookies and nothing about the visitor. Only the 
 `visits-report.yml` adds them up every Monday at 06:17 UTC (or Actions → "Visits report" → "Run
 workflow"): the table is on the run's Summary page. It needs a Cloudflare API token with
 **Account → Account Analytics → Read**, saved as the repo secret `CF_ANALYTICS_TOKEN`.
+
+Google Play links carry a referrer, so Play Console → Statistics shows installs by source:
+`&referrer=utm_source%3Dinvite%26utm_medium%3Dchat` on chat invites (`worker/index.js`). When the app
+is public, the Play badge on `/getapp` uses `utm_source%3Dwebsite%26utm_medium%3Dgetapp`, and the
+Instagram bio uses `utm_source%3Dinstagram%26utm_medium%3Dbio`.

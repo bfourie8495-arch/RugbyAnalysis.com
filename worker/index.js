@@ -57,7 +57,8 @@ async function check(env) {
   console.log('Data refresh', r.status === 204 ? 'started' : `not started (${r.status}: ${await r.text()})`);
 }
 
-const PLAY = 'https://play.google.com/store/apps/details?id=com.rugbyanalysis.app';
+// The referrer shows up in Play Console > Statistics as the install source (here: a chat invite).
+const PLAY = 'https://play.google.com/store/apps/details?id=com.rugbyanalysis.app&referrer=utm_source%3Dinvite%26utm_medium%3Dchat';
 const CODE = /^\/join\/([ABCDEFGHJKMNPQRSTUVWXYZ23456789]{12})\/?$/i;
 
 export function joinPage(code) {
