@@ -11,7 +11,8 @@
 <!--
   The app's page: rugbyanalysis.com/getapp. Linked from the "Get the app" buttons on every page, the Match
   Centre cards and rugbyanalysis.com/go (pipeline/stories.py).
-  While the app is in closed testing, people join by sending the Google account on their phone.
+  While the app is in closed testing, people join the Google Group rugbyanalysis-testers (added to the closed
+  track's testers in Play Console), opt in at play.google.com/apps/testing/com.rugbyanalysis.app, then install.
   WHEN THE APP IS ON GOOGLE PLAY: replace the #join card with the Play badge, linking to
   https://play.google.com/store/apps/details?id=com.rugbyanalysis.app&referrer=utm_source%3Dwebsite%26utm_medium%3Dgetapp
 -->
@@ -42,6 +43,8 @@ h1 em{font-style:normal;color:var(--gold)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:999px;font:600 15px/1 Poppins,sans-serif;text-decoration:none;border:1px solid var(--line);background:#fff}
 .btn.primary{background:var(--gold);border-color:var(--gold);color:var(--navy)}
 #join .note{margin:12px 0 0;font-size:13px}
+#join .steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+#join .steps .btn{width:100%;justify-content:flex-start}
 .shots{display:flex;gap:12px;justify-content:center}
 .shots img{width:31%;max-width:200px;border-radius:18px;border:1px solid #2A4066;box-shadow:0 12px 32px rgba(0,0,0,.25)}
 .shots img:nth-child(2){transform:translateY(-14px)}
@@ -72,12 +75,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 18px}
   <div id="join">
     <span class="st">Android · now in testing</span>
     <h2>Join the testers before launch</h2>
-    <p>Send us the Google account you use on your Android phone. We'll add you and send the link to install it from Google Play.</p>
-    <div class="btns">
-      <a class="btn primary" href="mailto:hello@rugbyanalysis.com?subject=Add%20me%20to%20the%20app%20testers&amp;body=My%20Google%20account%20(the%20one%20on%20my%20Android%20phone)%3A%20">Email us to join</a>
-      <a class="btn" href="https://ig.me/m/rugby_analysis_stats" target="_blank" rel="noopener">Message us on Instagram</a>
-    </div>
-    <p class="note">On an iPhone? Not yet. <a href="https://www.instagram.com/rugby_analysis_stats/" target="_blank" rel="noopener">Follow us</a> to hear first.</p>
+    <p>Three taps, signed in with the Google account on your Android phone:</p>
+    <ol class="steps">
+      <li><a class="btn primary" href="https://groups.google.com/g/rugbyanalysis-testers" target="_blank" rel="noopener">1. Join the testers group</a></li>
+      <li><a class="btn" href="https://play.google.com/apps/testing/com.rugbyanalysis.app" target="_blank" rel="noopener">2. Become a tester</a></li>
+      <li><a class="btn" href="https://play.google.com/store/apps/details?id=com.rugbyanalysis.app&amp;referrer=utm_source%3Dwebsite%26utm_medium%3Dgetapp" target="_blank" rel="noopener">3. Install from Google Play</a></li>
+    </ol>
+    <p class="note">Step 3 works a few minutes after step 2. Stuck? <a href="https://ig.me/m/rugby_analysis_stats" target="_blank" rel="noopener">Message us on Instagram</a>.<br>On an iPhone? Not yet. <a href="https://www.instagram.com/rugby_analysis_stats/" target="_blank" rel="noopener">Follow us</a> to hear first.</p>
   </div>
 </div>
 <div class="shots">
