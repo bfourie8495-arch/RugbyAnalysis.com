@@ -18,6 +18,11 @@ class RaColors {
   static const faint = Color(0xFF97A3BA); // small labels
   static const away = Color(0xFF6E8FE6); // the other side of a pick bar
   static const onGold = Color(0xFF10213A); // text on gold
+  // The shareable pick card is printed like the posts: cream paper, navy ink (design/tokens.json).
+  static const paper = Color(0xFFF4EFE4); // cream
+  static const goldInk = Color(0xFF85601B); // gold words on cream (4.9:1)
+  static const greyBar = Color(0xFFB9BDC7); // the other side of a bar, on cream
+  static const paperMuted = Color(0xFF5F6779); // small words on cream (4.9:1)
 }
 
 /// Bundled fonts (assets/fonts, declared in pubspec.yaml).

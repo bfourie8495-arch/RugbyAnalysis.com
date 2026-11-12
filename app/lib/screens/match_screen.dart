@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../models/feeds.dart';
 import '../models/chat.dart' show PinnedMatch;
@@ -11,6 +10,7 @@ import '../widgets/chat_widgets.dart' show watchWithFriends;
 import '../widgets/common.dart';
 import '../widgets/insights.dart';
 import '../widgets/match_tiles.dart';
+import '../widgets/share_card.dart';
 import '../widgets/stats.dart';
 import 'insights_screen.dart';
 import 'team_screen.dart';
@@ -66,12 +66,12 @@ class MatchScreen extends StatelessWidget {
     final venue = f?.venue ?? r?.detail?.ground ?? '';
     return Scaffold(
       appBar: AppBar(title: Text(r != null ? 'Result' : 'Match preview'), actions: [
-        // Text only: the pick before the game, the score after it, with a link to the head-to-head.
-        // Kept in the top bar, apart from "Watch with friends" (which invites people into a chat room).
+        // The pick before the game, the score after it: as a picture in the post style, or as text, with a
+        // link to the head-to-head. Kept in the top bar, apart from "Watch with friends" (a chat-room invite).
         IconButton(
           tooltip: r != null ? 'Share the score' : 'Share the pick',
           icon: const Icon(Icons.share_outlined),
-          onPressed: () => SharePlus.instance.share(ShareParams(text: shareText(gender, fixture: f, result: r))),
+          onPressed: () => showShareSheet(context, gender: gender, fixture: f, result: r),
         ),
       ]),
       body: ListView(padding: const EdgeInsets.fromLTRB(16, 4, 16, 24), children: [

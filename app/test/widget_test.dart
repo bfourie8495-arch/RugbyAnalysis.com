@@ -21,6 +21,7 @@ import 'package:rugby_analysis/screens/world_cup_screen.dart';
 import 'package:rugby_analysis/services/chat_service.dart';
 import 'package:rugby_analysis/services/feed_service.dart';
 import 'package:rugby_analysis/state/app_controller.dart';
+import 'package:rugby_analysis/widgets/share_card.dart';
 import 'package:rugby_analysis/widgets/match_tiles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -121,6 +122,21 @@ void main() {
     expect(find.descendant(of: find.byType(AppBar), matching: find.byTooltip('Share the pick')), findsOneWidget);
     await scrollTo(tester, MatchScreen, find.text('Full head to head on the website'));
     expect(find.text('Full head to head on the website'), findsOneWidget);
+
+    // Share opens a sheet with the card and two ways to send it
+    await tester.tap(find.byTooltip('Share the pick'));
+    await tester.pumpAndSettle();
+    expect(find.text('Share picture'), findsOneWidget);
+    expect(find.text('Share as text'), findsOneWidget);
+    expect(find.text('THE MODEL’S PICK'), findsOneWidget);
+    expect(find.byType(PickShareCard), findsOneWidget);
+    // the card draws to a 1080-wide picture
+    final boundary = find.ancestor(of: find.byType(PickShareCard), matching: find.byType(RepaintBoundary)).first;
+    final png = await tester.runAsync(() => cardPng(tester.widget<RepaintBoundary>(boundary).key! as GlobalKey));
+    expect(png, isNotNull);
+    expect(png!.length, greaterThan(1000));
+    Navigator.of(tester.element(find.text('Share picture'))).pop();
+    await tester.pumpAndSettle();
 
     final r = c.matchday!.men.results.first;
     await tester.pumpWidget(AppScope(controller: c, child: MaterialApp(home: MatchScreen.result(gender: Gender.men, result: r))));

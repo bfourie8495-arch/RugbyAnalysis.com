@@ -5,7 +5,10 @@
   "name": "dry-limit-ba4f",
   "main": "worker/index.js",
   "compatibility_date": "2026-09-01",
-  "assets": { "directory": "./site", "binding": "ASSETS" },
+  // The pages people arrive on run through the Worker first, so it can count a ?ref= source tag (see countVisit).
+  "assets": { "directory": "./site", "binding": "ASSETS", "run_worker_first": ["/", "/go", "/getapp", "/clubs", "/sevens"] },
+  // Visits by source: the tag and the page only. No cookies, no IP address, nothing about the visitor.
+  "analytics_engine_datasets": [{ "binding": "VISITS", "dataset": "rugby_visits" }],
   "triggers": { "crons": ["*/15 * * * *"] },
   "observability": { "enabled": true }
 }

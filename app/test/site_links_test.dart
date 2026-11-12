@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rugby_analysis/models/clubs.dart';
 import 'package:rugby_analysis/models/feeds.dart';
 import 'package:rugby_analysis/models/format.dart';
 import 'package:rugby_analysis/models/site_links.dart';
@@ -42,6 +43,22 @@ void main() {
       expect(siteH2hUrl(Gender.women, 'England', 'New Zealand', ref: 'share'),
           'https://rugbyanalysis.com/?ref=share#women/h2h/england-v-new-zealand');
       expect(siteTeamUrl(Gender.women, 'Canada'), 'https://rugbyanalysis.com/?ref=app#women/canada');
+    });
+  });
+
+  group('Club links', () {
+    final feed = ClubsFeed.fromJson(jsonDecode(File('test/data/clubs.json').readAsStringSync()) as Map<String, dynamic>);
+    test("competition and club pages on the club site, women's with women/", () {
+      expect(siteLeagueUrl(feed.league('URC')!), 'https://rugbyanalysis.com/clubs?ref=app#urc');
+      expect(siteClubUrl(feed.league('URC')!, 'glasgow'), 'https://rugbyanalysis.com/clubs?ref=app#urc/glasgow');
+      expect(siteLeagueUrl(feed.league('PWR')!), 'https://rugbyanalysis.com/clubs?ref=app#women/pwr');
+    });
+
+    test('every competition id in the app is one the club site knows', () {
+      final site = File('../pipeline/clubs_template.html').readAsStringSync();
+      for (final l in feed.leagues) {
+        expect(site, contains('LG("${l.id}"'), reason: l.id);
+      }
     });
   });
 
