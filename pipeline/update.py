@@ -453,6 +453,43 @@ def update_wiki():
     log('Wikipedia squads refreshed for', len(W['wk']), 'teams')
 
 
+# ---------------------------------------------------------------- 2b. League tables as ESPN publishes them
+# ESPN's match pages for some competitions carry no try counts (Nations Championship 2026), so the table built from
+# results can't award try bonus points. ESPN's own standings do carry them; build_tournaments.py uses these when the
+# games played agree.
+STANDINGS_LEAGUES = {'17567': 'nc'}
+
+
+def update_standings():
+    rost = jload('espn_rosters.json', {})
+    out = jload('espn_standings.json', {})
+    for lg, cid in STANDINGS_LEAGUES.items():
+        eids = sorted((v[1], k) for k, v in rost.items() if v[0] == lg)
+        if not eids:
+            continue
+        s = get(f'{SITE}{lg}/summary?event={eids[-1][1]}')  # any match page in the league carries the current standings
+        if not s:
+            continue
+        teams = {}
+
+        def walk(o):
+            if isinstance(o, dict):
+                st, t = o.get('stats'), o.get('team')
+                if isinstance(st, list) and isinstance(t, dict) and any(isinstance(x, dict) and x.get('name') == 'bonusPointsTry' for x in st):
+                    n, _ = nat(t.get('displayName', ''))
+                    teams[n] = {x['name']: x.get('value') for x in st if isinstance(x, dict) and 'name' in x}
+                for v in o.values():
+                    walk(v)
+            elif isinstance(o, list):
+                for v in o:
+                    walk(v)
+        walk(s.get('standings') or {})
+        if teams:
+            out[cid] = {'asOf': TODAY.isoformat(), 'teams': teams}
+            log(f'Standings {cid}: ' + ', '.join(f"{n} {int(v.get('points') or 0)}" for n, v in sorted(teams.items(), key=lambda kv: -(kv[1].get('points') or 0))))
+    jsave('espn_standings.json', out)
+
+
 # ---------------------------------------------------------------- 5. Competitions ESPN does not carry (Wikipedia)
 
 # Competition pages, by year; a page that does not exist yet is skipped
@@ -804,7 +841,7 @@ def update_sevens():
 
 
 if __name__ == '__main__':
-    steps = sys.argv[1:] or ['rankings', 'tests', 'clubs', 'wikitests', 'pwr', 'jl1', 'cc', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
+    steps = sys.argv[1:] or ['rankings', 'tests', 'standings', 'clubs', 'wikitests', 'pwr', 'jl1', 'cc', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
     pts = {}
     for step in steps:
         try:
@@ -812,6 +849,8 @@ if __name__ == '__main__':
                 pts = update_rankings()
             elif step == 'tests':
                 update_tests(pts or update_rankings())
+            elif step == 'standings':
+                update_standings()
             elif step == 'clubs':
                 update_clubs()
             elif step == 'wiki':

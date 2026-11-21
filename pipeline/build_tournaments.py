@@ -23,7 +23,7 @@ ALIAS = {'United States of America': 'United States', 'USA': 'United States', 'H
 # +1 for losing by 7 or fewer; 'bp_gs' adds 3 for a Grand Slam.  fmt 'series' = no table, just each team's record.
 TOURNAMENTS = [
     {'id': 'nc', 'g': 'm', 'name': 'Nations Championship', 'pat': r'^(\d{4}) Nations Championship( Southern Hemisphere Series)?$',
-     'fx': 'Nations Championship', 'pts': 'bp',
+     'fx': 'Nations Championship', 'pts': 'bp', 'espnTable': True,
      'groups': [['Northern group', ['England', 'France', 'Ireland', 'Italy', 'Scotland', 'Wales']],
                 ['Southern group', ['New Zealand', 'South Africa', 'Australia', 'Argentina', 'Fiji', 'Japan']]],
      'liveUntil': {2026: '2026-11-29'},
@@ -205,6 +205,29 @@ def comp_stats(ed):
     return out
 
 
+def espn_bonus(rows, cid):
+    """Take try and losing bonus points from ESPN's published standings (pipeline/espn_standings.json, written by
+    update.py) for teams whose games played agree, then re-rank. Used where the results carry no try counts."""
+    try:
+        E = json.load(open('espn_standings.json', encoding='utf-8')).get(cid, {}).get('teams', {})
+    except (FileNotFoundError, ValueError):
+        return rows, False
+    hits = 0
+    for x in rows:
+        e = E.get(x['t'])
+        num = lambda k: int(e[k]) if e and e.get(k) is not None else None  # 0 is a real value here
+        if not e or num('gamesPlayed') != x['p'] or num('gamesWon') != x['w']:
+            continue
+        x['tb'], x['lb'] = num('bonusPointsTry') or 0, num('bonusPointsLosing') or 0
+        x['pts'] = 4 * x['w'] + 2 * x['d'] + x['tb'] + x['lb'] + x['gs']
+        if num('triesFor') is not None:
+            x['tf'] = num('triesFor')
+        hits += 1
+    rows = sorted(rows, key=lambda x: (-x['pts'], -x['pd'], -x['tf'], -x['pf'], x['t']))
+    for i, x in enumerate(rows): x['pos'] = i + 1
+    return rows, hits == len([x for x in rows if x['p']])
+
+
 def build_tournament(cfg, RES, FX):
     df = RES[RES.g == cfg['g']]
     hit = df[df.competition.str.match(cfg['pat'], na=False)]
@@ -236,6 +259,8 @@ def build_tournament(cfg, RES, FX):
     allknown = True
     for gname, gteams in groups:
         rows, known = table(ed, gteams, cfg['pts'])
+        if not known and cfg.get('espnTable'):
+            rows, known = espn_bonus(rows, cfg['id'])
         allknown = allknown and known
         out['groups'].append({'name': gname, 'rows': [{k: x[k] for k in ('pos', 't', 'p', 'w', 'd', 'l', 'pf', 'pa', 'pd', 'tb', 'lb', 'gs', 'pts')} for x in rows]})
     out['triesKnown'] = allknown
