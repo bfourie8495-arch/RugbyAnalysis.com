@@ -330,6 +330,7 @@ def table_points(ms, os_, mt):
 # Southern group. UK times, which are UTC in late November.
 NC_FINALS = [(6, '2026-11-27T16:40Z'), (3, '2026-11-27T20:10Z'), (5, '2026-11-28T13:10Z'), (2, '2026-11-28T16:40Z'),
              (4, '2026-11-29T13:10Z'), (1, '2026-11-29T16:40Z')]
+NC_FINALS_START = '2026-11-26'
 
 
 def simulate_nc(c, RES, pts):
@@ -338,8 +339,15 @@ def simulate_nc(c, RES, pts):
     rng = random.Random(SEED)
     groups = [[r['t'] for r in g['rows']] for g in c['groups']]
     base = {r['t']: (r['pts'], r['pd'], r['pf']) for g in c['groups'] for r in g['rows']}
-    fx = [(f['h'], f['a'], f['p'] if f.get('p') is not None else win_p_home(f['h'], f['a'], pts)) for f in c['fixtures']]
-    fin_res = RES[(RES.g == 'm') & RES.competition.str.match(r'^%s Nations Championship' % c['season'], na=False) & (RES.date >= '2026-11-26')]
+    # Group Tests still to play. Once the groups are done the fixtures list holds the finals, which must not be
+    # played as group Tests: they would add table points and reshuffle places that are already settled.
+    fx = [(f['h'], f['a'], f['p'] if f.get('p') is not None else win_p_home(f['h'], f['a'], pts))
+          for f in c['fixtures'] if f.get('d', '') < NC_FINALS_START]
+    fin_p = {}  # finals already drawn: the model's published pick for each
+    for f in c['fixtures']:
+        if f.get('d', '') >= NC_FINALS_START and f.get('p') is not None:
+            fin_p[(f['h'], f['a'])] = f['p']; fin_p[(f['a'], f['h'])] = 1 - f['p']
+    fin_res = RES[(RES.g == 'm') & RES.competition.str.match(r'^%s Nations Championship' % c['season'], na=False) & (RES.date >= NC_FINALS_START)]
     fin_known = {}
     for r in fin_res.itertuples():
         fin_known[(r.home_team, r.away_team)] = r.home_score > r.away_score
@@ -360,6 +368,7 @@ def simulate_nc(c, RES, pts):
             opp[n][so] += 1; opp[so][n] += 1
             pairs[k + 1][(n, so)] += 1
             if (n, so) in fin_known: w = n if fin_known[(n, so)] else so
+            elif (n, so) in fin_p: w = n if rng.random() < fin_p[(n, so)] else so
             else:
                 pn = 1 / (1 + 10 ** (-(pts.get(n, 50) + (3 if n == 'England' else 0) - pts.get(so, 50)) / 10 * 0.6))
                 w = n if rng.random() < pn else so
@@ -374,7 +383,8 @@ def simulate_nc(c, RES, pts):
     finals = [{'k': k, 'ko': ko, 'v': 'Allianz Stadium, Twickenham', 'pairs': [[a, b, pct(x)] for (a, b), x in pairs[k].most_common(3)]}
               for k, ko in NC_FINALS]
     return {'n': SIMS, 'teams': teams, 'finals': finals, 'title': [[t, pct(x)] for t, x in title.most_common()],
-            'about': 'We play the rest of the Nations Championship %s times with the model behind every pick in the app: the remaining group Tests, then finals weekend, where England are at home at Twickenham. Ties on points are split by points difference, then points scored.' % '{:,}'.format(SIMS)}
+            'about': ('We play the rest of the Nations Championship %s times with the model behind every pick in the app: the remaining group Tests, then finals weekend, where England are at home at Twickenham. Ties on points are split by points difference, then points scored.'
+                      if fx else 'The groups are finished and the finals are drawn, so we play finals weekend %s times with the model\'s pick for each match.') % '{:,}'.format(SIMS)}
 
 
 def win_p_home(h, a, pts):
