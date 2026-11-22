@@ -6168,21 +6168,21 @@ date;home_team;away_team;home_score;away_score;competition;stadium;city;country;
 2026/10/10;New Zealand;Australia;50;19;2026 men's rugby union internationals;Eden Park;Auckland;New Zealand;FALSE;FALSE;7;3;;;;;;;;;;;0;0;0;0;;;;
 2026/10/17;Australia;New Zealand;21;43;2026 men's rugby union internationals;Accor Stadium;Sydney;Australia;FALSE;FALSE;3;7;;;;;;;;;;;1;1;0;0;;;;
 2026/10/24;Japan;Fiji;28;34;2026 men's rugby union internationals;Prince Chichibu Memorial Stadium;Tokyo;Japan;FALSE;FALSE;4;4;;;;;;;;;;;0;0;0;1;;;;
-2026/11/06;Ireland;Argentina;42;12;2026 Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/07;Italy;South Africa;7;66;2026 Nations Championship;Allianz Stadium;;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/07;Scotland;New Zealand;21;43;2026 Nations Championship;Scottish Gas Murrayfield;Edinburgh;Scotland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/07;Wales;Japan;28;21;2026 Nations Championship;Principality Stadium;Cardiff;Wales;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/07;France;Fiji;54;17;2026 Nations Championship;Groupama Stadium;Lyon;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/08;England;Australia;45;22;2026 Nations Championship;Allianz Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/13;France;South Africa;21;19;2026 Nations Championship;Stade de France;Saint-Denis;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/14;Italy;Argentina;14;19;2026 Nations Championship;Stadio Luigi Ferraris;Genova;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/14;Wales;New Zealand;35;28;2026 Nations Championship;Principality Stadium;Cardiff;Wales;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/14;England;Japan;78;15;2026 Nations Championship;Allianz Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/14;Ireland;Fiji;43;15;2026 Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/15;Scotland;Australia;15;12;2026 Nations Championship;Scottish Gas Murrayfield;Edinburgh;Scotland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/21;England;New Zealand;37;12;2026 Nations Championship;Allianz Stadium;London;England;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/21;Scotland;Japan;67;5;2026 Nations Championship;Scottish Gas Murrayfield;Edinburgh;Scotland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/21;Ireland;South Africa;20;17;2026 Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/21;Italy;Fiji;16;21;2026 Nations Championship;Bluenergy Stadium;Udine;Italy;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/21;France;Argentina;45;17;2026 Nations Championship;Stade de France;Saint-Denis;France;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
-2026/11/21;Wales;Australia;26;29;2026 Nations Championship;Principality Stadium;Cardiff;Wales;FALSE;FALSE;;;;;;;;;;;;;;;;;;;;
+2026/11/06;Ireland;Argentina;42;12;2026 Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;6;2;6;1;6;2;0;0;;;0;0;1;2;0;0;;;"Keenan (3); Sheehan; Prendergast; Kelleher";Carreras (2)
+2026/11/07;Italy;South Africa;7;66;2026 Nations Championship;Allianz Stadium;;Italy;FALSE;FALSE;1;9;1;9;1;9;0;1;;;0;0;1;0;0;0;;;Ruzza;"Feinberg-Mngomezulu; van den Berg; Marx (2); Kolisi; Willemse; Louw; de Villiers; Hooker"
+2026/11/07;Scotland;New Zealand;21;43;2026 Nations Championship;Scottish Gas Murrayfield;Edinburgh;Scotland;FALSE;FALSE;3;7;3;4;3;7;0;0;;;0;0;1;2;0;0;;;Ashman (3);"Sititi; de Groot; Lakai; B. Barrett (2); Moorby; Aumua"
+2026/11/07;Wales;Japan;28;21;2026 Nations Championship;Principality Stadium;Cardiff;Wales;FALSE;FALSE;4;3;4;3;4;3;0;0;;;0;0;0;0;0;0;;;"Griffin; Adams (2); Rees-Zammit";"Gunter; Dearns; Fukuda"
+2026/11/07;France;Fiji;54;17;2026 Nations Championship;Groupama Stadium;Lyon;France;FALSE;FALSE;8;2;6;2;7;2;0;1;;;0;0;0;1;0;0;;;"Penalty try; Gros; Falatea; Grandidier-Nkanang; Gourgues; Attissogbe; Ollivon; Dupont";"Habosi; Ravutaumada"
+2026/11/08;England;Australia;45;22;2026 Nations Championship;Allianz Stadium;London;England;FALSE;FALSE;7;3;5;2;7;3;0;1;;;0;0;0;1;0;0;;;"George; Chessum; Heyes; van Poortvliet; Pollock (2); Spencer";"Jorgensen; Daugunu; Williams"
+2026/11/13;France;South Africa;21;19;2026 Nations Championship;Stade de France;Saint-Denis;France;FALSE;FALSE;3;3;3;2;3;3;0;0;;;0;0;3;1;0;1;;;"Grandidier-Nkanang; Attissogbe; Bielle-Biarrey";"Wessels; Reinach; Marx"
+2026/11/14;Italy;Argentina;14;19;2026 Nations Championship;Stadio Luigi Ferraris;Genova;Italy;FALSE;FALSE;2;3;1;2;1;3;0;0;;;0;0;1;3;0;0;;;"Penalty try; Ioane";"Bernasconi; Isgro; Carreras"
+2026/11/14;Wales;New Zealand;35;28;2026 Nations Championship;Principality Stadium;Cardiff;Wales;FALSE;FALSE;5;4;5;4;5;4;0;0;;;0;0;0;0;0;0;;;"Williams; Lake; Griffin; James; Rees-Zammit";"Ratima; Sititi; Fineanganofo; Lakai"
+2026/11/14;England;Japan;78;15;2026 Nations Championship;Allianz Stadium;London;England;FALSE;FALSE;13;2;5;1;13;2;1;1;;;0;0;1;0;0;1;;;"Joseph (5); Steward; Genge; Murley; Earl; Martin; Curry; Smith; Fisilau";"Dearns; Helu"
+2026/11/14;Ireland;Fiji;43;15;2026 Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;7;2;4;1;7;2;0;1;;;0;0;1;1;0;0;;;"O'Brien (2); Baloucoune (2); Kelleher; Porter; Timoney";"Tuisova; Yato"
+2026/11/15;Scotland;Australia;15;12;2026 Nations Championship;Scottish Gas Murrayfield;Edinburgh;Scotland;FALSE;FALSE;2;2;1;1;2;2;1;0;;;0;0;0;1;0;0;;;"M. Fagerson; Dempsey";"Potter; Jorgensen"
+2026/11/21;England;New Zealand;37;12;2026 Nations Championship;Allianz Stadium;London;England;FALSE;FALSE;5;2;3;1;5;2;2;0;;;0;0;0;0;0;0;;;"Slade; van Poortvliet; Earl; Chessum; Atkinson";"de Groot; B. Barrett"
+2026/11/21;Scotland;Japan;67;5;2026 Nations Championship;Scottish Gas Murrayfield;Edinburgh;Scotland;FALSE;FALSE;11;1;6;0;11;1;0;0;;;0;0;0;2;0;0;;;"Graham (3); McConnell (3); Rowe; Smith (2); Dobie; Hutchinson";Matsunaga
+2026/11/21;Ireland;South Africa;20;17;2026 Nations Championship;Aviva Stadium;Dublin;Ireland;FALSE;FALSE;3;2;1;2;3;2;1;1;;;0;0;1;1;0;0;;;"Baloucoune (2); Kelleher";"van den Berg; Marx"
+2026/11/21;Italy;Fiji;16;21;2026 Nations Championship;Bluenergy Stadium;Udine;Italy;FALSE;FALSE;1;3;1;3;1;3;3;0;;;0;0;0;0;0;0;;;L. Cannone;"Ikanivere (2); Salawa"
+2026/11/21;France;Argentina;45;17;2026 Nations Championship;Stade de France;Saint-Denis;France;FALSE;FALSE;7;2;5;2;7;2;0;1;;;0;0;0;1;0;1;;;"Guillard; Mauvaka; Gourgues (2); Gailleton; Duguid; Bielle-Biarrey";"Piccardo; Matera"
+2026/11/21;Wales;Australia;26;29;2026 Nations Championship;Principality Stadium;Cardiff;Wales;FALSE;FALSE;4;4;3;3;4;4;0;1;;;0;0;1;1;0;0;;;"Lake (2); Murray; Elias";"Tupou; Paenga-Amosa; Jorgensen; Ikitau"

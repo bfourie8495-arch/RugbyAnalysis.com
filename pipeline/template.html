@@ -416,6 +416,7 @@ body:not(.women) .wonly{display:none}
 
 <main class="wrap" id="matchday" hidden>
   <div class="wnote" id="mdWomen" hidden>Women's Test fixtures appear here as soon as they are announced, and results update every day. Switch back with the Men / Women toggle.</div>
+  <section class="panel" id="mdTrends" hidden></section>
   <div id="mdCards"></div>
   <section class="panel" id="mdLaterWrap">
     <div class="filterbar"><h2 style="flex:1">Coming up</h2><a class="mdall" href="#fixtures">All fixtures</a></div>
@@ -959,6 +960,8 @@ $("moneyMetric").addEventListener("click",e=>{const b=e.target.closest("button")
 $("drvSel").innerHTML=FACTORS.map(f=>`<button data-k="${f.k}" aria-pressed="${f.k===state.drv}">${f.lab}</button>`).join("");
 $("drvSel").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.drv=b.dataset.k;renderMoney()});
 const FIX=__FIX__;
+// Nations Championship trends from the play-by-play (match_trends.py), or null
+const TRENDS=__TRENDS__;
 const FINALS=[
  {ko:"2026-11-27T16:40:00Z",pos:6,name:"11th-place play-off"},{ko:"2026-11-27T20:10:00Z",pos:3,name:"5th-place play-off"},
  {ko:"2026-11-28T13:10:00Z",pos:5,name:"9th-place play-off"},{ko:"2026-11-28T16:40:00Z",pos:2,name:"3rd-place play-off"},

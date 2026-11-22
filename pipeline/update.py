@@ -192,13 +192,14 @@ def update_tests(rank_pts):
                 rp = rank_w if women else rank_pts
                 if hn in NAMES and an in NAMES and (hn in rp or an in rp):
                     rh, ra = rp.get(hn, 50), rp.get(an, 50)
-                    homeadv = 0 if comp.get('neutralSite') else 3
+                    # home advantage only for a side playing in its own country (finals weekend at Twickenham is home for England alone)
+                    homeadv = 0 if comp.get('neutralSite') or vcountry != hn else 3
                     p = 1 / (1 + 10 ** (-(rh + homeadv - ra) / 10 * 0.6))
                     city = (venue.get('address') or {}).get('city') or ''
                     fixtures.append({'ko': e['date'][:16] + ':00Z' if comp.get('timeValid', True) else None, 'd': e['date'][:10], 'h': hn, 'a': an,
                                      'c': label, 'v': ', '.join(x for x in [venue.get('fullName'), city] if x) or 'Venue TBC',
                                      'p': round(p, 2), 'tz': TZ.get(vcountry, 'UTC'), **({'g': 'w'} if women else {}),
-                                     **({'live': 1} if st.get('state') == 'in' else {})})
+                                     **({'live': 1} if st.get('state') == 'in' else {}), **({'n': 1} if not homeadv else {})})
                 continue
             if not st.get('completed') or eid in seen:
                 continue
@@ -285,6 +286,143 @@ def update_tests(rank_pts):
         fixtures.sort(key=lambda f: f.get('d') or f['ko'][:10])
         jsave('fixtures.json', fixtures)
     log(f"Tests: {added['m']} men's and {added['w']} women's results added, {len(new_ath)} new players, {len(fixtures)} upcoming fixtures")
+
+
+# ---------------------------------------------------------------- 1b. Match events (play-by-play)
+# ESPN's match page has no team or player stats for the Nations Championship, but its play-by-play
+# (sports.core.api.espn.com .../plays) lists every try, conversion, penalty goal, drop goal, card and
+# substitution with the minute, the team and the player. Kept in espn_events.json as
+#   {event id: [league, date, home, away, home score, away score, [[minute, half, code, 'h'/'a', athlete id], ...]]}
+# Codes: T try, PT penalty try, C conversion, P penalty goal, D drop goal, Y yellow card, R red card,
+# S replacement on, O player off. Minutes in stoppage time count as 40 or 80.
+EVENTS_FROM = os.environ.get('EVENTS_FROM', '2026-01-01')  # Tests from this date get their play-by-play read
+EVENTS_PER_RUN = int(os.environ.get('EVENTS_PER_RUN', '80'))  # two requests each; a backlog is read over a few runs
+EVENT_CODE = {'try': 'T', 'penalty try': 'PT', 'conversion': 'C', 'penalty goal': 'P', 'drop goal': 'D', 'yellow card': 'Y',
+              'red card': 'R', 'substitute on': 'S', 'player substituted': 'O'}
+EVENT_PTS = {'T': 5, 'PT': 7, 'C': 2, 'P': 3, 'D': 3}
+
+
+def match_events(lg, eid):
+    """One match's play-by-play as compact rows, plus the final score it adds up to, or None."""
+    base = f'{CORE}leagues/{lg}/events/{eid}/competitions/{eid}'
+    comp, plays = get(base), get(f'{base}/plays?limit=500')
+    if not comp or not plays or not plays.get('items'):
+        return None
+    side = {str(c.get('id')): (c.get('homeAway') or '?')[0] for c in comp.get('competitors') or []}
+    rows = []
+    for i in plays['items']:
+        code = EVENT_CODE.get(((i.get('type') or {}).get('text') or '').lower())
+        if not code:
+            continue
+        m = re.match(r'\d+', str((i.get('clock') or {}).get('displayValue') or ''))
+        half = int((i.get('period') or {}).get('number') or 1)
+        minute = int(m.group()) if m else int(((i.get('clock') or {}).get('value') or 0) // 60) + 1
+        minute = min(minute, 40) if half == 1 else max(41, min(minute, 80)) if half == 2 else minute
+        t = re.search(r'teams/(\d+)', ((i.get('team') or {}).get('$ref') or ''))
+        a = re.search(r'athletes/(\d+)', (((i.get('participants') or [{}])[0] or {}).get('athlete') or {}).get('$ref', ''))
+        rows.append([minute, half, code, side.get(t.group(1) if t else '', '?'), a.group(1) if a else ''])
+    rows.sort(key=lambda r: (r[1], r[0]))
+    score = {'h': 0, 'a': 0}
+    for r in rows:
+        if r[3] in score:
+            score[r[3]] += EVENT_PTS.get(r[2], 0)
+    return rows, score['h'], score['a']
+
+
+def surname(name):
+    parts = (name or '').split()
+    return ' '.join(parts[1:]) if len(parts) > 1 else name or ''
+
+
+def scorer_list(aids, squad, ath):
+    """Try scorers as the results file writes them: 'Jordan (2); Lakai; T. du Toit' (an initial where two in the squad share a surname)."""
+    names, count = [], {}
+    for aid in aids:
+        if aid == 'PT':
+            n = 'Penalty try'
+        else:
+            full = (ath.get(aid) or {}).get('n') or ''
+            sn = surname(full)
+            if sum(1 for x in squad if surname((ath.get(x) or {}).get('n')) == sn) > 1 and full:
+                sn = f'{full[0]}. {sn}'
+            n = sn
+        if n not in count:
+            names.append(n)
+        count[n] = count.get(n, 0) + 1
+    return '; '.join(f'{n} ({count[n]})' if count[n] > 1 else n for n in names)
+
+
+def update_events():
+    """Read the play-by-play of finished Tests (from EVENTS_FROM) and fill the results file's blank detail
+    columns from it: tries, conversions, penalty goals, drop goals, cards and try scorers."""
+    rost = jload('espn_rosters.json', {})
+    ath = jload('espn_athletes.json', {})
+    ev = jload('espn_events.json', {})
+    todo = sorted((v[1], k) for k, v in rost.items() if v[1] >= EVENTS_FROM and k not in ev and v[0] in TEST_LEAGUES)
+    added = bad = 0
+    for d, eid in todo[-EVENTS_PER_RUN:]:
+        lg, date, sides = rost[eid]
+        got = match_events(lg, eid)
+        if not got:
+            continue
+        rows, hs, as_ = got
+        if not any(r[2] in EVENT_PTS for r in rows):
+            continue
+        names = {s[0]: nat(s[1] or '')[0] for s in sides}
+        ev[eid] = [lg, date, names.get('home', ''), names.get('away', ''), hs, as_, rows]
+        added += 1
+    jsave('espn_events.json', ev)
+    # fill the results file where its detail columns are blank
+    men = pd.read_csv(MEN_CSV, sep=';', dtype=str, keep_default_na=False)
+    wom = pd.read_csv(WOMEN_CSV, sep=';', dtype=str, keep_default_na=False)
+    filled = 0
+    for eid, (lg, date, h, a, hs, as_, rows) in ev.items():
+        d0 = dt.date.fromisoformat(date)
+        for df in (men, wom):
+            hit = None
+            for k in (0, -1, 1):
+                dd = (d0 + dt.timedelta(days=k)).strftime('%Y/%m/%d')
+                sub = df[(df.date == dd) & (((df.home_team == h) & (df.away_team == a)) | ((df.home_team == a) & (df.away_team == h)))]
+                if len(sub):
+                    hit = sub.index[0]
+                    break
+            if hit is None:
+                continue
+            r = df.loc[hit]
+            flip = r.home_team != h  # the results file may name the sides the other way round
+            want_h, want_a = (int(r.away_score or -1), int(r.home_score or -1)) if flip else (int(r.home_score or -1), int(r.away_score or -1))
+            # ESPN leaves penalty tries out of the play-by-play: a side 7 or 14 short gets them back, with no minute (0, half 0)
+            short = {'h': want_h - hs, 'a': want_a - as_}
+            if any(short.values()) and all(v in (0, 7, 14) for v in short.values()):
+                for s_, v in short.items():
+                    rows += [[0, 0, 'PT', s_, '']] * (v // 7)
+                rows.sort(key=lambda x: (x[1], x[0]))
+                hs, as_ = want_h, want_a
+                ev[eid] = [lg, date, h, a, hs, as_, rows]
+            if (want_h, want_a) != (hs, as_):
+                bad += 1
+                log(f'play-by-play for {date} {h} v {a} adds up to {hs}-{as_}, not the result {r.home_score}-{r.away_score}: not used')
+                break
+            squad = {s: [p[0] for sd in rost.get(eid, [0, 0, []])[2] if (sd[0] or '?')[0] == s for p in sd[2]] for s in 'ha'}
+            vals = {}
+            for s in 'ha':
+                col = 'home' if (s == 'h') != flip else 'away'
+                c = lambda code: sum(1 for x in rows if x[3] == s and x[2] == code)
+                tries = c('T') + c('PT')
+                vals.update({f'{col}_tries': tries, f'{col}_cons': c('C'), f'{col}_cons_att': c('T'), f'{col}_pens': c('P'),
+                             f'{col}_drops': c('D'), f'{col}_yellow': c('Y'), f'{col}_red': c('R'),
+                             f'{col}_try_scorers': scorer_list(['PT' if x[2] == 'PT' else x[4] for x in rows if x[3] == s and x[2] in ('T', 'PT')], squad[s], ath)})
+            changed = False
+            for k, v in vals.items():
+                if k in df.columns and str(v) != '' and str(df.at[hit, k]).strip() == '':
+                    df.at[hit, k] = str(v)
+                    changed = True
+            filled += changed
+            break
+    jsave('espn_events.json', ev)
+    for df, f in ((men, MEN_CSV), (wom, WOMEN_CSV)):
+        df.to_csv(f, sep=';', index=False)
+    log(f'Play-by-play: {added} matches read ({len(todo) - added} still to read), {filled} results filled in' + (f', {bad} not matching their result' if bad else ''))
 
 
 # ---------------------------------------------------------------- 2. Rankings
@@ -548,10 +686,11 @@ def update_wiki_tests():
                             rp = rank[g]
                             if h in rp or a in rp:
                                 rh, ra = rp.get(h, 50), rp.get(a, 50)
-                                p = 1 / (1 + 10 ** (-(rh + 3 - ra) / 10 * 0.6))
+                                away_ground = home_city.get((m['city'] or '').lower()) not in (None, h)  # e.g. a final at a third nation's ground
+                                p = 1 / (1 + 10 ** (-(rh + (0 if away_ground else 3) - ra) / 10 * 0.6))
                                 fixtures.append({'ko': _ko(m), 'd': m['date'], 'h': h, 'a': a, 'c': page[5:] if page[:4].isdigit() else page,
                                                  'v': ', '.join(x for x in [m['stadium'], m['city']] if x) or 'Venue TBC', 'p': round(p, 2),
-                                                 **({'g': 'w'} if g == 'w' else {}), 'src': 'wiki'})
+                                                 **({'g': 'w'} if g == 'w' else {}), **({'n': 1} if away_ground else {}), 'src': 'wiki'})
                         continue
                     df = wom if g == 'w' else men
                     d = m['date'].replace('-', '/')
@@ -841,7 +980,7 @@ def update_sevens():
 
 
 if __name__ == '__main__':
-    steps = sys.argv[1:] or ['rankings', 'tests', 'standings', 'clubs', 'wikitests', 'pwr', 'jl1', 'cc', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
+    steps = sys.argv[1:] or ['rankings', 'tests', 'events', 'standings', 'clubs', 'wikitests', 'pwr', 'jl1', 'cc', 'sevens'] + (['wiki'] if TODAY.weekday() == 0 or os.environ.get('FORCE_WIKI') else [])
     pts = {}
     for step in steps:
         try:
@@ -849,6 +988,8 @@ if __name__ == '__main__':
                 pts = update_rankings()
             elif step == 'tests':
                 update_tests(pts or update_rankings())
+            elif step == 'events':
+                update_events()
             elif step == 'standings':
                 update_standings()
             elif step == 'clubs':

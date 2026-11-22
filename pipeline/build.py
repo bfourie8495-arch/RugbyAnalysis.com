@@ -35,6 +35,15 @@ rank={slug(n):{'pos':int(p),'pts':float(v)} for p,n,v in rk}
 t10flags={slug(n):'data:image/png;base64,'+base64.b64encode(open(f'flags/{slug(n)}.png','rb').read()).decode() for n in T10}
 O=[{'id':slug(n),'name':n,**{k:v for k,v in oth[n].items()}} for n in others]
 s=s.replace('__FIX__',open('fixtures.json').read())
+# Nations Championship trends from the play-by-play (the latest edition), for the Match Centre
+import match_trends
+nc=d[d.competition.fillna('').str.match(r'^\d{4} Nations Championship( Southern Hemisphere Series)?$')].copy()
+trends=None
+if len(nc):
+  y=nc.date.dt.year.max();nc=nc[nc.date.dt.year==y];nc['date']=nc.date.dt.strftime('%Y-%m-%d')
+  trends=match_trends.build(list(nc.itertuples()),[f for f in json.load(open('fixtures.json')) if f.get('c')=='Nations Championship' and not f.get('g')])
+  if trends:trends['season']=int(y)
+s=s.replace('__TRENDS__',json.dumps(trends,ensure_ascii=False,separators=(',',':')))
 s=s.replace('__STATS__',open('stats_tests.json').read()).replace('__PLAYERS__',open('players.json').read())
 s=s.replace('/*__REDESIGN__*/',open('redesign.css').read())
 # Match Centre landing page and two-team head-to-head (kept in their own files)

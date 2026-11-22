@@ -133,6 +133,17 @@ void main() {
       expect(six.scoring.every((x) => x.pointsFor > 0), isTrue);
     });
 
+    test('the Nations Championship carries trends from the play-by-play', () {
+      final tr = feed.byId('nc')!.trends!;
+      expect(tr.games, greaterThan(0));
+      expect(tr.windows.length, tr.triesByQuarter.length);
+      expect(tr.insights, isNotEmpty);
+      expect(tr.tryScorers.first.n, greaterThan(0));
+      final m = tr.matchups.first;
+      expect(tr.matchup(m.home, m.away), same(m));
+      expect(m.rows.every((r) => r.label.isNotEmpty && r.home.isNotEmpty && r.away.isNotEmpty), isTrue);
+    });
+
     test('has tables, series and a World Cup', () {
       expect(feed.tournaments, isNotEmpty);
       final six = feed.tournaments.firstWhere((t) => t.name == 'Six Nations');
