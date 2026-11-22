@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../models/feeds.dart';
 import '../models/format.dart';
+import '../models/live.dart';
 import '../screens/match_screen.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import 'common.dart';
 import 'insights.dart';
+import 'live.dart';
 import 'stats.dart';
 
 /// An upcoming Test: both teams with their form, kick-off in your time, and the model's pick.
@@ -22,6 +24,7 @@ class FixtureTile extends StatelessWidget {
     final c = AppScope.of(context);
     final feed = c.matchday!;
     final side = feed.side(gender);
+    final lv = c.liveFor(gender, fixture); // kicked off: the live score replaces the form dots
     Widget team(String t) => Row(children: [
           TeamBadge(feed.nation(t), size: 26),
           const SizedBox(width: 10),
@@ -30,7 +33,10 @@ class FixtureTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontWeight: FontWeight.w600, color: c.isFollowing(gender, t) ? RaColors.gold : RaColors.ink)),
           ),
-          if ((side.form[t] ?? '').isNotEmpty) FormDots(side.form[t]!),
+          if (lv != null)
+            Text('${lv.scoreOf(t)}', style: displayStyle(19, weight: FontWeight.w800))
+          else if ((side.form[t] ?? '').isNotEmpty)
+            FormDots(side.form[t]!),
         ]);
     return InkWell(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => MatchScreen(gender: gender, fixture: fixture))),
@@ -40,7 +46,7 @@ class FixtureTile extends StatelessWidget {
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(child: Column(children: [team(fixture.home), const SizedBox(height: 8), team(fixture.away)])),
             const SizedBox(width: 12),
-            KickOffBlock(fixture: fixture),
+            KickOffBlock(fixture: fixture, live: lv),
           ]),
           const SizedBox(height: 8),
           Row(children: [
@@ -60,16 +66,26 @@ class FixtureTile extends StatelessWidget {
 }
 
 /// When a Test kicks off, easy to read at a glance: the day ('Today', 'Tomorrow', 'Sat 7 Nov'), the time in
-/// your time zone, and how long to go (or 'Live', or 'Result soon' once it's over).
+/// your time zone, and how long to go (or 'Live', or 'Result soon' once it's over). With a [live] score,
+/// the match minute ("54'", 'HT', 'FT') in place of the countdown.
 class KickOffBlock extends StatelessWidget {
-  const KickOffBlock({super.key, required this.fixture, this.large = false});
+  const KickOffBlock({super.key, required this.fixture, this.large = false, this.live});
 
   final Fixture fixture;
   final bool large;
+  final LiveGame? live;
 
   @override
   Widget build(BuildContext context) {
     final k = fixture.kickOff?.toLocal();
+    if (this.live case final lv?) {
+      return Column(crossAxisAlignment: large ? CrossAxisAlignment.center : CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+        Text(lv.state == LiveState.fullTime ? 'FULL TIME' : 'LIVE',
+            style: TextStyle(fontSize: large ? 12 : 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: RaColors.gold)),
+        const SizedBox(height: 3),
+        LivePill(lv, large: large),
+      ]);
+    }
     final day = k == null ? dateLabel(fixture.date) : kickOffDay(k);
     final note = k == null ? null : kickOffNote(k, live: fixture.live);
     final today = day == 'Today' || note == 'Live';

@@ -62,6 +62,15 @@ pipeline/matchday.js   the Match Centre landing page and head-to-head page
 wrangler.jsonc         tells Cloudflare to serve the site/ folder
 ```
 
+## Live scores
+
+While a Test is on, `rugbyanalysis.com/app/live.json` gives the app the score, the match minute and each try, kick
+and card with the player. The Worker (`worker/live.js`) reads ESPN's public scoreboard (no key, no cost) when a
+fixture in `site/app/matchday.json` is between 15 minutes before kick-off and 3 hours after, and keeps the answer
+20 seconds at Cloudflare's edge, so ESPN is asked at most three times a minute however many phones are watching.
+The app asks every 30 seconds while it's on screen. ESPN ran as fast as or faster than Highlightly in the 6 Nov
+test (Ireland v Argentina), so the Highlightly scripts (`pipeline/live_*.py`) are no longer needed.
+
 ## The app's feeds
 
 Three files are rebuilt at the end of every run for the RugbyAnalysis app (its code is in `app/`).

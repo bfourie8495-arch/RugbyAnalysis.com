@@ -17,7 +17,7 @@ Future<void> main() async {
   final backend = await Backend.connect();
   final notifications = backend != null && alertsSupported ? Notifications(backend) : null;
   final controller = AppController(source: WebFeedSource(), backend: backend, enableAlerts: notifications?.enable, disableAlerts: notifications?.disable,
-      refreshAlerts: notifications?.refresh);
+      refreshAlerts: notifications?.refresh, liveSource: WebLiveSource());
   runApp(RugbyApp(controller: controller, notifications: notifications));
   controller.start();
 }
@@ -32,12 +32,15 @@ class RugbyApp extends StatefulWidget {
   State<RugbyApp> createState() => _RugbyAppState();
 }
 
-class _RugbyAppState extends State<RugbyApp> {
+class _RugbyAppState extends State<RugbyApp> with WidgetsBindingObserver {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
+    // Live scores are only read while the app is on screen (a mixin, like a Python mixin class, gives this
+    // State the lifecycle callback below).
+    WidgetsBinding.instance.addObserver(this);
     // A tapped chat notification opens its room; any other brings you back to Matchday,
     // where this weekend's games are.
     WidgetsBinding.instance.addPostFrameCallback((_) => widget.notifications?.start((data) {
@@ -52,6 +55,15 @@ class _RugbyAppState extends State<RugbyApp> {
             widget.controller.setTab(AppTab.matchday);
           }
         }));
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) => widget.controller.setForeground(state == AppLifecycleState.resumed);
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   /// Invite links: rugbyanalysis://app/join/CODE (from the website's join page, see worker/index.js)
