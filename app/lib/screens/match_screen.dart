@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/feeds.dart';
 import '../models/chat.dart' show PinnedMatch;
 import '../models/format.dart';
+import '../models/live.dart' show LiveState;
 import '../models/site_links.dart';
 import '../state/app_controller.dart';
 import '../theme.dart';
 import '../widgets/chat_widgets.dart' show watchWithFriends;
 import '../widgets/common.dart';
 import '../widgets/insights.dart';
+import '../widgets/live.dart';
 import '../widgets/match_tiles.dart';
 import '../widgets/share_card.dart';
 import '../widgets/stats.dart';
@@ -37,6 +39,7 @@ class MatchScreen extends StatelessWidget {
     final side = feed.side(gender);
     final f = fixture, r = result;
     final k = f?.kickOff?.toLocal();
+    final lv = f == null ? null : c.liveFor(gender, f); // kicked off: the live score and timeline (worker/live.js)
     Widget team(String t) {
       final lost = r != null && r.winner != null && r.winner != t;
       return Expanded(
@@ -60,12 +63,14 @@ class MatchScreen extends StatelessWidget {
             Text('${r.homeScore}–${r.awayScore}', style: displayStyle(30, weight: FontWeight.w800)),
             const Text('FULL TIME', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1.1, color: RaColors.faint)),
           ])
-        : KickOffBlock(fixture: f!, large: true);
+        : lv != null
+            ? LiveScore(game: lv, home: home, away: away)
+            : KickOffBlock(fixture: f!, large: true);
     final comp = f?.comp ?? r!.comp;
     final when = f != null ? (k == null ? dateLabel(f.date) : '${dayLabel(k)} · ${clock(k)} your time') : '${dateLabel(r!.date)} ${r.date.substring(0, 4)}';
     final venue = f?.venue ?? r?.detail?.ground ?? '';
     return Scaffold(
-      appBar: AppBar(title: Text(r != null ? 'Result' : 'Match preview'), actions: [
+      appBar: AppBar(title: Text(r != null ? 'Result' : lv == null ? 'Match preview' : lv.state == LiveState.fullTime ? 'Full time' : 'Live'), actions: [
         // The pick before the game, the score after it: as a picture in the post style, or as text, with a
         // link to the head-to-head. Kept in the top bar, apart from "Watch with friends" (a chat-room invite).
         IconButton(
@@ -95,9 +100,10 @@ class MatchScreen extends StatelessWidget {
             if (r != null) UpsetLine(result: r),
           ]),
         ),
+        if (lv != null) LiveTimeline(game: lv, home: home, away: away),
         if (f != null) ...[
           const SizedBox(height: 12),
-          _ReminderButton(gender: gender, fixture: f),
+          if (lv == null) _ReminderButton(gender: gender, fixture: f),
           if (c.chatAvailable) ...[
             const SizedBox(height: 8),
             OutlinedButton.icon(

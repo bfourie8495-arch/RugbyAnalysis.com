@@ -1,0 +1,20 @@
+name: Worker checks
+
+# Runs the Worker's tests (worker/test/) on every change to it: the live scores read from ESPN.
+on:
+  push:
+    paths: ["worker/**", ".github/workflows/worker.yml"]
+  pull_request:
+    paths: ["worker/**", ".github/workflows/worker.yml"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test worker/test/live.test.mjs

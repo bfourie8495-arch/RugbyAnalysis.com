@@ -1,0 +1,21 @@
+{"events":[{"id":"604010","date":"2026-11-21T20:10Z","name":"Wales vs Australia","status":{"clock":0,"displayClock":"1'","period":2,"type":{"id":"3","name":"STATUS_FINAL","state":"post","completed":true,"description":"FT","detail":"FT","shortDetail":"FT"}},"competitions":[{"id":"604010","competitors":[{"id":"4","homeAway":"home","score":"26","team":{"id":"4","displayName":"Wales","abbreviation":"WAL"}},{"id":"6","homeAway":"away","score":"29","team":{"id":"6","displayName":"Australia","abbreviation":"AUS"}}],"details":[
+{"type":{"id":"5","text":"yellow card"},"clock":{"value":69,"displayValue":"2'"},"team":{"id":"4"},"athletesInvolved":[{"id":"294189","displayName":"Max Llewellyn","shortName":"M. Llewellyn"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":1256,"displayValue":"21'"},"team":{"id":"6"},"athletesInvolved":[{"id":"231133","displayName":"Taniela Tupou","shortName":"T. Tupou"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":1957,"displayValue":"33'"},"team":{"id":"6"},"athletesInvolved":[{"id":"294319","displayName":"Brandon Paenga-Amosa","shortName":"B. Paenga-Amosa"}]},
+{"type":{"id":"2","text":"conversion"},"clock":{"value":2014,"displayValue":"34'"},"team":{"id":"6"},"athletesInvolved":[{"id":"291587","displayName":"Ryan Lonergan","shortName":"R. Lonergan"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":2409,"displayValue":"41'"},"team":{"id":"4"},"athletesInvolved":[{"id":"294571","displayName":"Dewi Lake","shortName":"D. Lake"}]},
+{"type":{"id":"2","text":"conversion"},"clock":{"value":2465,"displayValue":"42'"},"team":{"id":"4"},"athletesInvolved":[{"id":"296836","displayName":"Sam Costelow","shortName":"S. Costelow"}]},
+{"type":{"id":"7","text":"player substituted"},"clock":{"value":2402,"displayValue":"41'"},"team":{"id":"6"},"athletesInvolved":[{"id":"231133","displayName":"Taniela Tupou","shortName":"T. Tupou"}]},
+{"type":{"id":"8","text":"substitute on"},"clock":{"value":2402,"displayValue":"41'"},"team":{"id":"6"},"athletesInvolved":[{"id":"165153","displayName":"Allan Alaalatoa","shortName":"A. Alaalatoa"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":2782,"displayValue":"47'"},"team":{"id":"6"},"athletesInvolved":[{"id":"302803","displayName":"Max Jorgensen","shortName":"M. Jorgensen"}]},
+{"type":{"id":"2","text":"conversion"},"clock":{"value":2830,"displayValue":"48'"},"team":{"id":"6"},"athletesInvolved":[{"id":"291587","displayName":"Ryan Lonergan","shortName":"R. Lonergan"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":2997,"displayValue":"50'"},"team":{"id":"4"},"athletesInvolved":[{"id":"294571","displayName":"Dewi Lake","shortName":"D. Lake"}]},
+{"type":{"id":"2","text":"conversion"},"clock":{"value":3050,"displayValue":"51'"},"team":{"id":"4"},"athletesInvolved":[{"id":"296836","displayName":"Sam Costelow","shortName":"S. Costelow"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":3267,"displayValue":"55'"},"team":{"id":"4"},"athletesInvolved":[{"id":"303220","displayName":"Blair Murray","shortName":"B. Murray"}]},
+{"type":{"id":"2","text":"conversion"},"clock":{"value":3326,"displayValue":"56'"},"team":{"id":"4"},"athletesInvolved":[{"id":"296836","displayName":"Sam Costelow","shortName":"S. Costelow"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":3797,"displayValue":"64'"},"team":{"id":"6"},"athletesInvolved":[{"id":"295396","displayName":"Len Ikitau","shortName":"L. Ikitau"}]},
+{"type":{"id":"2","text":"conversion"},"clock":{"value":3850,"displayValue":"65'"},"team":{"id":"6"},"athletesInvolved":[{"id":"297011","displayName":"Carter Gordon","shortName":"C. Gordon"}]},
+{"type":{"id":"3","text":"penalty goal"},"clock":{"value":4388,"displayValue":"74'"},"team":{"id":"6"},"athletesInvolved":[{"id":"297011","displayName":"Carter Gordon","shortName":"C. Gordon"}]},
+{"type":{"id":"5","text":"yellow card"},"clock":{"value":4657,"displayValue":"78'"},"team":{"id":"6"},"athletesInvolved":[{"id":"295393","displayName":"Harry Wilson","shortName":"H. Wilson"}]},
+{"type":{"id":"1","text":"try"},"clock":{"value":4735,"displayValue":"79'"},"team":{"id":"4"},"athletesInvolved":[{"id":"206131","displayName":"Ryan Elias","shortName":"R. Elias"}]}
+]}]}]}

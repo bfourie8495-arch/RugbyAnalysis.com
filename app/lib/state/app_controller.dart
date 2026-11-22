@@ -8,6 +8,7 @@ import '../models/alerts.dart';
 import '../models/chat.dart';
 import '../models/clubs.dart';
 import '../models/feeds.dart';
+import '../models/live.dart';
 import '../services/backend.dart';
 import '../services/chat_service.dart';
 import '../services/feed_service.dart';
@@ -17,10 +18,13 @@ import '../services/feed_service.dart';
 /// through [AppScope] and rebuild when it calls notifyListeners(), a bit like
 /// an observable object in Python UI code.
 class AppController extends ChangeNotifier {
-  AppController({required this.source, this.backend, ChatService? chat, this.enableAlerts, this.disableAlerts, this.refreshAlerts})
+  AppController({required this.source, this.backend, ChatService? chat, this.enableAlerts, this.disableAlerts, this.refreshAlerts, this.liveSource})
       : chat = chat ?? backend?.chat;
 
   final FeedSource source;
+
+  /// Live scores while a Test is on (null in tests: no polling).
+  final LiveSource? liveSource;
   final Backend? backend; // null: Firebase isn't set up, so everything stays on the phone
 
   /// Chat rooms; null without a connection to the server (chat needs one).
@@ -61,6 +65,79 @@ class AppController extends ChangeNotifier {
   }
 
   bool get ready => matchday != null && tournaments != null;
+
+  // ---------------------------------------------------------------- live scores
+  // While a Test in the fixtures is between 15 minutes before kick-off and 3 hours after, and the app is on
+  // screen, live.json is read every 30 seconds (the Worker keeps it 20 seconds, so this is close to ESPN).
+  // At any other time nothing is downloaded. When a game finishes, the matchday feed is read again every
+  // 5 minutes until its result replaces the fixture.
+
+  static const livePoll = Duration(seconds: 30);
+  static const _resultPoll = Duration(minutes: 5);
+
+  /// The latest live scores; null until a Test is on.
+  LiveFeed? live;
+  Timer? _liveTimer;
+  bool _foreground = true;
+  bool _polling = false;
+  DateTime? _fedAt; // when the matchday feed last loaded
+
+  Iterable<(Gender, Fixture)> get _allFixtures sync* {
+    final md = matchday;
+    if (md == null) return;
+    for (final g in Gender.values) {
+      for (final f in md.side(g).fixtures) {
+        yield (g, f);
+      }
+    }
+  }
+
+  /// A Test is on now (or about to be), so live scores are worth asking for.
+  bool liveWanted(DateTime now) => _allFixtures.any((x) => inLiveWindow(x.$2.kickOff, now));
+
+  /// This fixture's live score, once it has kicked off; null before, or when there's none.
+  LiveGame? liveFor(Gender g, Fixture f) {
+    final x = live?.find(g, f.home, f.away);
+    return x != null && x.started ? x : null;
+  }
+
+  /// The app came to the front (true) or went to the background (false): no polling in the background.
+  void setForeground(bool on) {
+    _foreground = on;
+    if (on) pollLive();
+  }
+
+  void _startLive() {
+    if (liveSource == null || _liveTimer != null) return;
+    _liveTimer = Timer.periodic(livePoll, (_) => pollLive());
+  }
+
+  /// One look at the live scores (the timer calls this every 30 seconds).
+  Future<void> pollLive({DateTime? now}) async {
+    final src = liveSource;
+    if (src == null || !_foreground || _polling) return;
+    final n = now ?? DateTime.now();
+    if (!liveWanted(n)) {
+      if (live != null) {
+        live = null;
+        notifyListeners();
+      }
+      return;
+    }
+    _polling = true;
+    try {
+      final j = await src.load();
+      if (j != null) {
+        live = LiveFeed.fromJson(j);
+        notifyListeners();
+      }
+    } finally {
+      _polling = false;
+    }
+    final finished = live?.games.where((x) => x.state == LiveState.fullTime) ?? const <LiveGame>[];
+    final waiting = finished.any((x) => _allFixtures.any((f) => f.$1 == x.gender && f.$2.home == x.home && f.$2.away == x.away));
+    if (waiting && !loading && (_fedAt == null || n.difference(_fedAt!) >= _resultPoll)) await refresh();
+  }
 
   static const _followsKey = 'follows';
   static const _alertsKey = 'alerts';
@@ -110,12 +187,15 @@ class AppController extends ChangeNotifier {
       final results = await Future.wait([source.load('matchday'), source.load('tournaments')]);
       matchday = MatchdayFeed.fromJson(results[0]);
       tournaments = TournamentsFeed.fromJson(results[1]);
+      _fedAt = DateTime.now();
     } catch (e) {
       error = 'Couldn’t load the latest rugby. Check your connection and pull down to try again.';
       debugPrint('Feeds: $e');
     }
     loading = false;
     notifyListeners();
+    _startLive();
+    if (live == null) unawaited(pollLive());
     await _loadClubs();
   }
 
@@ -366,6 +446,7 @@ class AppController extends ChangeNotifier {
   @override
   void dispose() {
     _roomsSub?.cancel();
+    _liveTimer?.cancel();
     super.dispose();
   }
 

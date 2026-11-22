@@ -1,6 +1,8 @@
 // The rugbyanalysis.com Worker. Pages come straight from ./site (Cloudflare serves those before this code
 // runs); this script only answers what isn't a file (a 404), and keeps the results timely.
 //
+// Live scores: /app/live.json is built here from ESPN while a Test is on (see live.js).
+//
 // Chat invites: /join/CODE is a small page that opens the app at that room (rugbyanalysis://app/join/CODE,
 // see the app's AndroidManifest.xml), or sends you to Google Play if you don't have it yet. It shows the code
 // too, for typing into the app by hand. The page says nothing about the room: the code is all there is.
@@ -13,6 +15,8 @@
 // Needs the secret GH_DISPATCH_TOKEN: a fine-grained GitHub token for this repository only, with
 // "Actions: read and write". It's passed in by .github/workflows/deploy.yml from the GitHub secret of the
 // same name. Without it, the check runs and logs, but starts nothing.
+
+import { liveResponse } from './live.js';
 
 const REPO = 'bfourie8495-arch/RugbyAnalysis.com';
 const FULL_TIME_MIN = 100;
@@ -114,8 +118,9 @@ export function countVisit(url, env) {
 }
 
 export default {
-  fetch: (request, env) => {
+  fetch: (request, env, ctx) => {
     const url = new URL(request.url);
+    if (url.pathname === '/app/live.json') return liveResponse(request, env, ctx);
     if (request.method === 'GET') countVisit(url, env);
     const m = CODE.exec(url.pathname);
     if (m) {

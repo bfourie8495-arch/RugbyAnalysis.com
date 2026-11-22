@@ -39,3 +39,28 @@ class WebFeedSource implements FeedSource {
     }
   }
 }
+
+/// Live scores (`/app/live.json`, see `lib/models/live.dart`). Never saved on the phone: an old live score is
+/// worse than none, so a failed download just returns null and the screens show the kick-off as before.
+abstract class LiveSource {
+  Future<Map<String, dynamic>?> load();
+}
+
+class WebLiveSource implements LiveSource {
+  WebLiveSource({this.url = 'https://rugbyanalysis.com/app/live.json', http.Client? client}) : _client = client ?? http.Client();
+
+  final String url;
+  final http.Client _client;
+
+  @override
+  Future<Map<String, dynamic>?> load() async {
+    try {
+      final res = await _client.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      if (res.statusCode != 200) return null;
+      return jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+    } catch (e) {
+      debugPrint('Live scores: $e');
+      return null;
+    }
+  }
+}
