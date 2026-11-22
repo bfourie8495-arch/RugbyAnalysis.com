@@ -13,6 +13,7 @@ minute or two. Nobody needs to touch anything.
 | Test results (men's; women's World Cup) | ESPN match centres |
 | Upcoming Test fixtures and model picks (men's and women's) | ESPN, World Rugby rankings |
 | Team match stats, line-ups, player stats | ESPN |
+| Play-by-play for Tests from 2026: every try, conversion, penalty, drop goal, card and replacement with its minute and player (`pipeline/espn_events.json`). It also fills blank tries, kicks, cards and try scorers in the results file, which matters for the Nations Championship, where ESPN publishes no team or player stats | ESPN (sports.core.api.espn.com) |
 | New players' height, weight, date of birth | ESPN |
 | World Rugby rankings (men and women) | World Rugby (Wikipedia's copy if World Rugby is down) |
 | Club results, fixtures and tables: URC, Premiership, Top 14, Super Rugby Pacific, Champions Cup, Challenge Cup, NPC | ESPN |
@@ -44,6 +45,22 @@ Actions tab.
 
 Cards are only filled in where Wikipedia records them; a page that notes cards
 for most of its matches is taken to list all of them.
+
+## Match trends (Nations Championship)
+
+`pipeline/match_trends.py` reads the play-by-play and works out, for a tournament edition: tries and points
+in each quarter of the game, how often the half-time leader and the first try scorer win, points while a
+yellow card is running, tries by forwards and backs, what each bench scores, comebacks, the top try and
+points scorers, plain-English headlines, and a side-by-side for every fixture still to play. It goes into
+each tournament in `site/app/tournaments.json` as `trends` (the app's tournament screen) and into the
+Match Centre, as a panel above the previews and a "This tournament's match data" box on each card.
+
+ESPN leaves penalty tries out of the play-by-play: when a side's events add up to 7 or 14 short of its
+result, the missing penalty tries are added with no minute. A game whose events still don't match its
+result is left out and named in the run's log.
+
+Home advantage in the model's picks (and the ranking-swing preview) only goes to a side playing in its own
+country, so on finals weekend at Twickenham only England get it. Such fixtures carry `"n": 1`.
 
 ## Folder layout
 

@@ -57,13 +57,32 @@ function stakes(f){const hi=f.hi,ai=f.ai,out=[];
     if(T.kind==="bilateral"&&T.teams.includes(f.h)&&T.teams.includes(f.a)&&(!T.comp||new RegExp(T.comp).test(f.c))){const o=trophyState(T);
       out.push(`<b>${esc(T.name)}</b>: ${o.holder!=null&&o.holder>=0?`${tname(o.holder)} hold it.`:"currently vacant."} ${o.tx}`)}
     if(T.kind==="lineal"){const o=trophyState(T);if(o.holder===hi||o.holder===ai)out.push(`<b>${esc(T.name)}</b> (rugby's unofficial ${WOMEN()?"women's ":""}world title) is on the line: ${tname(o.holder)} hold it and keep it with a win or a draw.`)}});
-  const w=wrSwing(hi,ai,false);
+  const w=wrSwing(hi,ai,!!f.n);  // f.n: neither side at home (e.g. finals weekend at Twickenham for all but England)
   if(w)out.push(`<b>World Rugby rankings</b>: victory is worth +${w.hw.g.toFixed(2)} pts to ${f.h} (${w.hw.p===w.rh.pos?`stays ${ord(w.hw.p)}`:`moves to ${ord(w.hw.p)}`}) and +${w.aw.g.toFixed(2)} pts to ${f.a} (${w.aw.p===w.ra.pos?`stays ${ord(w.aw.p)}`:`moves to ${ord(w.aw.p)}`}), 1.5× for a win by more than 15.`);
   if(!WOMEN()&&/Nations Championship/.test(f.c)&&typeof PROJ!=="undefined"){const best=n=>{let b=null;Object.entries(PROJ).forEach(([k,L])=>L.forEach(([t,p])=>{if(t===n&&(!b||p>b.p))b={k,p}}));return b};
     const s=[f.h,f.a].map(n=>{const b=best(n);return b?`${n} most likely ${ord(+b.k.slice(1))} in the ${b.k[0]==="N"?"North":"South"} (${b.p}%)`:null}).filter(Boolean);
     if(s.length)out.push(`<b>Finals weekend seeding</b>: ${s.join("; ")}. Each finishing place plays its mirror at Twickenham.`)}
   [hi,ai].forEach(i=>{(PLY.sq[GX()+":"+ALL[i].name]||[]).forEach(r=>{const c=r[3]+1;if(c>=50&&c%50===0)out.push(`<b>Milestone</b>: ${esc(r[0])} would win a ${ord(c)} cap for ${tname(i)} if selected.`)})});
   return out}
+
+// Nations Championship trends from the play-by-play (TRENDS, built by match_trends.py): every try, kick, card and
+// replacement with its minute, so we can say when each side scores, what the bench adds and what cards cost
+const trendsFor=f=>!WOMEN()&&TRENDS&&/Nations Championship/.test(f.c)?(TRENDS.matchups||[]).find(m=>m.h===f.h&&m.a===f.a):null;
+function trendsHTML(f){const m=trendsFor(f);if(!m)return "";
+  const keep=["Points a game","Conceded a game","First 20 min (for–against)","Last 20 min (for–against)","Tries by forwards","Bench points","Cards (yellow, red)"];
+  const rows=m.rows.filter(r=>keep.includes(r[0]));
+  return `<section class="mct mctr"><h3>This tournament's match data</h3>${m.talk.length?`<p class="mdlead">${esc(m.talk[0])}</p>${m.talk.slice(1,3).map(t=>`<p class="mdp">${esc(t)}</p>`).join("")}`:""}
+    <div class="tscroll"><table class="mini mdtr"><thead><tr><th></th><th class="num">${esc(f.h)}</th><th class="num">${esc(f.a)}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td class="num">${esc(String(r[1]))}</td><td class="num">${esc(String(r[2]))}</td></tr>`).join("")}</tbody></table></div>
+    <p class="hint">From the minute-by-minute record of ${TRENDS.games} of the ${TRENDS.of} games so far: tries, kicks, cards and replacements.</p></section>`}
+function renderTrends(feat){const box=$("mdTrends"),T=TRENDS;
+  if(WOMEN()||!T||!feat.some(f=>trendsFor(f))){box.hidden=true;return}
+  const q=T.windows.map((w,k)=>`<div class="trq"><span class="trw">${w}′</span><div class="trb"><i style="width:${Math.round(100*T.triesQ[k]/Math.max(...T.triesQ))}%"></i></div><b>${T.triesQ[k]}</b></div>`).join("");
+  const top=(L,u)=>L.slice(0,5).map(([n,t,v],j)=>`<div class="mli"><span class="r">${j+1}</span><span>${fl(idx(t))}${esc(n)}</span><b>${v}</b></div>`).join("");
+  box.hidden=false;
+  box.innerHTML=`<h2>Nations Championship ${T.season||""}: what ${T.games} games of match data say</h2>
+  <p class="hint">Every try, conversion, penalty, card and replacement with its minute, from ESPN's match records. Updated after each game.</p>
+  <div class="trgrid"><div><ul class="mdst">${T.insights.slice(0,10).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+  <div><h3 class="trh">Tries by quarter</h3>${q}<h3 class="trh">Top try scorers</h3>${top(T.tryScorers)}<h3 class="trh">Most points</h3>${top(T.pointsScorers)}</div></div>`}
 
 // Players to watch: from each side's latest named squad, the standout numbers in the Tests we hold player stats for
 function watch(i){const sq=PLY.sq[GX()+":"+ALL[i].name];if(!sq)return[];const rows=sq.filter(r=>r[5]>=0).map(r=>({r,p:PP[r[5]]})).filter(o=>o.p[14]>=5);
@@ -98,6 +117,7 @@ function mdCard(f,now){const hi=f.hi,ai=f.ai,G=meetings(M,hi,ai),V=G.map(m=>view
     ${sto?`<section class="mct mcsto"><h3>The rivalry</h3><p class="mdp">${esc(sto)}</p></section>`:""}
     <section class="mct"><h3>Head to head</h3>${hist}</section>
     <section class="mct mcins"><h3>Insight from the data</h3>${ins.length?`<p class="mdlead">${ins[0].t}</p>${ins.slice(1,3).map(x=>`<p class="mdp">${x.t}</p>`).join("")}`:`<p class="hint">Not enough shared history for an insight yet.</p>`}</section>
+    ${trendsHTML(f)}
     <section class="mct"><h3>What's on the line</h3>${st.length?`<ul class="mdst">${st.map(s=>`<li>${s}</li>`).join("")}</ul>`:`<p class="hint">Nothing beyond the result.</p>`}</section>
     <section class="mct"><h3>Players to watch</h3><div class="mdpw"><div><div class="mdpt">${fl(hi)} ${f.h}</div>${watchHTML(hi)}</div><div><div class="mdpt">${fl(ai)} ${f.a}</div>${watchHTML(ai)}</div></div></section>
   </div>
@@ -112,6 +132,7 @@ function renderMatchday(){const now=Date.now(),items=upcoming(),Wm=WOMEN();
   $("heroSub").textContent=feat.length?`Previews of the next ${feat.length===1?(Wm?"women's Test":"Test"):feat.length+(Wm?" women's Tests":" Tests")}: the model's pick, the head-to-head history, a stand-out number, what's at stake and the players to watch. Times are in your time zone (${TZ}).`:`No upcoming ${Wm?"women's ":""}Tests in the fixture list yet.`;
   $("rank").innerHTML=nxt?`<div><div class="lbl">Next kick-off</div><div class="holder" style="font-size:22px">${nxt.h} v ${nxt.a}</div><div class="pts">${fD.format(nxt.t)}, ${fT.format(nxt.t)} · in ${untilTxt(nxt.t-now)}</div></div>`:"";
   $("mdWomen").hidden=!Wm;
+  renderTrends(feat);
   $("mdCards").innerHTML=feat.map(f=>mdCard(f,now)).join("")||`<section class="panel"><p class="hint">No upcoming ${Wm?"women's ":""}fixtures yet. The daily data run adds them as soon as they are announced.${Wm?` In the meantime, the team pages and head to head cover every women's Test since 1982.`:""}</p></section>`;
   $("mdLater").innerHTML=rest.slice(0,10).map(f=>{const pick=f.p>=.5?[f.h,f.p]:[f.a,1-f.p];return `<a class="mdlr" href="${h2hHref(f.hi,f.ai)}"><span class="dt">${fD.format(f.tbc?new Date(f.d+"T12:00:00"):f.t)}</span><span class="tms">${fl(f.hi)} ${f.h} v ${f.a} ${fl(f.ai)}</span><span class="pk">Pick: <b>${pick[0]}</b> ${Math.round(pick[1]*100)}%</span><span class="go">Head to head →</span></a>`}).join("")||`<p class="hint">Nothing else scheduled yet.</p>`;
   $("mdLaterWrap").hidden=!rest.length;

@@ -9,6 +9,7 @@ import '../widgets/common.dart';
 import '../widgets/standings.dart';
 import '../widgets/insights.dart';
 import '../widgets/stats.dart';
+import '../widgets/trends.dart';
 import 'match_screen.dart';
 import 'team_screen.dart';
 import 'tournaments_screen.dart';
@@ -54,6 +55,7 @@ class TournamentScreen extends StatelessWidget {
               TitleMovesSection(tournament: t),
               if (t.sim != null) ..._predictions(context, c, t),
               TournamentStatsSection(tournament: t),
+              TrendsSection(tournament: t),
               if (t.fixtures.isNotEmpty) ...[
                 SectionTitle('Still to play', note: '${t.fixtures.length} matches'),
                 _list([

@@ -11,6 +11,7 @@ yellow warning instead of stopping the rest of the site build."""
 import json, os, re, datetime, collections, random, statistics
 from zoneinfo import ZoneInfo
 import pandas as pd
+import match_trends
 
 OUT = os.path.join('..', 'site', 'app', 'tournaments.json')
 TODAY = datetime.date.today().isoformat()
@@ -250,6 +251,7 @@ def build_tournament(cfg, RES, FX):
            'checked': cfg.get('checked', True), 'played': len(ed), 'last': ed.date.max(),
            'results': res_list(ed)[-12:], 'fixtures': fx[:18]}
     if (st := comp_stats(ed)): out['stats'] = st
+    if (tr := match_trends.build(list(ed.sort_values('date').itertuples()), fx)): out['trends'] = tr  # from the play-by-play
     if out['fmt'] == 'series':
         S = series(ed)
         out['teams'] = {t: S[t] for t in sorted(S, key=lambda t: (-S[t]['w'], -(S[t]['pf'] - S[t]['pa'])))}

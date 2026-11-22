@@ -582,6 +582,56 @@ class CompStats {
   final int scorersFrom; // how many of the games name their try scorers
 }
 
+/// Trends from the play-by-play (every try, kick, card and replacement with its minute):
+/// headlines for the tournament, tries by quarter, top scorers, and a side-by-side for each fixture to come.
+/// Built by `pipeline/match_trends.py`; only tournaments whose games have play-by-play carry it.
+class MatchTrends {
+  MatchTrends.fromJson(Map<String, dynamic> j)
+      : games = _int(j['games']),
+        of = _int(j['of']),
+        windows = [for (final w in _list(j['windows'])) _str(w)],
+        triesByQuarter = [for (final x in _list(j['triesQ'])) _int(x)],
+        insights = [for (final x in _list(j['insights'])) _str(x)],
+        tryScorers = [for (final s in _list(j['tryScorers'])) if (s is List && s.length >= 3) (player: _str(s[0]), team: _str(s[1]), n: _int(s[2]))],
+        pointsScorers = [for (final s in _list(j['pointsScorers'])) if (s is List && s.length >= 3) (player: _str(s[0]), team: _str(s[1]), n: _int(s[2]))],
+        matchups = [for (final m in _list(j['matchups'])) TrendsMatchup.fromJson(_map(m))];
+
+  final int games; // games with play-by-play
+  final int of; // games played
+  final List<String> windows; // '1–20', '21–40', ...
+  final List<int> triesByQuarter;
+  final List<String> insights; // most striking first
+  final List<({String player, String team, int n})> tryScorers;
+  final List<({String player, String team, int n})> pointsScorers;
+  final List<TrendsMatchup> matchups;
+
+  TrendsMatchup? matchup(String home, String away) {
+    for (final m in matchups) {
+      if (m.home == home && m.away == away) return m;
+    }
+    return null;
+  }
+}
+
+/// Two teams side by side from the play-by-play: rows of [label, home value, away value] and talking points.
+class TrendsMatchup {
+  TrendsMatchup.fromJson(Map<String, dynamic> j)
+      : home = _str(j['h']),
+        away = _str(j['a']),
+        rows = [
+          for (final r in _list(j['rows']))
+            if (r is List && r.length >= 3) (label: _str(r[0]), home: _cell(r[1]), away: _cell(r[2]))
+        ],
+        talk = [for (final t in _list(j['talk'])) _str(t)];
+
+  final String home;
+  final String away;
+  final List<({String label, String home, String away})> rows;
+  final List<String> talk;
+
+  static String _cell(Object? x) => x is num ? (x == x.roundToDouble() ? x.toInt().toString() : x.toString()) : _str(x);
+}
+
 enum TournamentStatus { live, next, done }
 
 class Tournament {
@@ -607,6 +657,7 @@ class Tournament {
         results = [for (final r in _list(j['results'])) Result.fromJson(_map(r))],
         sim = j['sim'] is Map ? GroupSim.fromJson(_map(j['sim'])) : null,
         stats = j['stats'] is Map ? CompStats.fromJson(_map(j['stats'])) : null,
+        trends = j['trends'] is Map ? MatchTrends.fromJson(_map(j['trends'])) : null,
         moves = j['moves'] is Map ? TitleMoves.fromJson(_map(j['moves'])) : null;
 
   final String id;
@@ -624,6 +675,7 @@ class Tournament {
   final List<Result> results; // oldest first
   final GroupSim? sim;
   final CompStats? stats;
+  final MatchTrends? trends;
   final TitleMoves? moves;
 
   /// Every team's played, points for and against, from the tables or the series records.
