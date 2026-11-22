@@ -10,6 +10,9 @@
   "assets": { "directory": "./site", "binding": "ASSETS", "run_worker_first": ["/", "/go", "/getapp", "/clubs", "/sevens", "/app/live.json"] },
   // Visits by source: the tag and the page only. No cookies, no IP address, nothing about the visitor.
   "analytics_engine_datasets": [{ "binding": "VISITS", "dataset": "rugby_visits" }],
+  // Cloudflare builds a preview of every pull request (Workers Builds, "wrangler preview"), which refuses to start
+  // unless each binding has a preview-safe copy. Previews count visits into their own dataset, never the real one.
+  "previews": { "analytics_engine_datasets": [{ "binding": "VISITS", "dataset": "rugby_visits_preview" }] },
   "triggers": { "crons": ["*/15 * * * *"] },
   "observability": { "enabled": true }
 }
