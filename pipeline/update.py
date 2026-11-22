@@ -105,6 +105,21 @@ TZ = {'England': 'Europe/London', 'Scotland': 'Europe/London', 'Wales': 'Europe/
 VENUE_COUNTRY_FIX = {'USA': 'United States', 'United States of America': 'United States', 'UK': 'England'}
 
 
+def home_cities(*dfs):
+    """City -> the nation that plays its home Tests there, from past results (neutral games left out)."""
+    hc = {}
+    for df in dfs:
+        for r in df[(df.country != '') & (df.neutral == 'FALSE')].itertuples():
+            hc.setdefault(r.city.lower(), r.country)
+    return hc
+
+
+def home_edge(h, a, country):
+    """Home advantage in ranking points for the side listed first: 3 at home, -3 at the other side's ground, 0 on
+    neutral ground (finals weekend at Twickenham is neutral for everyone but England)."""
+    return 3 if country == h else -3 if country == a else 0
+
+
 def nat(name):
     women = name.endswith(' Women')
     n = name.replace(' Women', '')
@@ -160,6 +175,7 @@ def update_tests(rank_pts):
     have_stats = {r[1] for r in stats}
     fixtures, added = [], {'m': 0, 'w': 0}
     rank_w = {n: v[1] for n, v in jload('rankw.json', {}).items()}  # written by update_rankings just before
+    home_city = home_cities(men, wom)
     new_ath = set()
     start, end = TODAY - dt.timedelta(days=LOOKBACK), TODAY + dt.timedelta(days=AHEAD)
 
@@ -186,13 +202,16 @@ def update_tests(rank_pts):
             an, aw = nat(away['team']['displayName'])
             women = hw or aw or lg == '289237'
             venue = comp.get('venue') or {}
-            vcountry = VENUE_COUNTRY_FIX.get((venue.get('address') or {}).get('country'), (venue.get('address') or {}).get('country')) or hn
+            vcity = (venue.get('address') or {}).get('city') or ''
+            # ESPN often leaves the venue's country out: then the city's usual home side, then the listed home side
+            vcountry = VENUE_COUNTRY_FIX.get((venue.get('address') or {}).get('country'), (venue.get('address') or {}).get('country')) \
+                or home_city.get(vcity.lower()) or hn
             # Not finished yet (to come, or being played: kept as a fixture so it doesn't vanish from the app until its result is in)
             if st.get('state') == 'pre' or (st.get('state') == 'in' and not st.get('completed')):
                 rp = rank_w if women else rank_pts
                 if hn in NAMES and an in NAMES and (hn in rp or an in rp):
                     rh, ra = rp.get(hn, 50), rp.get(an, 50)
-                    homeadv = 0 if comp.get('neutralSite') else 3
+                    homeadv = 0 if comp.get('neutralSite') else home_edge(hn, an, vcountry)
                     p = 1 / (1 + 10 ** (-(rh + homeadv - ra) / 10 * 0.6))
                     city = (venue.get('address') or {}).get('city') or ''
                     fixtures.append({'ko': e['date'][:16] + ':00Z' if comp.get('timeValid', True) else None, 'd': e['date'][:10], 'h': hn, 'a': an,
@@ -524,10 +543,7 @@ def update_wiki_tests():
     rank = {'m': {l.split('|')[1]: float(l.split('|')[2]) for l in open('rank30.txt', encoding='utf-8') if l.strip()},
             'w': {n: v[1] for n, v in jload('rankw.json', {}).items()}}
     # where each nation plays its home Tests, to tell home games from neutral ones
-    home_city = {}
-    for df in (men, wom):
-        for r in df[(df.country != '') & (df.neutral == 'FALSE')].itertuples():
-            home_city.setdefault(r.city.lower(), r.country)
+    home_city = home_cities(men, wom)
     years = sorted({TODAY.year, (TODAY - dt.timedelta(days=LOOKBACK)).year})
     fixtures, added, filled = [], {'m': 0, 'w': 0}, 0
     for g, pages in WIKI_TESTS.items():
@@ -548,7 +564,7 @@ def update_wiki_tests():
                             rp = rank[g]
                             if h in rp or a in rp:
                                 rh, ra = rp.get(h, 50), rp.get(a, 50)
-                                p = 1 / (1 + 10 ** (-(rh + 3 - ra) / 10 * 0.6))
+                                p = 1 / (1 + 10 ** (-(rh + home_edge(h, a, home_city.get((m['city'] or '').lower(), h)) - ra) / 10 * 0.6))
                                 fixtures.append({'ko': _ko(m), 'd': m['date'], 'h': h, 'a': a, 'c': page[5:] if page[:4].isdigit() else page,
                                                  'v': ', '.join(x for x in [m['stadium'], m['city']] if x) or 'Venue TBC', 'p': round(p, 2),
                                                  **({'g': 'w'} if g == 'w' else {}), 'src': 'wiki'})
