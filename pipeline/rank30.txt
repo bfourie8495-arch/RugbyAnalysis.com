@@ -1,30 +1,30 @@
-1|South Africa|91.53
-2|New Zealand|90.65
-3|France|89.05
-4|Ireland|88.7
-5|England|86.99
+1|South Africa|90.25
+2|Ireland|89.98
+3|France|89.51
+4|England|89.04
+5|New Zealand|88.6
 6|Scotland|85.28
-7|Australia|82.24
-8|Argentina|82.09
-9|Wales|79.37
-10|Fiji|77.79
-11|Italy|75.84
-12|Japan|75.25
-13|Georgia|74.23
-14|United States|68.39
+7|Australia|82.96
+8|Argentina|81.63
+9|Wales|78.66
+10|Fiji|78.59
+11|Japan|75.25
+12|Italy|75.03
+13|Georgia|74.86
+14|Samoa|68.94
 15|Portugal|68.24
-16|Samoa|67.6
-17|Chile|67.0
-18|Spain|66.53
-19|Tonga|65.58
+16|United States|67.77
+17|Chile|67.07
+18|Tonga|66.01
+19|Spain|65.19
 20|Uruguay|65.17
-21|Canada|63.38
+21|Canada|64.15
 22|Belgium|62.0
-23|Romania|61.13
-24|Hong Kong|58.46
-25|Zimbabwe|57.71
+23|Romania|60.36
+24|Hong Kong|58.03
+25|Zimbabwe|57.64
 26|Netherlands|56.44
 27|Namibia|56.03
-28|Switzerland|55.47
-29|Czech Republic|55.42
-30|Poland|54.54
+28|Czech Republic|55.42
+29|Poland|54.54
+30|Switzerland|53.48
